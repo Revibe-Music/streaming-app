@@ -1,0 +1,6 @@
+module react_native_youtube {
+  umbrella header "react-native-youtube-umbrella.h"
+
+  export *
+  module * { export * }
+}

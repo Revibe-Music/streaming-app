@@ -1,0 +1,6 @@
+module react_native_music_control {
+  umbrella header "react-native-music-control-umbrella.h"
+
+  export *
+  module * { export * }
+}

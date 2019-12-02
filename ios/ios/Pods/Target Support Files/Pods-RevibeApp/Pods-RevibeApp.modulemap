@@ -1,0 +1,6 @@
+module Pods_RevibeApp {
+  umbrella header "Pods-RevibeApp-umbrella.h"
+
+  export *
+  module * { export * }
+}
