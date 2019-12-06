@@ -14,6 +14,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import { shuffleSongs } from './../../redux/audio/actions'
 import SpotifySongs from "./../../components/libraries/spotifySongs";
 import YouTubeSongs from "./../../components/libraries/youtubeSongs";
+import RevibeSongs from "./../../components/libraries/revibeSongs";
 import LibraryList from "./../../components/lists/libraryList";
 import ArtistList from "./../../components/lists/artistList";
 import AlbumList from "./../../components/lists/albumList";
@@ -61,7 +62,7 @@ class Library extends Component {
   }
 
   filter(type, text) {
-    var platformNames = Object.keys(this.props.platforms).filter(x => x!=="Revibe")
+    // var platformNames = Object.keys(this.props.platforms).filter(x => x!=="Revibe")
     var filteredPlatformData = {}
     for(var x=0; x<platformNames.length; x++) {
       filteredPlatformData[platformNames[x]] = this.props.platforms[platformNames[x]].filterData(type, text)
@@ -98,8 +99,11 @@ class Library extends Component {
       if(platform === "Spotify") {
         return (<SpotifySongs filtering={this.state.filtering} navigation={this.props.navigation} />)
       }
-      else {
+      else if(platform === "YouTube") {
         return (<YouTubeSongs filtering={this.state.filtering} navigation={this.props.navigation} />)
+      }
+      else {
+        return (<RevibeSongs filtering={this.state.filtering} navigation={this.props.navigation} />)
       }
     }
   }
@@ -143,6 +147,9 @@ class Library extends Component {
         }
         <Tab heading="YouTube" style={styles.tab} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
           {this.renderMedia("YouTube")}
+        </Tab>
+        <Tab heading="Revibe" style={styles.tab} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
+          {this.renderMedia("Revibe")}
         </Tab>
         </Tabs>
       </Container>

@@ -13,6 +13,7 @@ import SongInfo from "./../audioControls/songInfo";
 import Scrubber from "./../audioControls/scrubber";
 import ImageSwiper from "./../audioControls/imageSwiper";
 import VideoPlayer from "./../audioControls/videoPlayer";
+import RevibePlayer from "./../audioControls/revibePlayer";
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import OfflineNotice from './../offlineNotice/index';
 import styles from "./styles";
@@ -98,8 +99,16 @@ class Player extends Component {
 
 
     playerTop() {
-      var platformIconName = this.props.activePlatform.toLowerCase()
-      var platformIconColor = platformIconName === "spotify" ? "#1DB954" : "red"
+      if(this.props.activePlatform.toLowerCase() === "spotify") {
+        var platformIcon = <Icon type="FontAwesome5" name="spotify" style={[styles.logo, {color: "#1DB954"}]} />
+      }
+      else if(this.props.activePlatform.toLowerCase() === "youtube") {
+        var platformIcon = <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red"}]} />
+      }
+      else {
+        var platformIcon = <Image source={require('./../../../assets/revibe_logo.png')} />
+      }
+
 
       if(this.state.playerVisible) {
         return (
@@ -117,7 +126,7 @@ class Player extends Component {
               </Body>
               <Right>
               <View style={styles.logoContainer}>
-              <Icon type="FontAwesome5" name={platformIconName} style={[styles.logo, {color: platformIconColor}]} />
+              {platformIcon}
               </View>
               </Right>
             </Header>
@@ -138,7 +147,7 @@ class Player extends Component {
         }
       }
       else {
-        return (<VideoPlayer 
+        return (<VideoPlayer
                 playerVisible={this.state.playerVisible}
                 ref={(player) => {this.videoPlayer = player;}}
                 />

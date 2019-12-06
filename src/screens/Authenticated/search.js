@@ -38,7 +38,7 @@ class Search extends Component {
           this.setState({ loading: true });
           var platformsFetching = []
           var platformNames = Object.keys(this.props.platforms)
-          platformNames = platformNames.filter(x => x!=="Revibe")
+          platformNames = platformNames.filter(x => x=="Revibe")
 
           for(var x=0; x<platformNames.length; x++) {
             platformsFetching.push(this.props.platforms[platformNames[x]].search(text))
@@ -80,7 +80,7 @@ class Search extends Component {
 
   availablePlatforms() {
     var platformNames = Object.keys(this.props.platforms)
-    platformNames = platformNames.filter(x => x!=="Revibe")
+    // platformNames = platformNames.filter(x => x!=="Revibe")
     if(platformNames.length > 2) {
       searchablePlatforms = platformNames.slice(0, platformNames.length-1).join(", ") + " & " + platformNames[platformNames.length-1]
     }
@@ -180,6 +180,33 @@ class Search extends Component {
                 :
                  null
                }
+               {this.state.revibeResults.songs.length > 0 ?
+                 <View>
+                 <Image
+                   style={styles.searchPlatformLogo}
+                   source={require("../../../assets/revibetransparent.png")}
+                 />
+                 <SearchSongList
+                   results={this.state.revibeResults.songs}
+                   platform={this.props.platforms["Revibe"]}
+                   navigation={this.props.navigation}
+                 />
+                 </View>
+               :
+               <>
+               {this.state.didSearch ?
+                 <View>
+                   <Image
+                     style={styles.searchPlatformLogo}
+                     source={require("../../../assets/revibetransparent.png")}
+                   />
+                   <Text style={styles.searchNoResults}> No Results </Text>
+                 </View>
+                 :
+                 null
+               }
+               </>
+               }
                 {this.state.youtubeResults.songs.length > 0 ?
                   <View>
                   <Image
@@ -207,6 +234,8 @@ class Search extends Component {
                 }
                 </>
                 }
+
+
                 </Content>
 
                 </Tab>

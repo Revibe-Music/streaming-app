@@ -32,6 +32,8 @@ export default {
       fontSize: hp("4%"),
     },
     albumArtContainer: {
+      minHeight: 1,
+      minWidth: 1,
       height: wp("80%"),
     },
     controls: {
