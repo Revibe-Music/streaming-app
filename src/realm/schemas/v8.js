@@ -61,7 +61,19 @@ export const SongSchema = {
   }
 };
 
-
+// id
+// uri
+// file
+// title
+// album
+// duration
+// platform
+// contributors
+// uploaded_by
+// uploaded_date
+// genre
+// is_displayed
+// is_deleted
 
 export const AlbumSchema = {
   name: "Album",
