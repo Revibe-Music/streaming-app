@@ -4,11 +4,6 @@
 * version that requires migrations
 */
 
-import Spotify from 'rn-spotify-sdk';
-import YouTubeAPI from './../../api/youtube'
-import { IP } from './../../config'
-
-
 export const Profile = {
   name: "Profile",
   properties: {
@@ -16,13 +11,15 @@ export const Profile = {
     lastName: "string?",
     username: "string",
     email: "string",
-    tokens: "Credential[]"
+    tokens: "Token[]",
+    birthday: "date?",
+    country: "string?"
   }
 };
 
 // will store Revibe, Spotify, and youtube tokens
 export const TokenSchema = {
-  name: "Credential",
+  name: "Token",
   properties: {
     platform: "string",
     accessToken:  'string',
@@ -31,49 +28,20 @@ export const TokenSchema = {
   }
 };
 
-export const LibrarySchema = {
-  name: "Library",
-  properties: {
-    platform: "string",
-    songs: "Song[]",
-  }
-};
-
-export const PlaylistSchema = {
-  name: "Playlist",
-  properties: {
-    name: "string",
-    songs: "Song[]",
-  }
-};
-
 export const SongSchema = {
   name: "Song",
   properties: {
     id: "string", // this may be the same as uri for youtube
     uri: "string",
+    file: "string?",
     title: "string",
-    Contributors: "Contributor[]",
     Album: "Album?",
-    dateSaved: "date?",
+    Contributors: "Contributor[]",
     duration: "int?",
     platform: "string",
+    uploaded_date: "date"
   }
 };
-
-// id
-// uri
-// file
-// title
-// album
-// duration
-// platform
-// contributors
-// uploaded_by
-// uploaded_date
-// genre
-// is_displayed
-// is_deleted
 
 export const AlbumSchema = {
   name: "Album",
@@ -82,7 +50,10 @@ export const AlbumSchema = {
     name: "string",
     id: "string", // could be artist of channel
     uri: "string",
-    images: "Image[]"
+    images: "Image[]",
+    platform: "string",
+    type: "string",
+    uploaded_date: "date"
   }
 };
 
@@ -92,7 +63,8 @@ export const ArtistSchema = {
     name: "string",
     id: "string", // could be artist of channel
     uri: "string",
-    images: "Image[]"
+    images: "Image[]",
+    platform: "string",
   }
 };
 
@@ -101,6 +73,30 @@ export const ContributorSchema = {
   properties: {
     contributionType: {type: "string", default: "Artist"},
     artist: "Artist",
+  }
+};
+
+export const LibrarySchema = {
+  name: "Library",
+  properties: {
+    platform: "string",
+    songs: "SavedSong[]",
+  }
+};
+
+export const PlaylistSchema = {
+  name: "Playlist",
+  properties: {
+    name: "string",
+    songs: "SavedSong[]",
+  }
+};
+
+export const SavedSongSchema = {
+  name: "SavedSong",
+  properties: {
+    song: "Song",
+    dateSaved: "date?",
   }
 };
 

@@ -44,11 +44,11 @@ export default class Platform {
     return credential
   }
 
-  async silentLogin() {
+  async refreshToken() {
     var credential, currentCredentials;
       try {
         currentCredentials = this.getCredentials()
-        credential = await this.api.silentLogin(currentCredentials);
+        credential = await this.api.refreshToken(currentCredentials);
         console.log("Credentials",credential);
         if(credential !== null) {
           this.updateCredentials(credential.accessToken, String(credential.expireTime), credential.refreshToken);

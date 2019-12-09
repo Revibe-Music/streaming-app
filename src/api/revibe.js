@@ -1,6 +1,8 @@
 import { GoogleSignin } from '@react-native-community/google-signin';
 import Sound from 'react-native-sound';
 import { IP } from './../config'
+import realm from './../realm/realm';
+
 
 Sound.setCategory('Playback');
 
@@ -9,11 +11,19 @@ export default class RevibeAPI {
 
   constructor() {
     this.platformType = "private";
+    try{
+      this.token = realm.objects('Token').filtered(`platform = "Revibe"`)
+    }
+    catch(error) {
+      this.token = null
+    }
   }
 
-  async _request(endpoint, method, body, headers={}) {
-    headers['Accept'] = 'application/json'
-    headers['Content-Type'] = 'application/json'
+  async _request(endpoint, method, body, authenticated=false) {
+    var headers = {'Accept': 'application/json', 'Content-Type': 'application/json' }
+    if (authenticated) {
+      headers['Authorization'] = `Bearer ${this.token.accessToken}`
+    }
     var request;
     try {
       if(method === "GET") {
@@ -26,115 +36,59 @@ export default class RevibeAPI {
       return await response.json();
     }
     catch(error) {
-      return {key: null, error: error}
+      return {error: error}
     }
-
-  }
-
-  _initializeGoogle() {
-    GoogleSignin.configure({
-      scopes: ['profile email'],
-      webClientId: '1002979895434-pkqjm05f8u7nqbamln5n1d50s9vvueat.apps.googleusercontent.com',
-      offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
-      forceConsentPrompt: false, // [Android] if you want to show the authorization prompt at each login.
-    });
   }
 
   async signup(body) {
-    // params ex: {firstName: Riley, lastName: Stephens, email: riley,stephens28@gmail.com, password: Test123 }
-    var response = await this._request("api/accounts/signup/", "POST", body)
-    // console.log(response);
-    if(response.key) {
-      return {accessToken:response['key']};
-    }
-    else {
-      return response
-    }
+    /*
+    * Params
+  	* username: string
+  	* password: string
+  	* first_name: string
+  	* last_name: string
+  	* email: string
+  	* profile: {
+  	* 	image: file,
+  	* 	counrty: string
+  	* }
+    */
 
-  }
-
-  async signupWithGoogle() {
-    try {
-      await GoogleSignin.signOut()
-
-      // go through google sign in flow client side then on revibe server,
-      this._initializeGoogle();
-      var userInfo = await GoogleSignin.signIn();
-      var response = await this._request("api/accounts/google-authentication/", "POST", {access_token: userInfo.idToken, code: userInfo.serverAuthCode})
-
-      // make request to revibe to save first and last name of user in database
-      let headers = {Authorization: `Token ${response['key']}`}
-      let body = {first_name: userInfo.user.givenName, last_name: userInfo.user.familyName}
-      await this._request("api/accounts/edit-name/", "POST", body, headers)
-      return {accessToken: response['key']};
-    }
-    catch (error) {
-      console.log("Error in 'Revibe.signupWithGoogle': "+ error);
-    }
+    return await this._request("account/register/", "POST", body)
   }
 
   async login(body) {
-    // params ex: {email: riley,stephens28@gmail.com, password: Test123 }
-    try {
-
-      var response = await this._request("api/accounts/login/", "POST", body)
-      // console.log(response);
-      if(response.key) {
-        return {accessToken:response['key']};
-      }
-      else {
-        console.log(response);
-        return response
-      }
-    }
-    catch(error) {
-      console.log(error);
-    }
-
+    /*
+    * Params
+  	* username: string
+  	* password: string
+    */
+    return await this._request("account/login/", "POST", body)
   }
 
-  silentLogin() {
-    console.log("NOO");
-  }
-
-  async loginWithGoogle() {
-    try {
-      await GoogleSignin.signOut()
-      this._initializeGoogle();
-      var userInfo = await GoogleSignin.signIn();
-
-      let body = {access_token: userInfo.idToken, code: userInfo.serverAuthCode}
-      var response = await this._request("api/accounts/google-authentication/", "POST", body)
-      return {accessToken: response['key']};
-    }
-    catch (error) {
-      console.log("Error in 'Revibe.loginWithGoogle': "+ error);
-    }
+  refreshToken(body) {
+    /*
+    * Params
+  	* refresh_token: string
+    */
+    return await this._request("account/token/refresh/", "POST", body, authenticated=true)
   }
 
   async logout() {
-     // Need to logout server side or with google depending on how use signed in
-
-     // this._initializeGoogle();
-     // await GoogleSignin.signOut();
+    /*
+    * Params
+  	* access_token: string
+    */
+      return await this._request("account/logout/", "POST", body, authenticated=true)
   }
-
 
   isLoggedIn() {
-    // see if user is logged in server side (might not need)
-
-    // return await GoogleSignin.isSignedIn();
-  }
-
-  async getUser(token) {
-    let headers = {Authorization: `Token ${token}`}
-    return await this._request("api/accounts/user/", "GET", null, headers)
+    // check if token expire time is greater than current time, if so token is logged in
+    return this.token.tokenExpiry > Math.round((new Date()).getTime() / 1000);
   }
 
   async getConnectedPlatforms(token) {
-    console.log("TOKENNNNN: ", token);
-    let headers = {Authorization: `Token ${token}`}
-    return await this._request("api/accounts/connected-platforms/", "GET", null, headers)
+    return await this._request("account/linked-accounts/", "GET", null, authenticated=true)
   }
 
   async getAllSongs() {

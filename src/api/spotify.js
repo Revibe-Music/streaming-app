@@ -9,7 +9,7 @@ export default class SpotifyAPI {
   constructor() {
     this.platformType = "private";
     try{
-      this.token = realm.objects('Platform').filtered(`name = "Revibe"`)["0"].credentials.accessToken
+      this.token = realm.objects('Platform').filtered(`name = "Spotify"`)["0"].credentials.accessToken
       this.initialize();
     }
     catch(error) {
