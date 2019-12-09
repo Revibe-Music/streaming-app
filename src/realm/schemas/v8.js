@@ -16,24 +16,18 @@ export const Profile = {
     lastName: "string?",
     username: "string",
     email: "string",
+    tokens: "Credential[]"
   }
 };
 
-// export const PlatformSchema = {
-//   name: "Platform",
-//   properties: {
-//     name: "string",
-//     credentials: "Credential?",
-//   }
-// };
-
-export const CredentialSchema = {
+// will store Revibe, Spotify, and youtube tokens
+export const TokenSchema = {
   name: "Credential",
   properties: {
     platform: "string",
     accessToken:  'string',
     secretToken:  'string?',
-    tokenExpiry:  "string?",
+    tokenExpiry:  "float?",
   }
 };
 
@@ -57,13 +51,26 @@ export const SongSchema = {
   name: "Song",
   properties: {
     id: "string", // this may be the same as uri for youtube
-    name: "string",
     uri: "string",
-    Artist: "Artist?",
+    title: "string",
+    Contributors: "Contributor[]",
     Album: "Album?",
     dateSaved: "date?",
     duration: "int?",
     platform: "string",
+  }
+};
+
+
+
+export const AlbumSchema = {
+  name: "Album",
+  properties: {
+    Contributors: "Contributor[]",
+    name: "string",
+    id: "string", // could be artist of channel
+    uri: "string",
+    images: "Image[]"
   }
 };
 
@@ -72,19 +79,23 @@ export const ArtistSchema = {
   properties: {
     name: "string",
     id: "string", // could be artist of channel
-    imageLowResolution: "string",
-    imageMediumResolution: "string",
-    imageHighResolution: "string",
+    uri: "string",
+    images: "Image[]"
   }
 };
 
-export const AlbumSchema = {
-  name: "Album",
+export const ContributorSchema = {
+  name: "Contributor",
   properties: {
-    name: "string",
-    id: "string", // could be artist of channel
-    imageLowResolution: "string",
-    imageMediumResolution: "string",
-    imageHighResolution: "string",
+    contributionType: {type: "string", default: "Artist"},
+    artist: "Artist",
+  }
+};
+
+export const ImageSchema = {
+  name: "Image",
+  properties: {
+    url: "string",
+    resolution: "string",
   }
 };

@@ -210,12 +210,10 @@ export default class RevibeAPI {
 
   pause() {
     this.player.pause();
-    console.log("Pausing");
   }
 
   resume() {
     this.player.play();
-    console.log("Playing");
   }
 
   seek(time) {
@@ -229,7 +227,5 @@ export default class RevibeAPI {
   removeSong(song) {
     console.log(song);
   }
-
-
 
 }
