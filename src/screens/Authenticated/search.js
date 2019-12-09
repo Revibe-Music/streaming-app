@@ -38,7 +38,7 @@ class Search extends Component {
           this.setState({ loading: true });
           var platformsFetching = []
           var platformNames = Object.keys(this.props.platforms)
-          platformNames = platformNames.filter(x => x=="Revibe")
+          // platformNames = platformNames.filter(x => x=="Revibe")
 
           for(var x=0; x<platformNames.length; x++) {
             platformsFetching.push(this.props.platforms[platformNames[x]].search(text))

@@ -94,7 +94,7 @@ export default class RevibeAPI {
   }
 
   silentLogin() {
-    console.log("NOO");
+    console.log("Not implemented");
   }
 
   async loginWithGoogle() {
@@ -113,17 +113,12 @@ export default class RevibeAPI {
   }
 
   async logout() {
-     // Need to logout server side or with google depending on how use signed in
-
-     // this._initializeGoogle();
-     // await GoogleSignin.signOut();
+     console.log("Not implemented");
   }
 
 
   isLoggedIn() {
-    // see if user is logged in server side (might not need)
-
-    // return await GoogleSignin.isSignedIn();
+    console.log("Not implemented");
   }
 
   async getUser(token) {
@@ -188,7 +183,6 @@ export default class RevibeAPI {
       id = artistSearch[x]['id']
       image = artistSearch[x]['image']
       results.artists.push({name: name, id: id, image: image});
-
     }
     return results;
   }
@@ -210,12 +204,10 @@ export default class RevibeAPI {
 
   pause() {
     this.player.pause();
-    console.log("Pausing");
   }
 
   resume() {
     this.player.play();
-    console.log("Playing");
   }
 
   seek(time) {
@@ -229,7 +221,5 @@ export default class RevibeAPI {
   removeSong(song) {
     console.log(song);
   }
-
-
 
 }
