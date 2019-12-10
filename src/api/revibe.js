@@ -74,7 +74,7 @@ export default class RevibeAPI {
     return await this._request("account/token/refresh/", "POST", body, authenticated=true)
   }
 
-  async logout() {
+  async logout(body) {
     /*
     * Params
   	* access_token: string
@@ -82,9 +82,33 @@ export default class RevibeAPI {
       return await this._request("account/logout/", "POST", body, authenticated=true)
   }
 
+  async logoutAllDevices() {
+      return await this._request("account/logout-all/", "POST", {}, authenticated=true)
+  }
+
   isLoggedIn() {
     // check if token expire time is greater than current time, if so token is logged in
     return this.token.tokenExpiry > Math.round((new Date()).getTime() / 1000);
+  }
+
+  async getProfile() {
+    return await this._request("account/profile/", "GET", null, authenticated=true)
+  }
+
+  async editProfile(body) {
+    /*
+    * Params
+    * username: string
+    * first_name: string
+    * last_name: string
+    * email: string
+    * profile: {
+    * 	image: file,
+    * 	counrty: string
+    * }
+    */
+    return await this._request("account/profile/", "PATCH", body, authenticated=true)
+
   }
 
   async getConnectedPlatforms(token) {
@@ -92,8 +116,7 @@ export default class RevibeAPI {
   }
 
   async getAllSongs() {
-    // needed to conform to platform interface
-    return []
+    return await this._request("music/library/", "GET", null, authenticated=true)
   }
 
   getPosition() {
@@ -104,25 +127,13 @@ export default class RevibeAPI {
   }
 
   async search(text) {
-    var headers = {}
-    headers['Accept'] = 'application/json'
-    headers['Content-Type'] = 'application/json'
-    var request;
-    var body = {text: text}
-    try {
-      // request = {method: "GET", headers: headers, body: JSON.stringify(body) }
-      request = {method: "GET", headers: headers}
-      const response = await fetch( "http://apiv2-dev.ty5eizxmfb.us-east-2.elasticbeanstalk.com/music/search?text="+text , request);
-      var search  = await response.json();
+    var search = await this._request("music/search?text="+text", "GET", null, authenticated=true)
+    search  = await response.json();
 
-    }
-    catch(error) {
-      console.log("Error dawg", error);
-    }
     songSearch = search.songs;
     artistSearch = search.artists
     var results = {artists: [], songs: []};
-    var artist,song_name,song_uri,album_cover,duration_ms;
+    var artist,song_name,song_uri,album_cover,duration;
     for(var x=0; x<songSearch.length; x++) {
       id = songSearch[x]['id'];
       uri = songSearch[x]['uri'];
@@ -174,12 +185,20 @@ export default class RevibeAPI {
     this.player.setCurrentTime(time);
   }
 
-  saveSong(song) {
-    console.log(song);
+  async saveSong(song) {
+    await this._request("music/library/songs/", "POST", song, authenticated=true)
   }
 
-  removeSong(song) {
-    console.log(song);
+  async removeSong(song) {
+    await this._request("music/library/songs/", "DELETE",song, authenticated=true)
+  }
+
+  async saveAlbum(album) {
+    await this._request("music/library/albums/", "POST", album, authenticated=true)
+  }
+
+  async removeSong(album) {
+    await this._request("music/library/albums/", "DELETE", album, authenticated=true)
   }
 
 }
