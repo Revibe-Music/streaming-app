@@ -23,7 +23,7 @@ export const TokenSchema = {
   properties: {
     platform: "string",
     accessToken:  'string',
-    secretToken:  'string?',
+    refreshToken:  'string?',
     tokenExpiry:  "float?",
   }
 };
@@ -34,9 +34,9 @@ export const SongSchema = {
     id: "string", // this may be the same as uri for youtube
     uri: "string",
     file: "string?",
-    title: "string",
-    Album: "Album?",
-    Contributors: "Contributor[]",
+    name: "string",
+    album: "Album?",
+    contributors: "Contributor[]",
     duration: "int?",
     platform: "string",
     uploaded_date: "date"
@@ -46,13 +46,13 @@ export const SongSchema = {
 export const AlbumSchema = {
   name: "Album",
   properties: {
-    Contributors: "Contributor[]",
     name: "string",
     id: "string", // could be artist of channel
     uri: "string",
     images: "Image[]",
-    platform: "string",
+    contributors: "Contributor[]",
     type: "string",
+    platform: "string",
     uploaded_date: "date"
   }
 };
@@ -104,6 +104,7 @@ export const ImageSchema = {
   name: "Image",
   properties: {
     url: "string",
-    resolution: "string",
+    height: "number",
+    width: "number",
   }
 };
