@@ -4,6 +4,7 @@
 * version that requires migrations
 */
 
+// may store this in user defaults rather than realm
 export const Profile = {
   name: "Profile",
   properties: {
@@ -24,18 +25,17 @@ export const TokenSchema = {
     platform: "string",
     accessToken:  'string',
     refreshToken:  'string?',
-    tokenExpiry:  "float?",
+    expiration:  "float?",
   }
 };
 
 export const SongSchema = {
   name: "Song",
   properties: {
+    name: "string",
     id: "string", // this may be the same as uri for youtube
     uri: "string",
-    file: "string?",
-    name: "string",
-    album: "Album?",
+    album: "Album",
     contributors: "Contributor[]",
     duration: "int?",
     platform: "string",
@@ -71,7 +71,7 @@ export const ArtistSchema = {
 export const ContributorSchema = {
   name: "Contributor",
   properties: {
-    contributionType: {type: "string", default: "Artist"},
+    type: {type: "string", default: "Artist"},
     artist: "Artist",
   }
 };
@@ -88,6 +88,8 @@ export const PlaylistSchema = {
   name: "Playlist",
   properties: {
     name: "string",
+    id: "string",
+    images: "Image[]",
     songs: "SavedSong[]",
   }
 };

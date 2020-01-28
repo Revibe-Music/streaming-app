@@ -1,158 +1,132 @@
 import realm from './../realm/realm';
-import RevibeAPI from './revibe';
-import YouTubeAPI from './youtube';
-import SpotifyAPI from './spotify';
-import _ from "lodash";
-
 
 export default class BasePlatformAPI {
 
-  constructor(name) {
-    this.name = name;
-    this.platformType = "Public"
-    this.library = this.getSongs();
-  }
-
-  async authenticatedOperation(callback) {
-    //  ensure valud authentication for requests and retry up to 5 times before quiting
-    var x = 0
-    while(x<5) {
-      if(this.isLoggedIn()) {
-        try {
-          await callback()
-          break
-        }
-        catch(error) {
-          console.log(error);
-        }
-      }
-      else {
-        this.refreshToken()
-      }
-    }
-
-  }
-
   //////////////////////////////////////////////////////////////////////
-  /////////////// CREDENTIAL/AUTHENTICATION OPERATIONS /////////////////
+  ///////////////// GENERAL AUTHENTICATION OPERATIONS //////////////////
   //////////////////////////////////////////////////////////////////////
+
   hasLoggedIn() {
-    //  see if user has ever logged in by seeing if platform credentials are in realm
-    return !!this.getCredentials();
+    //  see if user has ever logged in by seeing if platform token are in realm
+    return !!this.getToken();
   }
 
-  isLoggedIn() {
-    //  check if token expire time is greater than current time, if so token is logged inalm
-    return this.getCredentials().tokenExpiry > Math.round((new Date()).getTime() / 1000);
+  isLoggedIn(platform=this.name) {
+    //  check if token expire time is greater than current time, if so token is logged in
+    return this.getToken(platform).expiration > Math.round((new Date()).getTime() / 1000);
   }
 
-  login(credentials) {
-    //  implement in subclasses
-    this.saveCredentials(credentials);
+  getToken(platform=this.name) {
+    //  return token object for platform
+    return realm.objects('Token').filtered(`platform = "${platform}"`)["0"];
   }
 
-  refreshToken(credentials) {
-    //  implement in subclasses
-    this.updateCredentials(credentials);
-  }
-
-  logout() {
-    //  implement in subclasses
-    this.removeCredentials()
-    this.removeAllSongs();
-  }
-
-  getCredentials() {
-    //  return credential object for platform
-    return realm.objects('Credential').filtered(`platform = "${this.name}"`)["0"];
-  }
-
-  _validateCredentials(credentials) {
-    // make sure credential object is in correct format
-    if(credentials.accessToken === null) {
-      throw "Access token cannot be null."
+  _validateToken(token) {
+    // make sure token object is in correct format
+    // should probably use this to handle errors rather than create them lol
+    if(token.accessToken === null) {
+      throw `${this.name} access token cannot be null.`
     }
-    if(credentials.refreshToken !== null) {
-      if(typeof credentials.refreshToken !== "string") {
-        throw `Refresh token must be a string not a ${typeof credentials.refreshToken}.`
-      }
+    else if(typeof token.accessToken !== "string") {
+      throw `${this.name} access token must be a string not a ${typeof token.accessToken}.`
     }
-    if(credentials.tokenExpiry !== null) {
-      if(typeof credentials.tokenExpiry !== "number") {
-        throw `Token expiry must be a number not a ${typeof credentials.refrestokenExpiryhToken}.`
+    if(typeof token.refreshToken !== "string") {
+      throw `${this.name} refresh token must be a string not a ${typeof token.refreshToken}.`
+    }
+    if(token.expiration !== null) {
+      if(typeof token.expiration !== "number") {
+        throw `${this.name} token expiration must be a number not a ${typeof token.refresexpirationhToken}.`
       }
     }
   }
 
-  saveCredentials(credentials) {
-    //  save new credential object to realm
-    this._validateCredentials(credentials)
-    var creds = this.getCredentials()
+  _generateExpiration(hoursAhead) {
+    var expiration = new Date();
+    expiration.setHours( expiration.getHours() + hoursAhead )
+    expiration = expiration.getTime() / 1000
+    return expiration
+  }
+
+  saveToken(token) {
+    //  save new token object to realm
+    this._validateToken(token)
+    var currentToken = this.getToken()
       realm.write(() => {
-        if (!!creds) realm.delete(creds)
-        credential.platform = this.name
-        var credential_obj = realm.create('Credential', credential);
+        if (!!currentToken) realm.delete(currentToken)
+        token.platform = this.name
+        var token_obj = realm.create('Token', token);
     })
   }
 
-  updateCredentials(credentials) {
-    //  update existing credential object in realm
-    this._validateCredentials(credentials)
+  updateToken(token, platform=this.name) {
+    //  update existing token object in realm
+    this._validateToken(token)
     try {
       realm.write(() => {
-        var creds = this.getCredentials()
-        if(creds) {
-          creds.accessToken = accessToken;
-        }
-        else {
-          creds = {accessToken: accessToken}
-        }
-        if(!!credentials.tokenExpiry) creds.tokenExpiry = credentials.tokenExpiry;
-        if(!!credentials.refreshToken) creds.refreshToken = credentials.refreshToken;
+        var currentToken = this.getToken(platform)
+        currentToken.accessToken = token.accessToken;
+        if(token.refreshToken !== currentToken.refreshToken) currentToken.refreshToken = token.refreshToken;
+        if(expiration) currentToken.expiration = expiration;
       })
     }
     catch(error) {
-      console.log("Error occured while attempting to update credentials:", error);
+      console.log("Error occured while attempting to update token:", error);
     }
   }
 
-  removeCredentials() {
-    //  remove credential object from realm
+  removeToken() {
+    //  remove token object from realm
     realm.write(() => {
-      let credentials = this.getCredentials()
-      realm.delete(credentials);
+      let token = this.getToken()
+      realm.delete(token);
     })
   }
+
 
   //////////////////////////////////////////////////////////////////////
   /////////// GETTER FUNCTIONS THAT RETURN PLATFORM OBJECTS ////////////
   //////////////////////////////////////////////////////////////////////
+
   getLibrary() {
     //  return songs from specific platform library
-    return JSON.parse(JSON.stringify(realm.objects('Library').filtered(`platform = "${this.name}"`)["0"].songs.sorted("dateSaved",true).slice(0)))
+    return this.cloneArray(realm.objects('Library').filtered(`platform = "${this.name}"`)["0"].songs.sorted("dateSaved",true))
   }
 
-  getPlaylist(playlist) {
+  getPlaylist(playlistName) {
     //  return songs from specific playlist
-    return JSON.parse(JSON.stringify(realm.objects('Playlist').filtered(`name = "${playlist}"`)["0"].songs.sorted("dateSaved",true).slice(0)))
+    return this.cloneArray(realm.objects('Playlist').filtered(`name = "${playlistName}"`)["0"].songs.sorted("dateSaved",true))
   }
 
   getArtists() {
     //  return artist from specific platform
-    return JSON.parse(JSON.stringify(realm.objects('Artist').filtered(`platform = "${this.name}"`).slice(0)))
+    return this.cloneArray(realm.objects('Artist').filtered(`platform = "${this.name}"`))
   }
 
   getAlbums() {
     //  return albums from specific platform
-    return JSON.parse(JSON.stringify(realm.objects('Album').filtered(`platform = "${this.name}"`).slice(0)))
+    return this.cloneArray(realm.objects('Album').filtered(`platform = "${this.name}"`))
   }
+
+  getSavedArtistAlbums(id) {
+    return this.cloneArray(realm.objects("Album").filtered(`contributors.artist.id = "${id}"`));
+  }
+
+  getSavedArtistTracks(id) {
+    return this.cloneArray(realm.objects("Song").filtered(`Artist.id = "${id}"`));
+  }
+
+  getSavedAlbumTracks(id) {
+    return this.cloneArray(realm.objects("Song").filtered(`Album.id = "${id}"`));
+  }
+
 
   //////////////////////////////////////////////////////////////////////
   /////// HELPER FUNCTIONS THAT CHECK IF OBJECT EXISTS IN REALM ////////
   //////////////////////////////////////////////////////////////////////
+
   _songExists(song) {
     //  return whether a matching song already exists in realm
-    return JSON.parse(JSON.stringify(realm.objects('Song').filtered(`platform = "${this.name}"`).slice(0))).filter(x => x.id === song.id).length > 0
+    return realm.objects('Song').filtered(`platform = "${this.name}" AND id=${id}`).length > 0
   }
 
   _librarySongExists(song) {
@@ -160,9 +134,14 @@ export default class BasePlatformAPI {
     return this.getLibrary().filter(x => x.id === song.id).length > 0
   }
 
-  _playlistSongExists(song, playlist) {
-    //  return whether a matching song has already been saved to specific platform library
-    return this.getLibrary().filter(x => x.id === song.id).length > 0
+  _playlistSongExists(song) {
+    //  return whether a matching song has already been saved to any playlist
+    return realm.objects('Playlist').filtered(`platform = "${this.name}" AND songs.song.id="${song.id}"`).length > 0
+  }
+
+  _songInPlaylist(song, playlistName) {
+    //  return whether a matching song has already been saved to specific playlist
+    return this.getPlaylist(playlistName).filter(x => x.id === song.id).length > 0
   }
 
   _artistExists(artist) {
@@ -172,13 +151,14 @@ export default class BasePlatformAPI {
 
   _albumExists(album) {
     //  return whether a matching album already exists in realm
-    return this.getAlbum().filter(x => x.id === album.id).length > 0
+    return this.getAlbums().filter(x => x.id === album.id).length > 0
   }
 
   //////////////////////////////////////////////////////////////////////
   ///////////// SAVE FUNCTIONS THAT SAVE OBJECTS TO REALM //////////////
   //////////////////////////////////////////////////////////////////////
-  saveSong(song) {
+  saveSong(song, source) {
+    //  source can be of type realm Library or realm Playlist
     //  save song object and any child objects to realm
     //  returns realm song object
     realm.write(() => {
@@ -186,22 +166,28 @@ export default class BasePlatformAPI {
         var songContributors = []
         for(var x=0; x<song.contributors.length; x++) {
           var artist = this.saveArtist(song.contributors[x])
-          var contributionType = song.contributors[x].contributionType ? song.contributors[x].contributionType : null
-          songContributors.push(this.saveContribution(artist, contributionType))
+          var type = song.contributors[x].type ? song.contributors[x].type : null
+          songContributors.push(this.saveContributor(artist, type))
         }
         var album = this.saveAlbum(song.album)
-        var formattedSong = {id: song.id,
-                             uri: song.uri,
-                             name: song.name,
-                             album: album,
-                             contributors: songContributors,
-                             duration: song.duration,
-                             platform: this.name,
-                             // dateSaved: song.dateSaved ? song.dateSaved : new Date().toLocaleString()
-                            }
-        return realm.create('Song', formattedSong);
+        var formattedSong = {
+          id: song.id,
+          uri: song.uri,
+          name: song.name,
+          album: album,
+          contributors: songContributors,
+          duration: song.duration,
+          platform: this.name,
+        }
+        var songObj = realm.create('Song', formattedSong);
+        var savedSong = realm.create('SavedSong', {song: songObj, dateSaved: new Date().toLocaleString()});
+        source.songs.push(savedSong)
       }
-      return realm.objects('Song').filtered(`id = "${song.id}"`)[0]
+      else if(source.songs.filtered(`song.id = "${song.id}"`).length < 1) {
+        var songObj = realm.objects('Song').filtered(`id = "${song.id}"`)[0]
+        var savedSong = realm.create('SavedSong', {song: songObj, dateSaved: new Date().toLocaleString()});
+        source.songs.push(savedSong)
+      }
     })
   }
 
@@ -225,8 +211,8 @@ export default class BasePlatformAPI {
         var albumContributors = []
         for(var x=0; x<album.contributors.length; x++) {
           var artist = this.saveArtist(album.contributors[x])
-          var contributionType = album.contributors[x].contributionType ? album.contributors[x].contributionType : null
-          albumContributors.push(this.saveContribution(artist, contributionType))
+          var type = album.contributors[x].type ? album.contributors[x].type : null
+          albumContributors.push(this.saveContributor(artist, type))
         }
         album.contributors = albumContributors
         album.platform = this.name
@@ -236,13 +222,13 @@ export default class BasePlatformAPI {
     })
   }
 
-  saveContribution(artist, contributionType=null) {
+  saveContributor(artist, type) {
     //  save contribution object and any child objects to realm
     //  returns realm contribution object
     realm.write(() => {
       if(this._artistExists(artist)) {
-        if(contributionType !== null) {
-          return realm.create('Contributor', {contributionType: contributionType, artist: artist} );
+        if(type !== null) {
+          return realm.create('Contributor', {type: type, artist: artist} );
         }
         return realm.create('Contributor', {artist: artist});
       }
@@ -252,16 +238,59 @@ export default class BasePlatformAPI {
     })
   }
 
-  // consider adding batched operations here
 
   //////////////////////////////////////////////////////////////////////
   ////////// REMOVE FUNCTIONS THAT REMOVE OBJECTS FROM REALM ///////////
   //////////////////////////////////////////////////////////////////////
-  removeSong(song) {
+
+  removeSong(song, source) {
+    // source can be of type realm Library or realm Playlist
+    var savedSong = realm.objects("SavedSong").filtered(`song.id = "${song.id}"`)[0]
+    var album = savedSong.song.album
+
     realm.write(() => {
-      let songObj = realm.objects("Song").filtered(`id = "${song.id}"`)
-      realm.delete(songObj.contributors);
-      realm.delete(songObj);
+      if(realm.objects("SavedSong").filtered(`song.id = "${song.id}"`).length > 1) {
+        // dont delete song obj just saveSong from source
+        var savedSong = source.songs.filtered(`song.id = "${song.id}"`)[0]
+        realm.delete(savedSong);
+      }
+      else {
+        // delete Contributors
+        for(var x=0; x<savedSong.contributors.length; x++) {
+          this.removeContributor(savedSong.contributors[x])
+        }
+        realm.delete(savedSong.song);   // delete Song
+        realm.delete(savedSong);        // delete SavedSong
+
+      }
+    })
+    //  check whether album should be deleted from realm
+    if(realm.objects("Song").filtered(`album.id = "${album.id}"`).length < 2) {
+      this.removeAlbum(album)
+    }
+  }
+
+  removeAlbum(album) {
+    realm.write(() => {
+      let albumObj = realm.objects("Album").filtered(`id = "${album.id}"`)
+
+      // remove contributors
+      for(var x=0; x<albumObj.contributors.length; x++) {
+        this.removeContributor(albumObj.contributors[x])
+      }
+
+      realm.delete(albumObj.images);    // remove album images
+      realm.delete(albumObj);           // remove album obj
+    })
+  }
+
+  removeContributor(contributor) {
+    realm.write(() => {
+      //  check whether artists should be deleted from realm
+      if(realm.objects("Contributor").filtered(`artist.id = "${contributor.artists.id}"`).length < 2) {
+        this.removeArtist(contributor.artists)
+      }
+      realm.delete(contributor)
     })
   }
 
@@ -273,28 +302,19 @@ export default class BasePlatformAPI {
     })
   }
 
-  removeAlbum(album) {
-    realm.write(() => {
-      let albumObj = realm.objects("Album").filtered(`id = "${album.id}"`)
-      realm.delete(albumObj.contributors);
-      realm.delete(albumObj.images);
-      realm.delete(albumObj);
-    })
-  }
-
   // Batch operations
-
   removeAllSongs() {
+    // not sure if SavedSong must also be deleted or if is already deleted
     let songs = realm.objects('Song').filtered(`platform = "${this.name}"`);
     realm.write(() => {
       for(var x=0; x<songs.length; x++) {
         this.removeSong(songs[x])
       }
     })
-    this.library = []
   }
 
   removeAllArtist() {
+    // not sure if this is neccessary because removeAllSongs will handle deleting artists
     let artists = realm.objects('Artist').filtered(`platform = "${this.name}"`);
     realm.write(() => {
       for(var x=0; x<artists.length; x++) {
@@ -304,6 +324,7 @@ export default class BasePlatformAPI {
   }
 
   removeAllAlbums() {
+    // not sure if this is neccessary because removeAllSongs will handle deleting albums
     let albums = realm.objects('Albums').filtered(`platform = "${this.name}"`);
     realm.write(() => {
       for(var x=0; x<albums.length; x++) {
@@ -315,18 +336,15 @@ export default class BasePlatformAPI {
   //////////////////////////////////////////////////////////////////////
   //////////////////////// LIBRARY OPERATIONS  /////////////////////////
   //////////////////////////////////////////////////////////////////////
-  addSongToLibrary(song) {
-    // check if song exists
-    // check if song is in library already
-    // if it isnt then add it to library songs
+
+  saveToLibrary(song) {
+    var library = realm.objects('Library').filtered(`platform = "${this.name}"`)["0"]
+    this.saveSong(song, library)
   }
 
-  removeSongFromLibrary(song) {
-    // check if song exists
-    // check if song is in library
-    // check if song only exists in library or if its in a playlist too
-    // if its only in library remove it from library songs and delete the song object
-    // if its in a playlist then only remove it from library songs, dont delete song from realm
+  removeFromLibrary(song) {
+    var library = realm.objects('Library').filtered(`platform = "${this.name}"`)["0"]
+    this.removeSong(song, library)
   }
 
   refreshLibrary(tracks) {
@@ -365,18 +383,21 @@ export default class BasePlatformAPI {
         this.saveSong(songs[x])
       }
     })
-    this.library = await this.getLibrary()
+    return await this.getLibrary()
   }
 
   //////////////////////////////////////////////////////////////////////
   //////////////////////// PLAYLIST OPERATIONS  ////////////////////////
   //////////////////////////////////////////////////////////////////////
-  addSongToPlaylist(song, playlist) {
-    // Implement
+
+  saveToPlaylist(song, playlistName) {
+    var playlist = realm.objects('Playlist').filtered(`name = "${playlistName}"`)["0"]
+    this.saveSong(song, playlist)
   }
 
-  removeSongFromPlaylist(song, playlist) {
-    // Implement
+  removeFromPlaylist(song, playlistName) {
+    var playlist = realm.objects('Playlist').filtered(`name = "${playlistName}"`)["0"]
+    this.removeSong(song, playlist)
   }
 
   refreshPlaylist(playlist) {
@@ -389,62 +410,136 @@ export default class BasePlatformAPI {
 
 
   //////////////////////////////////////////////////////////////////////
-  ////////////////// LOCAL DATA QUERYING OPERATIONS  ///////////////////
+  /////////////////////////////// UTILS  ///////////////////////////////
   //////////////////////////////////////////////////////////////////////
-  getSavedArtistAlbums(id) {
-    return JSON.parse(JSON.stringify(realm.objects("Album").filtered(`contributors.artist.id = "${id}"`).slice(0)));
+
+  displayUnimplementedError(methodName) {
+    console.warn(`WARNING: method '${methodName}' has not been implemented for ${this.name}.`)
   }
 
-  getSavedArtistTracks(id) {
-    return JSON.parse(JSON.stringify(realm.objects("Song").filtered(`Artist.id = "${id}"`).slice(0)));
-  }
-
-  getSavedAlbumTracks(id) {
-    return JSON.parse(JSON.stringify(realm.objects("Song").filtered(`Album.id = "${id}"`).slice(0)));
-  }
-
-  filterData(type, text) {
-    var data = []
-    return data
+  cloneArray(array) {
+    return JSON.parse(JSON.stringify(array.slice(0)));
   }
 
 
-  //////////////////////////////////////////////////////////////////////
-  ///////////////// PLATFORM SPECIFIC API OPERATIONS  //////////////////
-  //////////////////////////////////////////////////////////////////////
-  getArtistAlbums() {
-    throw "Need to implement getArtistAlbums for " + this.name
+  ////////////////////////////////////////////////////////////////
+  /////// MUST IMPLEMENT FOLLOWING METHODS IN SUBCLASSES /////////
+  ////////////////////////////////////////////////////////////////
+
+  /// Authentication Methods ///
+
+  login() {
+    /* implement in subclasses */
+    // this.saveToken(token);
+    this.displayUnimplementedError("login")
   }
 
-  getAlbumTracks() {
-    throw "Need to implement getAlbumTracks for " + this.name
+  refreshToken() {
+    /* implement in subclasses */
+    // this.updateToken(token);
+    this.displayUnimplementedError("refreshToken")
   }
+
+  logout() {
+     /* implement in subclasses */
+    // this.removeToken()
+    // this.removeAllSongs();
+    this.displayUnimplementedError("logout")
+  }
+
+  /// Fetch Content Methods ///
+
+  fetchLibrarySongs() {
+    /* implement in subclasses */
+    this.displayUnimplementedError("fetchLibrarySongs")
+  }
+
+  fetchAllPlaylists() {
+    /* implement in subclasses */
+    this.displayUnimplementedError("fetchAllPlaylists")
+  }
+
+  fetchPlaylistSongs() {
+    /* implement in subclasses */
+    this.displayUnimplementedError("fetchPlaylistSongs")
+  }
+
+  fetchArtistAlbums() {
+    /* implement in subclasses */
+    this.displayUnimplementedError("fetchArtistAlbums")
+  }
+
+  fetchArtistTopSongs() {
+    /* implement in subclasses */
+    this.displayUnimplementedError("fetchArtistTopSongs")
+  }
+
+  fetchAlbumSongs() {
+    /* implement in subclasses */
+    this.displayUnimplementedError("fetchAlbumSongs")
+  }
+
+  fetchNewReleases() {
+    /* implement in subclasses */
+    this.displayUnimplementedError("fetchNewReleases")
+  }
+
+  search(query) {
+    /* implement in subclasses */
+    this.displayUnimplementedError("search")
+  }
+
+  addSongToLibrary(song) {
+    /* implement in subclasses */
+    this.displayUnimplementedError("addSongToLibrary")
+  }
+
+  removeSongFromLibrary(song) {
+    /* implement in subclasses */
+    this.displayUnimplementedError("removeSongFromLibrary")
+  }
+
+  addAlbumToLibrary(album) {
+    /* implement in subclasses */
+    this.displayUnimplementedError("addAlbumToLibrary")
+  }
+
+  removeAlbumFromLibrary(album) {
+    /* implement in subclasses */
+    this.displayUnimplementedError("removeAlbumFromLibrary")
+  }
+
+
+  /// Player Methods ///
 
   play() {
-    throw "Need to implement play for " + this.name
+    /* implement in subclasses */
+    this.displayUnimplementedError("play")
   }
 
   pause() {
-    throw "Need to implement pause for " + this.name
+    /* implement in subclasses */
+    this.displayUnimplementedError("pause")
   }
 
   resume() {
-    throw "Need to implement resume for " + this.name
+    /* implement in subclasses */
+    this.displayUnimplementedError("resume")
   }
 
   getPosition() {
-    throw "Need to implement getPosition for " + this.name
+    /* implement in subclasses */
+    this.displayUnimplementedError("getPosition")
   }
 
   getDuration() {
-    throw "Need to implement getDuration for " + this.name
+    /* implement in subclasses */
+    this.displayUnimplementedError("getDuration")
   }
 
   seek() {
-    throw "Need to implement seek for " + this.name
+    /* implement in subclasses */
+    this.displayUnimplementedError("seek")
   }
 
-  search() {
-    throw "Need to implement search for " + this.name
-  }
 }
