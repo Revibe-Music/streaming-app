@@ -5,7 +5,7 @@ import { Button, Text, Icon } from "native-base";
 import { connect } from 'react-redux';
 
 import styles from "./../styles";
-import Platform from './../../../api/platform';
+import SpotifyAPI from './../../../api/Spotify';
 import { updatePlatformData } from './../../../redux/platform/actions'
 
 
@@ -14,13 +14,13 @@ class SpotifyLogin extends Component {
   constructor(props) {
     super(props);
     this.state = {Loadinging: false};
-    this.spotify = new Platform("Spotify");
+    this.spotify = new SpotifyAPI();
     this.spotifyLoginButtonWasPressed = this.spotifyLoginButtonWasPressed.bind(this)
   }
 
   async spotifyLoginButtonWasPressed() {
       var session = await this.spotify.login();
-      if(this.spotify.api.hasPremiumAccount()) {
+      if(this.spotify.getProfile().product === "premium") {
         if (!!session) {
           this.props.updatePlatformData(this.spotify)
         }

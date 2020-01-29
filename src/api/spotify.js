@@ -1,406 +1,556 @@
 import Spotify from 'rn-spotify-sdk';
-import realm from './../realm/realm';
+import axios from "axios"
+
 import { IP } from './../config'
+import BasePlatformAPI from './basePlatform'
 
 
-
-export default class SpotifyAPI {
+export default class SpotifyAPI extends BasePlatformAPI {
 
   constructor() {
+    super()
     this.platformType = "private";
-    try{
-      this.token = realm.objects('Platform').filtered(`name = "Spotify"`)["0"].credentials.accessToken
-      this.initialize();
-    }
-    catch(error) {
-      this.token = null
-    }
-
+    this.name = "Spotify";
+    this.initialize();
   }
 
+  _displayError(functionName, message) {
+    console.log(`ERROR: ${functionName} failed with error message "${message}"`)
+  }
+
+  _parseContributors(contributors) {
+    // need to account for simplified and full objects
+    formattedContributors = []
+    for(var x=0; x<contributors.length; x++) {
+      let contributor = {
+        type: "Artist",
+        artist: {
+          name: contributors[x].name,
+          id: contributors[x].id,
+          uri: contributors[x].uri,
+          platform: "Spotify",
+          images: []  // need to get these
+        }
+      }
+      formattedContributors.push(contributor)
+    }
+    return formattedContributors
+  }
+
+  _parseSong(song) {
+    // need to account for simplified and full objects
+    var formattedSong = {
+      name: song['name'],
+      id: song['id'],
+      uri: song['uri'],
+      contributors: this._parseContributors(song['artists']),
+      duration: parseFloat(song['duration_ms']/1000),
+      album: this._parseAlbum(song['album']),
+      platform: "Spotify",
+    }
+    return formattedSong
+  }
+
+  _parseAlbum(data) {
+    // need to account for simplified and full objects
+    var formattedAlbum = {
+      name: album['name'],
+      id: album['id'],
+      uri: album['uri'],
+      platform: "Spotify",
+      type: album['album_type'],
+      uploaded_date: new Date(album['release_date']),
+      images: []  // need to get these
+    }
+    return formattedAlbum
+  }
+
+  _parseArtist(artist) {
+    // need to account for simplified and full objects
+    var formattedArtist = {
+      name: artist['name'].replace(/"/g, "'"),
+      id: artist['id'],
+      uri: artist['uri'],
+      platform: "Spotify",
+      images: []  // need to get these
+    }
+    return formattedArtist
+  }
+
+  _parsePlaylist(playlist) {
+    // need to account for simplified and full objects
+    var formattedPlaylist = {
+      name: playlist['name'].replace(/"/g, "'"),
+      id: playlist['id'],
+      images: []  // need to get these
+    }
+    return formattedPlaylist
+  }
+
+
   async initialize() {
-    try {
-      this.spotifyOptions = {
+      var options = {
         "clientID":"6d5b44efae95482fb4b82519e3114014",
         "redirectURL":"revibeapp://callback",
         "scopes":[ "user-read-private", "playlist-read", "playlist-read-private",'user-library-read','user-library-modify','user-top-read',"streaming"],
-        "tokenSwapURL": IP+'api/accounts/spotify-authentication/',
-        "tokenRefreshURL": IP+'api/accounts/spotify-refresh/',
-        "tokenRefreshEarliness": 300,
+        "tokenSwapURL": IP+'account/spotify-authentication/',
+        "tokenRefreshURL": IP+'account/spotify-refresh/',
+        "tokenRefreshEarliness": 600,
         "sessionUserDefaultsKey": "RevibeSpotifySession",
-        "revibeToken": this.token, //pull accessToken from realm
+        "revibeToken": this.getToken("Revibe").accessToken, //pull Revibe accessToken from realm
         "audioSessionCategory": "AVAudioSessionCategoryPlayback"
       };
-      if (!Spotify.isInitialized()) {
-        await Spotify.initialize(this.spotifyOptions)
+      try {
+        var isLoggedIn = await Spotify.initialize(options)
       }
-      console.log("SESSION");
-      console.log(Spotify.getSession())
-    }
-    catch (error) {
-      console.log("Error in 'Spotify.initialize': "+ error);
-    }
+      catch(error) {
+        this._displayError('Spotify.initialize',error)
+      }
+      if(this.hasLoggedIn() && !isLoggedIn) {
+        await this.refreshToken()
+      }
   }
+
+  _handleErrors(error) {
+    // https://developer.spotify.com/documentation/web-api/#response-status-codes
+  }
+
+
+  async _execute(callback, callbackArgs=[], authenticated=false, handlePagination=false, pageSize=50, limit=null) {
+    if(!Spotify.isInitialized()) {
+      await this.initialize()
+    }
+    if (authenticated) {
+      // if token id expired, refresh before sending request
+      if(!this.isLoggedIn() || !Spotify.isLoggedIn()) {
+        await this.refreshToken()
+      }
+    }
+
+    var numRequestsSent = 0
+    var maxRequestAttempts = 2
+    var response = null
+    while(numRequestsSent < maxRequestAttempts) {
+      try {
+        if(handlePagination) {
+          var offset = 0
+          var initialRequest = await callback(...callbackArgs,{offset: offset, limit: pageSize})
+          var total = limit !== null ? limit : initialRequest['total'];
+          var promiseArray = []
+          offset += pageSize;
+          while (offset < total) {
+            promiseArray.push(callback(...callbackArgs, {offset: offset, limit: pageSize}));
+            offset += pageSize;
+            console.log(offset);
+          }
+          var response = await Promise.all(promiseArray);
+          // possible root keys: items, tracks, artists,
+          for(var x=0; x<response.length; x++) {
+            if(response.hasOwnProperty('items')) {
+              response[x] = response[x].items
+            }
+            else if(response.hasOwnProperty('tracks')) {
+              if(response[x].tracks.hasOwnProperty("items")) {
+                response[x] = response[x].tracks.items
+              }
+              else {
+                response[x] = response[x].tracks
+              }
+            }
+            else if(response.hasOwnProperty('albums')) {
+              if(response[x].albums.hasOwnProperty("items")) {
+                response[x] = response[x].albums.items
+              }
+              else {
+                response[x] = response[x].albums
+              }
+            }
+            else if(response.hasOwnProperty('artists')) {
+              if(response[x].artists.hasOwnProperty("items")) {
+                response[x] = response[x].artists.items
+              }
+              else {
+                response[x] = response[x].artists
+              }
+            }
+            else {
+              console.log("Could not find any root keys in:",response[x]);
+            }
+            if(!response[x].isArray()) {
+              console.log("Yo this bitch is not an array!");
+            }
+          }
+          // need to clean up json to get unified list or object
+          response = [].concat.apply([], objects);    //merge arrays of songs into one array
+          response.unshift(initialRequest);     // add tracks from initial request
+        }
+        else {
+          response = await callback(...callbackArgs)
+        }
+        break
+      }
+      catch(error) {
+        // need to handle errors here
+        this._displayError(callback.name,error)
+        numRequestsSent += 1
+      }
+    }
+    return response
+  }
+
+
+
+  ////////////////////////////////////////////////////////////////
+  //////////////// BasePlatformAPI REQUIRED METHODS //////////////
+  ////////////////////////////////////////////////////////////////
 
   async login() {
-      try {
-        this.initialize();
-        await Spotify.login({showDialog:false});
-        var session = Spotify.getSession();
-        if (!!session) {
-          if(!session.expireTime) {
-            var today = new Date();
-            var date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
-            var dateTime = date + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-            dateTime=dateTime.split("-");
-            dateTime=dateTime[1]+"/"+dateTime[0]+"/"+dateTime[2];
-            session.expireTime = parseInt(new Date(dateTime).getTime())/1000
-          }
-          session.tokenExpiry = String(session.expireTime);
-          session.secretToken = session.refreshToken;
-          return session;
-        }
-        return null;
+    /**
+    * Summary: Login to Spotify account (required implementation).
+    *
+    * @see  BasePlatformAPI
+    */
+
+    var loginSuccessfull = await this._request(Spotify.login)
+    if (loginSuccessfull) {
+      var session = Spotify.getSession();
+      var token = {
+        accessToken: session.accessToken,
+        refreshToken: session.refreshToken,
+        expiration: session.expireTime ? session.expireTime : this._generateExpiration(1)
       }
-      catch (error) {
-        if(error != "Cannot call login multiple times before completing") {
-          console.log("Error in 'Spotify.login': "+ error);
-          console.log("Restarting login flow...");
-          await Spotify.logout()
-          this.initialize();
-          await Spotify.login();
-          var session = Spotify.getSession();
-          if (!!session) {
-            if(!session.expireTime)  {
-              var today = new Date();
-              var date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
-              var dateTime = date + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-              dateTime=dateTime.split("-");
-              dateTime=dateTime[1]+"/"+dateTime[0]+"/"+dateTime[2];
-              session.expireTime = parseInt(new Date(dateTime).getTime())/1000
-            }
-            session.tokenExpiry = String(session.expireTime);
-            session.secretToken = session.refreshToken;
-            return session;
-          }
-          return null;
-        }
-      }
+      this.saveToken(token)
+    }
   }
 
-  isLoggedIn() {
-    this.initialize();
-    return Spotify.isLoggedIn();
+  async refreshToken() {
+    /**
+    * Summary: Swap current Spotify refresh token for new access token (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    */
+
+    if(this.isLoggedIn() && Spotify.isLoggedIn()) {
+      await this._execute(Spotify.renewSession);
+    }
+    else {
+      var token = this.getToken()
+      // need to add a way to update revibe access token or our
+      // servers will kick back requests to refresh spotify token.
+      var session = {
+        accessToken: token.accessToken,
+        expireTime: token.expiration,
+        refreshToken: token.refreshToken,
+        scopes:[
+          "streaming",
+          "user-read-private",
+          "playlist-read",
+          "playlist-read-private",
+          'user-library-read',
+          'user-library-modify',
+          'user-top-read'
+        ]
+      }
+      await this._execute(Spotify.loginWithSession, [session])
+    }
+    var newSession = Spotify.getSession();
+    var token = {
+      accessToken: newSession.accessToken,
+      refreshToken: newSession.refreshToken,
+      expiration: newSession.expireTime ? newSession.expireTime : this._generateExpiration(1)
+    }
+    this.updateToken(token);
   }
 
   async logout() {
-    try {
-      this.initialize();
-      await Spotify.logout();
-    }
-    catch (error) {
-      console.log("Error in 'Spotify.logout': "+ error);
-    }
+    /**
+    * Summary: Logout of Spotify account (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    */
+
+    await this._execute(Spotify.logout)
+    this.removeToken()
   }
 
-  async silentLogin(params) {
+  async getProfile() {
+    /**
+    * Summary: Get user's Spotify profile.
+    *
+    * @return {Object} User and profile object
+    */
 
-    try {
-      this.initialize();
-    }
-    catch (error) {
-      console.log("Error on spotify initialize", error);
-    }
-    console.log(Spotify.isLoggedIn())
-    if(Spotify.isLoggedIn() && Spotify.getSession() !== null) {
-      try {
-        await Spotify.renewSession();
-        console.log("BOUTA RETURN SPOTIFY RENEWED CREDS");
-        console.log("CREDS:",Spotify.getSession());
-        return Spotify.getSession()
-      }
-      catch (error) {
-        console.log("Error on Spotify.renewSession",error);
-      }
-    }
-    else {
-      try {
-        if(!params.tokenExpiry)  {
-          var today = new Date();
-          var date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
-          var dateTime = date + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-          dateTime=dateTime.split("-");
-          dateTime=dateTime[1]+"/"+dateTime[0]+"/"+dateTime[2];
-          params.tokenExpiry = parseInt(new Date(dateTime).getTime())/1000
-        }
-        if(typeof params.tokenExpiry !== "number") params.tokenExpiry = parseFloat(params.tokenExpiry)
-        await Spotify.loginWithSession({accessToken: params.accessToken, expireTime: params.tokenExpiry, refreshToken: params.refreshToken, scopes:["streaming","user-read-private", "playlist-read", "playlist-read-private",'user-library-read','user-library-modify','user-top-read']})
-        var session = Spotify.getSession();
-        console.log("Silent login session",session);
-        if (!!session) {
-          if(Object.keys(session).length > 0) {
-            session.tokenExpiry = String(session.expireTime);
-            session.secretToken = session.refreshToken;
-          }
-          console.log(session);
-          return session;
-        }
-        return null;
-      }
-      catch (error) {
-        console.log("Error in 'Spotify.loginWithSession': "+ error);
-        await this.login()
-        return null;
-      }
-    }
+    return await this._execute(Spotify.getMe)
   }
 
-  async hasPremiumAccount() {
-    this.initialize();
-    var userData = await Spotify.getMe();
-    return userData.product === "premium";
-  }
 
-  _parseTracks(data) {
-    var songs = []
-    var id, name, artist, uri, artistUri, album, albumUri,albumArt,dateSaved,duration;
-    for (var i = 0; i < data['items'].length; i++) {
-      id = data['items'][i]['track']['id'];
-      name = data['items'][i]['track']['name'];
-      uri = data['items'][i]['track']['uri'];
-      artist = data['items'][i]['track']['album']['artists'][0]['name'].replace(/"/g, "'");
-      artistUri = data['items'][i]['track']['album']['artists'][0]['id']
-      album = data['items'][i]['track']['album']["name"];
-      albumUri = data['items'][i]['track']['album']["id"];
-      albumArt = data['items'][i]['track']['album']['images'][0]['url'];
-      dateSaved = data["items"][i]["added_at"] ? new Date(data["items"][i]["added_at"]) : null
-      duration = data['items'][i]['track']['duration_ms']/1000;
-      let song = {id: id,
-                  name: name,
-                  uri: uri,
-                  Artist: {
-                    name: artist,
-                    id: artistUri,
-                  },
-                  Album: {
-                    name: album,
-                    id: albumUri,
-                    image: albumArt
-                  },
-                  duration: duration}
-      if(!!dateSaved) song.dateSaved = dateSaved
-      songs.push(song);
+  async fetchLibrarySongs() {
+    /**
+    * Summary: Fetch all songs saved to library (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @return {Object} List containing song objects
+    */
+
+    var songs = await this._execute(Spotify.getMyTracks, [], true, true, 50)
+    for(var x=0; x<songs.length; x++) {
+      songs[x] = this._parseSong(songs[x])
+      // probably need to look at date added here
     }
     return songs
   }
 
-  async getAllSongs() {
-    try {
-      this.initialize();
-      var options = {limit:50,offset:0}
-      var promiseArray = []
-      var initialSongRequest = await Spotify.getMyTracks(options);
-      var totalTracks = initialSongRequest['total'];
-      var tracksRequested = 50;
-      options.offset += 50;
-      while (tracksRequested < totalTracks) {
-      // while (tracksRequested < 50) {
-        promiseArray.push(Spotify.getMyTracks(JSON.parse(JSON.stringify(options))));
-        options.offset += 50;
-        tracksRequested += 50;
-        console.log(tracksRequested);
-      }
-      var tracks = await Promise.all(promiseArray);
-      tracks.unshift(initialSongRequest);
-      for(var x=0; x< tracks.length; x++) {
-        tracks[x] = this._parseTracks(tracks[x]);
-      }
-      tracks = [].concat.apply([], tracks);   //merge arrays of songs into one array
-      return tracks
+  async fetchAllPlaylists() {
+    /**
+    * Summary: Fetch all of a user's playlists (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @return {Object} List containing playlist objects
+    */
+
+    var playlists = await this._execute(Spotify.getMyPlaylists, [], true, true, 50)
+    for(var x=0; x<songs.length; x++) {
+      playlists[x] = this._parsePlaylist(playlists[x])
     }
-    catch (error) {
-      console.log("Error in 'Spotify.getAllSongs': "+ error);
-    }
+    return playlists
   }
 
-  async refreshSongs() {
-    try {
-      var options = {limit:50,offset:0}
-      var promiseArray = []
-      var initialSongRequest = await Spotify.getMyTracks(options);
-      var totalTracks = initialSongRequest['total'];
-      var tracksRequested = 50;
-      options.offset += 50;
-      while (tracksRequested < 150) {
-        promiseArray.push(Spotify.getMyTracks(JSON.parse(JSON.stringify(options))));
-        options.offset += 50;
-        tracksRequested += 50;
-        console.log(tracksRequested);
-      }
-      var tracks = await Promise.all(promiseArray);
-      tracks.unshift(initialSongRequest);
-      for(var x=0; x< tracks.length; x++) {
-        tracks[x] = this._parseTracks(tracks[x]);
-      }
-      tracks = [].concat.apply([], tracks);   //merge arrays of songs into one array
-      return {tracks:tracks, total: totalTracks}
+  async fetchPlaylistSongs(id) {
+    /**
+    * Summary: Fetch all songs in specific playlist (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   id    id of playlist to get songs from
+    *
+    * @return {Object} List containing song objects
+    */
+
+    var songs = await this._execute(Spotify.getPlaylistTracks, [id], true, true, 100)
+    for(var x=0; x<songs.length; x++) {
+      songs[x] = this._parseSong(songs[x])
+      // probably need to look at date added here
     }
-    catch (error) {
-      console.log("Error in 'Spotify.refreshSongs': "+ error);
+    return songs
+  }
+
+  async fetchArtistAlbums(id) {
+    /**
+    * Summary: Fetch all albums from specific artist (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   id    id of artist to get albums from
+    *
+    * @return {Object} List containing album objects
+    */
+
+    var albums = await this._execute(Spotify.getArtistAlbums, [id, {include_groups:["album","single"]}], true, true, 50)
+    for(var x=0; x<albums.length; x++) {
+      albums[x] = this._parseAlbum(albums[x])
     }
+    return albums
   }
 
-  async saveSong(song) {
-    // save song to spotify
-    await Spotify.sendRequest("v1/me/tracks", "PUT", {ids: [song.id]}, true)
-  }
+  async fetchArtistTopSongs(id) {
+    /**
+    * Summary: Fetch top songs from specific artist (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   id    id of artist to get top songs from
+    *
+    * @return {Object} List containing song objects
+    */
 
-  async removeSong(song) {
-    // remove song to spotify
-    await Spotify.sendRequest("v1/me/tracks", "DELETE", {ids: [song.id]}, true)
-  }
-
-
-  play(uri) {
-    Spotify.playURI(uri, 0, 0 );
-  }
-
-  pause() {
-    Spotify.setPlaying(false)
-  }
-
-  resume() {
-    Spotify.setPlaying(true)
-  }
-
-  getPosition() {
-    var time;
-    try {
-      var playbackInfo = Spotify.getPlaybackState()
-      if (playbackInfo.playing) {
-        time = playbackInfo.position;
-      }
-      else {
-        time = null;
-      }
+    var songs = await this._execute(Spotify.getArtistTopTracks, [id, "from_token"], true)
+    for(var x=0; x<songs.length; x++) {
+      songs[x] = this._parseSong(songs[x])
     }
-    catch(error) {
-      time = null;
-    }
-    return time;
+    return songs
   }
 
-  getDuration() {
-    //  dont need this for saved tracks, only searched tracks? maybe not tho
+  async fetchAlbumSongs(id) {
+    /**
+    * Summary: Fetch all songs from specific album (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   id    id of album to get songs from
+    *
+    * @return {Object} List containing song objects
+    */
+
+    var songs = await this._execute(Spotify.getAlbumTracks, [id], true, true, 50)
+    for(var x=0; x<songs.length; x++) {
+      songs[x] = this._parseSong(songs[x])
+    }
+    return songs
   }
 
-  seek(time) {
-    try {
-      Spotify.seek(time)
+  async fetchNewReleases() {
+    /**
+    * NOT IMPLEMENTED *
+    * Summary: Fetch list of newly released content (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @return {Object} List containing song objects
+    */
+
+    var albums = await this._execute(Spotify.getNewReleases, [{limit:35}])
+    for(var x=0; x<albums.length; x++) {
+      albums[x] = this._parseAlbum(albums[x])
     }
-    catch(error) {
-      console.log("Error in 'Spotify.seek': "+ error);
-    }
+    return albums
   }
 
-  async search(text) {
-    var search = await Spotify.search(text,['track', 'artist'])
-    // console.log(search);
-    songSearch = search.tracks.items;
-    artistSearch = search.artists.items
-    var results = {artists: [], songs: []};
-    var artist,song_name,song_uri,album_cover,duration_ms;
-    for(var x=0; x<songSearch.length; x++) {
-      id = songSearch[x]['id'];
-      name = songSearch[x]['name'];
-      artist = songSearch[x]['artists'][0]['name'].replace(/"/g, "'");
-      artistUri = songSearch[x]['artists'][0]['id']
-      album = songSearch[x]['album']["name"];
-      albumUri = songSearch[x]['album']["id"];
-      albumArt = songSearch[x]['album']['images'][0]['url'];
-      uri = songSearch[x]['uri'];
-      duration = songSearch[x]['duration_ms']/1000;
-      results.songs.push({id: id, name: name, Artist: {name: artist, id: artistUri, image: ""}, Album: {name: album, id: albumUri, image: albumArt}, uri: uri, duration: duration});
-    }
+  async search(query) {
+    /**
+    * Summary: Search songs, albums, and artist based on query string (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   query    string to search content with
+    *
+    * @return {Object} List containing song objects, list containing album objects, list containing artist objects
+    */
 
-    var name,id,image;
-    for(var x=0; x<artistSearch.length; x++) {
-      name = artistSearch[x]['name'];
-      id = artistSearch[x]['id']
-      if(!!artistSearch[x]['images'].length > 0) {
-        image = artistSearch[x]['images'][0]['url'];
-        results.artists.push({name: name, id: id, image: image});
-      }
+    var search = await this._execute(Spotify.search, [text,['track', 'artist', 'album'],{limit:50}])
+    var results = {artists: [], songs: [], albums: []};
+    for(var x=0; x<search.tracks.items.length; x++) {
+      results.songs.push(this._parseSong(search.tracks.items[x]));
     }
-
+    for(var x=0; x<search.artists.items.length; x++) {
+      results.artists.push(this._parseArtist(search.artists.items[x]));
+    }
+    for(var x=0; x<search.artists.items.length; x++) {
+      results.albums.push(this._parseAlbum(search.artists.items[x]));
+    }
     return results;
   }
 
-  async getArtistAlbums(artistUri) {
-    var artist = await Spotify.getArtist(artistUri)
-    artist = artist.images[1].url
-    var results = await Spotify.getArtistAlbums(artistUri)
-    results = results.items
-    results = Array.from(new Set(results.map(a => a.id))).map(id => {
-       return results.find(a => a.id === id)
-     })
-    albums = results.filter(x => x.album_type === "album");
-    singles = results.filter(x => x.album_type === "single");
-
-    for(var x=0; x<albums.length; x++) {
-      albums[x] = {name: albums[x]['name'], image: albums[x]['images'][0]['url'], id: albums[x]['id'], numTracks: albums[x]['total_tracks']};
-    }
-    for(var x=0; x<singles.length; x++) {
-      singles[x] = {name: singles[x]['name'], image: singles[x]['images'][0]['url'], id: singles[x]['id'], numTracks: singles[x]['total_tracks']};
-    }
-    return {artistImg: artist, albums: albums, singles: singles};
+  async addSongToLibrary(song) {
+    /**
+    * Summary: Add song to Revibe library.
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {number}   time    seconds value to seek to
+    */
+    var data = {ids: [song.id]}
+    await Spotify.sendRequest("v1/me/tracks", "PUT", data, true)
+    this.saveToLibrary(song)   // save to realm database
   }
 
-  async getAlbumTracks(albumUri) {
-    var results = await Spotify.getAlbumTracks(albumUri)
-    results = results.items
-    var tracks = []
-
-    for(var x=0; x<results.length; x++) {
-      id = results[x]['id'];
-      name = results[x]['name'];
-      artist = results[x]['artists'][0]['name'].replace(/"/g, "'");
-      artistUri = results[x]['artists'][0]['id']
-      uri = results[x]['uri'];
-      duration = results[x]['duration_ms']/1000;
-      tracks.push({id: id, name: name, Artist: {name: artist, id: artistUri, image: ""}, uri: uri, duration: duration});
-    }
-    return tracks;
+  async removeSongFromLibrary(song) {
+    /**
+    * Summary: Remove song from Revibe library.
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {number}   time    seconds value to seek to
+    */
+    var data = {ids: [song.id]}
+    await Spotify.sendRequest("v1/me/tracks", "DELETE", data, true)
+    this.removeFromLibrary(song)   // save to realm database
   }
 
-  async getArtists(ids) {
-    var results = await Spotify.getArtists(ids).artists
-
-    var artists = []
-    var name,id,image;
-    for(var x=0; x<results.length; x++) {
-      name = results[x]['name'];
-      id = results[x]['id']
-      if(!!results[x]['images']) {
-        if(results[x]['images'].length > 0) {
-          image = results[x]['images'][0]['url'];
-          artists.push({name: name, id: id, image: image});
-          }
-      }
-    }
-    return artists
+  async addAlbumToLibrary(album) {
+    /**
+    * Summary: Add all songs from album to Revibe library. (Still need to implement)
+    *
+    * @param {Object}   album    album object
+    */
+    await this._request("music/library/albums/", "POST", album, true)
   }
 
-  async getArtistImage(id) {
-    var results = await Spotify.getArtist(id)
-
-    if(!!artistData[x]['images']) {
-      if(artistData[x]['images'].length > 0) {
-        return artistData[x]['images'][0]['url'];
-        }
-    }
-
-    return ""
+  async removeAlbumFromLibrary(album) {
+    /**
+    * Summary: Remove all songs from album to Revibe library. (Still need to implement)
+    *
+    * @param {Object}   album    album object
+    */
+    await this._request("music/library/albums/", "DELETE", album, true)
   }
 
+
+  /// Player Methods ///
+
+  play(uri) {
+    /**
+    * Summary: play revibe song by uri (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   uri    uri of song to play
+    */
+    this._execute(Spotify.playURI, [uri, 0, 0])
+  }
+
+  pause() {
+    /**
+    * Summary: if player exists, pause song (required implementation).
+    *
+    * @see  BasePlatformAPI
+    */
+    this._execute(Spotify.setPlaying, [false])
+  }
+
+  resume() {
+    /**
+    * Summary: if player exists, resume song (required implementation).
+    *
+    * @see  BasePlatformAPI
+    */
+    this._execute(Spotify.setPlaying, [true])
+  }
+
+  getPosition() {
+    /**
+    * Summary: return current position of song (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @return {number} decimal value representing seconds
+    */
+
+    var playbackInfo = Spotify.getPlaybackState()
+    if(playbackInfo !== null) {
+      return playbackInfo.position
+    }
+    return 0;
+  }
+
+  getDuration() {
+    /**
+    * Summary: Get duration of song (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @return {number} decimal value representing seconds
+    */
+
+    var playbackMetadata = Spotify.getPlaybackMetadata()
+    if(playbackMetadata !== null) {
+      return playbackMetadata.currentTrack.duration
+    }
+    return 0;
+  }
+
+  seek(time) {
+    /**
+    * Summary: Set position of song (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {number}   time    seconds value to seek to
+    */
+
+    this._execute(Spotify.seek, [time])
+  }
 }

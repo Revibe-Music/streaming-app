@@ -85,7 +85,7 @@ class LibraryList extends Component {
       data = this.dataProvider.cloneWithRows(this.props.songs)
     }
     else {
-      data = this.dataProvider.cloneWithRows(JSON.parse(JSON.stringify(this.props.platform.getSongs())))
+      data = this.dataProvider.cloneWithRows(JSON.parse(JSON.stringify(this.props.platform.getLibrary())))
     }
 
     return (

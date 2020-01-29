@@ -32,7 +32,7 @@ class SongOptions extends PureComponent {
    }
 
    songIsSaved() {
-     return this.props.navigation.state.params.platform.getSongs().filter(x => x.id === this.props.navigation.state.params.song.id).length > 0
+     return this.props.navigation.state.params.platform.getLibrary().filter(x => x.id === this.props.navigation.state.params.song.id).length > 0
    }
 
    saveSong() {

@@ -97,12 +97,6 @@ export const audioReducer = (state = initialState, action) => {
             audioInterupted: action.audioInterupted,
             audioInteruptTime: action.audioInteruptTime,
          };
-
-      // case: 'TOGGLE_PLAYER':
-      //     return {
-      //       ...state,
-      //       playerOpen: action.playerOpen,
-      //     };
       default:
          return state;
    }

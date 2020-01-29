@@ -13,7 +13,6 @@ import SongInfo from "./../audioControls/songInfo";
 import Scrubber from "./../audioControls/scrubber";
 import ImageSwiper from "./../audioControls/imageSwiper";
 import VideoPlayer from "./../audioControls/videoPlayer";
-import RevibePlayer from "./../audioControls/revibePlayer";
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import OfflineNotice from './../offlineNotice/index';
 import styles from "./styles";

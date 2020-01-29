@@ -10,10 +10,9 @@ import {
   Text,
   View
 } from "native-base";
-import { GoogleSigninButton } from '@react-native-community/google-signin';
 import { connect } from 'react-redux';
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
-import Platform from './../../api/platform'
+import RevibeAPI from './../../api/Revibe'
 import { initializePlatforms } from './../../redux/platform/actions';
 
 import styles from "./styles";
@@ -25,31 +24,24 @@ class Signup extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {firstName: "",
-                  lastName: "",
-                  email: "",
-                  password1: "",
-                  password2: "",
+    this.state = {firstName: "Riley",
+                  lastName: "Stephens",
+                  username: "rstephens28",
+                  email: "riley.stephens28@gmail.com",
+                  password1: "Reed1rile2",
+                  password2: "Reed1rile2",
                   error: {},
                 };
-    this.revibe = new Platform("Revibe")
 
+    this.revibe = new RevibeAPI()
   }
 
   async _registerButtonPressed() {
     // need to check that passwords match before doing anything
     if(this.state.password1 === this.state.password2) {
-
-      let signupParams = {first_name: this.state.firstName,
-                          last_name: this.state.lastName,
-                          email: this.state.email,
-                          password1: this.state.password1,
-                          password2: this.state.password2
-                          }
       try {
-        var token = await this.revibe.api.signup(signupParams)
-        if(token.accessToken) {
-          this.revibe.updateCredentials(token.accessToken)
+        var response = await this.revibe.register(this.state.firstName, this.state.lastName, this.state.username, this.state.email, this.state.password1)
+        if(response.access_token) {
           this.props.initializePlatforms()
           this.props.navigation.navigate(
             {
@@ -60,7 +52,7 @@ class Signup extends Component {
           )
         }
         else {
-          this.setState({error: token})
+          this.setState({error: response})
         }
       }
       catch(error) {
@@ -71,19 +63,6 @@ class Signup extends Component {
       this.setState({error: {password2: "Password does not match."}})
     }
 
-  }
-
-  async _googleSignInPressed() {
-
-    var token = await this.revibe.api.signupWithGoogle();
-    var user = await this.revibe.getUser(token.accessToken)
-    this.props.navigation.navigate(
-      {
-        key: "LinkAccounts",
-        routeName: "LinkAccounts",
-        params:{name: user.first_name}
-      }
-    )
   }
 
     render() {
@@ -105,6 +84,11 @@ class Signup extends Component {
                   <Input value={this.state.lastName} onChangeText={(text) => this.setState({ lastName:text })} style={styles.formInputField}/>
                 </Item>
               </View>
+              <Item stackedLabel style={{ marginRight: 15, lineHeight: 50}}>
+                <Label style={styles.label}>Username</Label>
+                <Input value={this.state.username} autoCapitalize="none" onChangeText={(text) => this.setState({ username: text })} style={styles.formInputField}/>
+              </Item>
+              {Object.keys(this.state.error).filter(x => x === "username").length>0 ? <Text style={styles.authenticationError}> {this.state.error.username} </Text>: null}
               <Item stackedLabel style={{ marginRight: 15, lineHeight: 50}}>
                 <Label style={styles.label}>Email</Label>
                 <Input value={this.state.email} autoCapitalize="none" onChangeText={(text) => this.setState({ email: text.toLowerCase() })} style={styles.formInputField}/>
@@ -158,18 +142,3 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(mapStateToProps,mapDispatchToProps)(Signup)
-
-// GOOGLE LOGIN SNIPPET REMOVED FOR LAUNCH
-
-// <View style={styles.dividerContainer}>
-//     <View style={styles.divider} />
-//     <Text style={styles.dividerText}>OR</Text>
-//     <View style={styles.divider}/>
-// </View>
-//
-// <GoogleSigninButton
-//   style={styles.googleSignInButton}
-//   size={GoogleSigninButton.Size.Wide}
-//   color={GoogleSigninButton.Color.Light}
-//   onPress={() => this._googleSignInPressed()}
-// />

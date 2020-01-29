@@ -4,19 +4,6 @@
 * version that requires migrations
 */
 
-// may store this in user defaults rather than realm
-export const Profile = {
-  name: "Profile",
-  properties: {
-    firstName: "string?",
-    lastName: "string?",
-    username: "string",
-    email: "string",
-    tokens: "Token[]",
-    birthday: "date?",
-    country: "string?"
-  }
-};
 
 // will store Revibe, Spotify, and youtube tokens
 export const TokenSchema = {
@@ -106,7 +93,7 @@ export const ImageSchema = {
   name: "Image",
   properties: {
     url: "string",
-    height: "number",
-    width: "number",
+    height: "int",
+    width: "int",
   }
 };

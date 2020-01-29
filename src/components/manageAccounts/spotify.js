@@ -6,7 +6,7 @@ import { BarIndicator } from 'react-native-indicators';
 
 import { connect } from 'react-redux';
 
-import Platform from './../../api/platform';
+import SpotifyAPI from './../../api/Spotify';
 import { updatePlatformData, removePlatformData } from './../../redux/platform/actions'
 import styles from ".//styles";
 
@@ -17,17 +17,17 @@ class SpotifyAccount extends Component {
   constructor(props) {
     super(props);
     this.state = {loading: false};
-    this.spotify = new Platform("Spotify");
+    this.spotify = new SpotifyAPI();
     this.connectSpotify = this.connectSpotify.bind(this)
     this.disconnectSpotify = this.disconnectSpotify.bind(this)
   }
 
   async connectSpotify() {
       var session = await this.spotify.login();
-      if(this.spotify.api.hasPremiumAccount()) {
+      if(this.spotify.getProfile().product === "premium") {
         if (!!session) {
           this.setState({loading: true})
-          await this.spotify.updateAllSongs()
+          await this.spotify.fetchLibrarySongs()
           this.props.updatePlatformData(this.spotify)
           this.setState({loading: false})
         }

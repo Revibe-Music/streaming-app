@@ -25,7 +25,7 @@ class LinkAccounts extends Component {
     var platformNames = Object.keys(this.props.platforms)
 
     for(var x=0; x<platformNames.length; x++) {
-      platformsFetching.push(this.props.platforms[platformNames[x]].updateAllSongs())
+      platformsFetching.push(this.props.platforms[platformNames[x]].fetchLibrarySongs())
     }
     await Promise.all(platformsFetching)
     this.setState({syncing:false})

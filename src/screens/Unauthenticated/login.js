@@ -14,13 +14,11 @@ import {
   Text,
 } from "native-base";
 import { View, Image } from "react-native";
-import { GoogleSigninButton } from '@react-native-community/google-signin';
 import Modal from "react-native-modal";
 import ForgotPassword from "./forgotPassword";
 import AccountSync from "./../../components/accountSync/index";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
-import Platform from './../../api/platform'
-import { googleSignIn } from "./../../redux/platform/actions"
+import RevibeAPI from './../../api/Revibe'
 import styles from "./styles";
 import { connect } from 'react-redux';
 import { updatePlatformData, checkPlatformAuthentication } from './../../redux/platform/actions'
@@ -41,14 +39,14 @@ class Login extends Component {
       syncing: false,
       error: {},
     };
-    this.revibe = new Platform("Revibe")
+    this.revibe = new RevibeAPI()
     this.toggleForgotPasswordModal = this.toggleForgotPasswordModal.bind(this);
     this.fetchConnectedAccounts = this.fetchConnectedAccounts.bind(this);
     this.syncAccounts = this.syncAccounts.bind(this);
   }
 
   async fetchConnectedAccounts(token) {
-    var connectedPlatforms = await this.revibe.api.getConnectedPlatforms(token)
+    var connectedPlatforms = await this.revibe.getConnectedPlatforms(token)
     connectedPlatforms = connectedPlatforms.platforms
     for(var x=0; x<connectedPlatforms.length; x++) {
       let platform = new Platform(connectedPlatforms[x].name)
@@ -64,7 +62,7 @@ class Login extends Component {
     var platformsFetching = []
     var platformNames = Object.keys(this.props.platforms)
     for(var x=0; x<platformNames.length; x++) {
-      platformsFetching.push(this.props.platforms[platformNames[x]].updateAllSongs())
+      platformsFetching.push(this.props.platforms[platformNames[x]].fetchLibrarySongs())
     }
     await Promise.all(platformsFetching)
     this.setState({syncing:false})
@@ -75,9 +73,7 @@ class Login extends Component {
     try {
       var token = await this.revibe.login({email: this.state.email, password: this.state.password});
       if(Object.keys(token).filter(x => x==="accessToken").length>0) {
-        let youtube = new Platform("YouTube")
-        youtube.token = token.accessToken
-        this.props.updatePlatformData(youtube)
+        let youtube = getPlatform("YouTube")
         var user = await this.revibe.getUser(token.accessToken)
         this.setState({ firstName: user.first_name })
         await this.fetchConnectedAccounts(token.accessToken)
@@ -93,16 +89,6 @@ class Login extends Component {
 
   }
 
-  async _googleSignInPressed() {
-    var token = await this.revibe.api.loginWithGoogle();
-    let youtube = new Platform("YouTube")
-    youtube.token = token.accessToken
-    this.props.updatePlatformData(youtube)
-    var user = await this.revibe.getUser(token.accessToken)
-    this.setState({ firstName: user.first_name })
-    await this.fetchConnectedAccounts(token.accessToken)
-    setTimeout(this.syncAccounts, 5000)
-  }
 
   toggleForgotPasswordModal() {
     this.setState({ forgotPasswordModal: !this.state.forgotPasswordModal });
@@ -185,19 +171,3 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)
-
-
-// GOOGLE LOGIN SNIPPET REMOVED FOR LAUNCH
-
-// <View style={styles.dividerContainer}>
-//     <View style={styles.divider} />
-//     <Text style={styles.dividerText}>OR</Text>
-//     <View style={styles.divider}/>
-// </View>
-//
-// <GoogleSigninButton
-//   style={styles.googleSignInButton}
-//   size={GoogleSigninButton.Size.Wide}
-//   color={GoogleSigninButton.Color.Light}
-//   onPress={() => this._googleSignInPressed()}
-// />

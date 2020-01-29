@@ -4,10 +4,8 @@ account authentication state. All data will be pulled
 from realm and any incoming data will be saved to realm
 */
 
-import Platform from './../../api/platform';
-
-import * as v7 from './../../realm/postMigrationUpdates/v7'
-import { createPlatformsIfNeeded, getAvailablePlatforms, getActivePlatforms} from './../../realm/utils';
+import { getPlatform } from './../../api/utils';
+import { createPlatformsIfNeeded, getActivePlatforms} from './../../realm/utils/v1';
 
 
 const assignPlatforms = platforms => ({
@@ -44,15 +42,15 @@ const error = error => ({
     error,
 });
 
+
+
 export function initializePlatforms() {
   return async (dispatch) => {
-    createPlatformsIfNeeded()   // make sure all platforms have been created in realm
     var platformNames = getActivePlatforms()
     var platforms = {}
     for(var x=0; x<platformNames.length; x++) {
-      platforms[platformNames[x]] = new Platform(platformNames[x])
+      platforms[platformNames[x]] = getPlatform(platformNames[x])
     }
-    await v7.update()
     dispatch(assignPlatforms(platforms));
   }
 }
@@ -61,7 +59,8 @@ export function checkRevibeAccount() {
   // just need to check if user has a revibe account
   return async (dispatch, getState) => {
     // if revibe is in platform state then it has been logged into before
-    var hasLoggedIn = getState().platformState.platforms["Revibe"]
+    var revibe = getPlatform("Revibe")
+    var hasLoggedIn = revibe.hasLoggedIn()
     dispatch(checkedAuthentication(true));
     dispatch(checkHasLoggedIn(hasLoggedIn));
   }
@@ -110,7 +109,7 @@ export function removePlatformSong(platformName, song) {
   return async (dispatch, getState) => {
     var platform = getState().platformState.platforms[platformName]
     platform.removeSong(song)
-    platform.library =  platform.getSongs()
+    platform.library =  platform.getLibrary()
     dispatch(updatePlatformData(platform));
   }
 }
@@ -119,7 +118,7 @@ export function savePlatformSong(platformName, song) {
   return async (dispatch, getState) => {
     var platform = getState().platformState.platforms[platformName]
     platform.saveSong(song)
-    platform.library =  platform.getSongs()
+    platform.library =  platform.getLibrary()
     dispatch(updatePlatformData(platform));
   }
 }

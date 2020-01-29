@@ -7,7 +7,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import { connect } from 'react-redux';
 import SearchSongList from "./../../components/lists/searchSongList";
 import SearchArtistList from "./../../components/lists/searchArtistList";
-import Platform from './../../api/platform'
+
 import styles from "./styles";
 
 

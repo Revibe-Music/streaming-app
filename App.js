@@ -1,48 +1,35 @@
 import React from "react";
 import { View } from "react-native";
-import { StyleProvider } from "native-base";
+import { connect } from 'react-redux';
 import SplashScreen from "react-native-splash-screen";
-import { Provider, connect } from 'react-redux';
 import MusicControl from 'react-native-music-control';
-import BackgroundTimer from 'react-native-background-timer';
 import NetInfo from "@react-native-community/netinfo";
 
 import { AppContainer } from './src/router';
-import variables from "./src/theme/variables/commonColor";
-import { initializePlatforms, checkRevibeAccount, checkPlatformAuthentication } from './src/redux/platform/actions';
 import { connection } from './src/redux/connection/actions';
-import { continuousTimeUpdate,resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing } from './src/redux/audio/actions';
-
+import { resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing } from './src/redux/audio/actions';
+import { initializePlatforms, checkRevibeAccount, checkPlatformAuthentication } from './src/redux/platform/actions';
 
 
 class App extends React.Component {
 
-  constructor(props) {
-   super(props);
-   this.state = {showSpotifyLoginPrompt: false}
- };
+    constructor(props) {
+     super(props);
+   };
 
-
- async componentDidUpdate(prevProps) {
-   if(!prevProps.platformsInitialized && this.props.platformsInitialized) {
-     this.props.checkRevibeAccount();
-     this.props.checkPlatformAuthentication();
+   async componentDidUpdate(prevProps) {
+     if(!prevProps.platformsInitialized && this.props.platformsInitialized) {
+       this.props.checkRevibeAccount();
+       this.props.checkPlatformAuthentication();
+     }
    }
- }
 
   async componentDidMount() {
-
     await this.props.initializePlatforms();
-
     NetInfo.addEventListener( state => this.props.connection(state.isConnected && state.isInternetReachable) )
 
-    BackgroundTimer.runBackgroundTimer(this.props.continuousTimeUpdate, 250)
-
     MusicControl.enableBackgroundMode(true);
-    // on iOS, pause playback during audio interruptions (incoming calls) and resume afterwards.
-    // As of {{ INSERT NEXT VERSION HERE}} works for android aswell.
-    MusicControl.handleAudioInterruptions(true);
-
+    MusicControl.handleAudioInterruptions(true);    // on iOS, pause playback during audio interruptions (incoming calls) and resume afterwards.
     MusicControl.enableControl('play', true)
     MusicControl.enableControl('pause', true)
     MusicControl.enableControl('stop', false)
@@ -51,11 +38,9 @@ class App extends React.Component {
     MusicControl.enableControl('changePlaybackPosition', true)   // Changing track position on lockscreen
 
     MusicControl.on('play', () => {
-      console.log("PLAY");
       this.props.resumeSong();
     })
     MusicControl.on('pause', ()=> {
-      console.log("PAUSE");
       this.props.pauseSong();
     })
     MusicControl.on('nextTrack', ()=> {
@@ -101,7 +86,6 @@ const mapDispatchToProps = dispatch => ({
     initializePlatforms: () => dispatch(initializePlatforms()),
     checkRevibeAccount: () => dispatch(checkRevibeAccount()),
     checkPlatformAuthentication: () => dispatch(checkPlatformAuthentication()),
-    continuousTimeUpdate: () => dispatch(continuousTimeUpdate()),
     resumeSong: () => dispatch(resumeSong()),
     pauseSong: () => dispatch(pauseSong()),
     nextSong: () => dispatch(nextSong()),

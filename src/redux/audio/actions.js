@@ -1,5 +1,6 @@
 import store from './../rootReducer';
 import MusicControl from 'react-native-music-control';
+import BackgroundTimer from 'react-native-background-timer';
 
 
 const play = (index, playlist, activePlatform, inQueue) => {
@@ -64,7 +65,6 @@ const setAudioInterupt = (audioInterupted, audioInteruptTime) => ({
  const playSong = (index, playlist=null, inQueue=false) => {
   return async (dispatch, getState) => {
 
-
       playlist = !!playlist ? playlist : getState().audioState.playlist
 
       if(getState().audioState.queueIndex !== null) {
@@ -87,6 +87,8 @@ const setAudioInterupt = (audioInterupted, audioInteruptTime) => ({
 
       platform.play(playlist[index].uri)
 
+      BackgroundTimer.runBackgroundTimer(continuousTimeUpdate, 250)
+
       MusicControl.setNowPlaying({
         title: playlist[index].name,
         artwork: playlist[index].Album.image, // URL or RN's image require()
@@ -101,6 +103,7 @@ const pauseSong = () => {
   return (dispatch, getState) => {
       let platform = getState().platformState.platforms[getState().audioState.activePlatform]  // get active platform
       if (!!platform){
+        BackgroundTimer.stopBackgroundTimer(); //Stop updating time
         platform.pause()
         MusicControl.updatePlayback({
           state: MusicControl.STATE_PAUSE,
@@ -115,6 +118,7 @@ const pauseSong = () => {
   return (dispatch, getState) => {
       let platform = getState().platformState.platforms[getState().audioState.activePlatform]  // get active platform
       if (!!platform) {
+        BackgroundTimer.runBackgroundTimer(continuousTimeUpdate, 250)
         platform.resume()
         MusicControl.updatePlayback({
           state: MusicControl.STATE_PLAYING,
@@ -260,4 +264,4 @@ const updateAudioInterupt = (interupted, interuptTime) => {
    }
 }
 
-export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime ,continuousTimeUpdate, updateAudioInterupt }
+export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt }

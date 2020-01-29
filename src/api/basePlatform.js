@@ -55,6 +55,11 @@ export default class BasePlatformAPI {
         if (!!currentToken) realm.delete(currentToken)
         token.platform = this.name
         var token_obj = realm.create('Token', token);
+
+        // create library for platform if one does not already exist
+        if(realm.objects('Library').filtered(`platform = "${this.name}"`).length < 1) {
+          realm.create('Library', {platform: this.name})
+        }
     })
   }
 
@@ -383,7 +388,7 @@ export default class BasePlatformAPI {
         this.saveSong(songs[x])
       }
     })
-    return await this.getLibrary()
+    return this.getLibrary()
   }
 
   //////////////////////////////////////////////////////////////////////
