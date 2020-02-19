@@ -5,7 +5,6 @@ import {
   View,
   Button,
   Text,
-  List,
   Icon,
   Header,
   Left,
@@ -16,7 +15,9 @@ import ImageLoad from 'react-native-image-placeholder';
 import { BarIndicator } from 'react-native-indicators';
 import { connect } from 'react-redux';
 
-import SongItem from "../../../components/listItems/songItem";
+import List from "../../../components/lists/List";
+import OptionsMenu from "../../../components/OptionsMenu/index";
+import { getPlatform } from '../../../api/utils';
 import { playSong } from './../../../redux/audio/actions'
 import styles from "./styles";
 
@@ -30,23 +31,28 @@ class Album extends Component {
     super(props);
     this.state = {
       following: false,
-      songs: [],
+      songs: this.props.navigation.state.params.songs,
     };
+    this.getImage = this.getImage.bind(this)
+    this.platform = getPlatform(this.props.navigation.state.params.album.platform)
+    this.album = this.props.navigation.state.params.album
+    console.log(this.album);
+    this.songs = this.props.navigation.state.params.songs
   }
 
   async componentDidMount() {
-    if(this.props.navigation.state.params.songs.length < 1) {
+    if(this.state.songs.length < 1) {
       this.setState({ loading: true })
-      var results = await this.props.navigation.state.params.platform.getAlbumTracks(this.props.navigation.state.params.album.id)
-      for(var x=0; x<results.length; x++) {
-        results[x].platform = this.props.navigation.state.params.platform.name
-        results[x].Album = this.props.navigation.state.params.album
-      }
+      var results = await this.platform.fetchAlbumSongs(this.album.id)
       this.setState({ loading:false, songs: results })
     }
-    else {
-      this.setState({ songs: this.props.navigation.state.params.songs })
+  }
+
+  getImage() {
+    if(this.album.images.length > 0) {
+      return this.album.mediumImage ? {uri: this.album.mediumImage} : {uri: this.album.images[2].url}
     }
+    return require("./../../../../assets/albumArtPlaceholder.png")
   }
 
 
@@ -82,7 +88,7 @@ class Album extends Component {
                 isShowActivity={false}
                 style={styles.albumImg}
                 placeholderStyle={styles.albumImgPlaceholderImg}
-                source={{uri:this.props.navigation.state.params.album.image}}
+                source={this.getImage()}
                 placeholderSource={require("./../../../../assets/albumArtPlaceholder.png")}
             />
             </View>
@@ -106,15 +112,20 @@ class Album extends Component {
               <BarIndicator animationDuration={700} color='#7248bd' count={5} />
             </View>
             :
-            <List
-              dataArray={this.state.songs}
-              renderRow={(song,index) =>
-                <SongItem song={song} playlist={this.state.songs} platform={this.props.navigation.state.params.platform} navigation={this.props.navigation}/>
-              }
-            />
+            <View style={{minHeight: 1,}}>
+              <List
+                data={this.state.songs}
+                type={"Song"}
+                displayImage={false}
+                allowRefresh={false}
+                noDataText="This album is empty."
+                navigation={this.props.navigation}
+              />
+            </View>
           }
           </View>
         </Content>
+        <OptionsMenu navigation={this.props.navigation}/>
       </Container>
       </>
     );

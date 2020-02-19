@@ -18,11 +18,12 @@ export default class SpotifyAPI extends BasePlatformAPI {
     console.log(`ERROR: ${functionName} failed with error message "${message}"`)
   }
 
-  _parseContributors(contributors) {
+  _parseContributors(contributors, itemId) {
     // need to account for simplified and full objects
     formattedContributors = []
     for(var x=0; x<contributors.length; x++) {
       let contributor = {
+        id: contributors[x].id + itemId,
         type: "Artist",
         artist: {
           name: contributors[x].name,
@@ -43,7 +44,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
       name: song['name'],
       id: song['id'],
       uri: song['uri'],
-      contributors: this._parseContributors(song['artists']),
+      contributors: this._parseContributors(song['artists'], song['id']),
       duration: parseFloat(song['duration_ms']/1000),
       album: this._parseAlbum(song['album']),
       platform: "Spotify",
@@ -51,16 +52,17 @@ export default class SpotifyAPI extends BasePlatformAPI {
     return formattedSong
   }
 
-  _parseAlbum(data) {
+  _parseAlbum(album) {
     // need to account for simplified and full objects
     var formattedAlbum = {
       name: album['name'],
       id: album['id'],
       uri: album['uri'],
       platform: "Spotify",
+      contributors: this._parseContributors(album['artists'], album['id']),
       type: album['album_type'],
       uploaded_date: new Date(album['release_date']),
-      images: []  // need to get these
+      images: this._parseImages(album['images'])
     }
     return formattedAlbum
   }
@@ -72,7 +74,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
       id: artist['id'],
       uri: artist['uri'],
       platform: "Spotify",
-      images: []  // need to get these
+      images: this._parseImages(artist['images'])
     }
     return formattedArtist
   }
@@ -85,6 +87,19 @@ export default class SpotifyAPI extends BasePlatformAPI {
       images: []  // need to get these
     }
     return formattedPlaylist
+  }
+
+  _parseImages(images) {
+    formattedImages = []
+    for(var x=0; x<images.length; x++) {
+      let image = {
+        height: images[x].height,
+        width: images[x].width,
+        url: images[x].url,
+      }
+      formattedImages.push(image)
+    }
+    return formattedImages
   }
 
 
@@ -113,6 +128,32 @@ export default class SpotifyAPI extends BasePlatformAPI {
 
   _handleErrors(error) {
     // https://developer.spotify.com/documentation/web-api/#response-status-codes
+  }
+
+  _formatResponse(response) {
+    if(response) {
+      if(response.hasOwnProperty('items')) {
+        response = response.items
+        response = this._formatResponse(response)
+      }
+      if(response.hasOwnProperty('tracks')) {
+        response.tracks = response.tracks
+        response = this._formatResponse(response)
+      }
+      if(response.hasOwnProperty('albums')) {
+        response = response.albums
+        response = this._formatResponse(response)
+      }
+      if(response.hasOwnProperty('artists')) {
+        response = response.artists
+        response = this._formatResponse(response)
+      }
+    }
+    // else {
+    //   console.log("Could not find any root keys in:",response);
+    // }
+    // console.log(response);
+    return response
   }
 
 
@@ -144,48 +185,19 @@ export default class SpotifyAPI extends BasePlatformAPI {
             console.log(offset);
           }
           var response = await Promise.all(promiseArray);
+          response.unshift(initialRequest);     // add tracks from initial request
+
           // possible root keys: items, tracks, artists,
           for(var x=0; x<response.length; x++) {
-            if(response.hasOwnProperty('items')) {
-              response[x] = response[x].items
-            }
-            else if(response.hasOwnProperty('tracks')) {
-              if(response[x].tracks.hasOwnProperty("items")) {
-                response[x] = response[x].tracks.items
-              }
-              else {
-                response[x] = response[x].tracks
-              }
-            }
-            else if(response.hasOwnProperty('albums')) {
-              if(response[x].albums.hasOwnProperty("items")) {
-                response[x] = response[x].albums.items
-              }
-              else {
-                response[x] = response[x].albums
-              }
-            }
-            else if(response.hasOwnProperty('artists')) {
-              if(response[x].artists.hasOwnProperty("items")) {
-                response[x] = response[x].artists.items
-              }
-              else {
-                response[x] = response[x].artists
-              }
-            }
-            else {
-              console.log("Could not find any root keys in:",response[x]);
-            }
-            if(!response[x].isArray()) {
-              console.log("Yo this bitch is not an array!");
-            }
+            response[x] = this._formatResponse(response[x])
+
           }
           // need to clean up json to get unified list or object
-          response = [].concat.apply([], objects);    //merge arrays of songs into one array
-          response.unshift(initialRequest);     // add tracks from initial request
+          response = [].concat.apply([], response);    //merge arrays of songs into one array
         }
         else {
-          response = await callback(...callbackArgs)
+          var response = await callback(...callbackArgs)
+          response = this._formatResponse(response)
         }
         break
       }
@@ -211,16 +223,18 @@ export default class SpotifyAPI extends BasePlatformAPI {
     * @see  BasePlatformAPI
     */
 
-    var loginSuccessfull = await this._request(Spotify.login)
+    var loginSuccessfull = await this._execute(Spotify.login)
     if (loginSuccessfull) {
       var session = Spotify.getSession();
       var token = {
         accessToken: session.accessToken,
         refreshToken: session.refreshToken,
-        expiration: session.expireTime ? session.expireTime : this._generateExpiration(1)
+        expiration: session.expireTime ? session.expireTime : this._generateExpiration(1),
+        platform: "Spotify"
       }
       this.saveToken(token)
     }
+
   }
 
   async refreshToken() {
@@ -231,17 +245,17 @@ export default class SpotifyAPI extends BasePlatformAPI {
     *
     */
 
+    var token = this.getToken()
     if(this.isLoggedIn() && Spotify.isLoggedIn()) {
       await this._execute(Spotify.renewSession);
     }
     else {
-      var token = this.getToken()
       // need to add a way to update revibe access token or our
       // servers will kick back requests to refresh spotify token.
       var session = {
         accessToken: token.accessToken,
         expireTime: token.expiration,
-        refreshToken: token.refreshToken,
+        // refreshToken: token.refreshToken,
         scopes:[
           "streaming",
           "user-read-private",
@@ -255,12 +269,13 @@ export default class SpotifyAPI extends BasePlatformAPI {
       await this._execute(Spotify.loginWithSession, [session])
     }
     var newSession = Spotify.getSession();
-    var token = {
+    var newToken = {
       accessToken: newSession.accessToken,
       refreshToken: newSession.refreshToken,
-      expiration: newSession.expireTime ? newSession.expireTime : this._generateExpiration(1)
+      expiration: newSession.expireTime ? newSession.expireTime : this._generateExpiration(1),
+      platform: "Spotify"
     }
-    this.updateToken(token);
+    token.update(newToken)
   }
 
   async logout() {
@@ -270,9 +285,10 @@ export default class SpotifyAPI extends BasePlatformAPI {
     * @see  BasePlatformAPI
     *
     */
-
     await this._execute(Spotify.logout)
-    this.removeToken()
+    var token = this.getToken()
+    token.delete()
+    this.library.delete()
   }
 
   async getProfile() {
@@ -295,10 +311,11 @@ export default class SpotifyAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
 
-    var songs = await this._execute(Spotify.getMyTracks, [], true, true, 50)
+    var songs = await this._execute(Spotify.getMyTracks, [], true, true, 50, 100)
     for(var x=0; x<songs.length; x++) {
-      songs[x] = this._parseSong(songs[x])
-      // probably need to look at date added here
+      var dateSaved = songs[x].added_at
+      songs[x] = this._parseSong(songs[x].track)
+      songs[x].dateSaved = dateSaved
     }
     return songs
   }
@@ -420,7 +437,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects, list containing album objects, list containing artist objects
     */
 
-    var search = await this._execute(Spotify.search, [text,['track', 'artist', 'album'],{limit:50}])
+    var search = await this._execute(Spotify.search, [query,['track', 'artist', 'album'],{limit:50}])
     var results = {artists: [], songs: [], albums: []};
     for(var x=0; x<search.tracks.items.length; x++) {
       results.songs.push(this._parseSong(search.tracks.items[x]));
@@ -428,8 +445,8 @@ export default class SpotifyAPI extends BasePlatformAPI {
     for(var x=0; x<search.artists.items.length; x++) {
       results.artists.push(this._parseArtist(search.artists.items[x]));
     }
-    for(var x=0; x<search.artists.items.length; x++) {
-      results.albums.push(this._parseAlbum(search.artists.items[x]));
+    for(var x=0; x<search.albums.items.length; x++) {
+      results.albums.push(this._parseAlbum(search.albums.items[x]));
     }
     return results;
   }
@@ -466,7 +483,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
     *
     * @param {Object}   album    album object
     */
-    await this._request("music/library/albums/", "POST", album, true)
+    await this._execute("music/library/albums/", "POST", album, true)
   }
 
   async removeAlbumFromLibrary(album) {
@@ -475,7 +492,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
     *
     * @param {Object}   album    album object
     */
-    await this._request("music/library/albums/", "DELETE", album, true)
+    await this._execute("music/library/albums/", "DELETE", album, true)
   }
 
 

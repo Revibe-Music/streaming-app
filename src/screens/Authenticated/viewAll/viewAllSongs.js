@@ -15,7 +15,7 @@ import {
 import { FlatList } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-import SongItem from "../../../components/listItems/songItem";
+// import SongItem from "../../../components/listItems/songItem";
 
 import styles from "./styles";
 

@@ -4,20 +4,21 @@ import { connect } from 'react-redux';
 import SplashScreen from "react-native-splash-screen";
 import MusicControl from 'react-native-music-control';
 import NetInfo from "@react-native-community/netinfo";
+import BackgroundTimer from 'react-native-background-timer';
 
 import { AppContainer } from './src/router';
 import { connection } from './src/redux/connection/actions';
-import { resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing } from './src/redux/audio/actions';
+import { resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing,continuousTimeUpdate } from './src/redux/audio/actions';
 import { initializePlatforms, checkRevibeAccount, checkPlatformAuthentication } from './src/redux/platform/actions';
 
 
 class App extends React.Component {
 
-    constructor(props) {
+  constructor(props) {
      super(props);
-   };
+  };
 
-   async componentDidUpdate(prevProps) {
+   componentDidUpdate(prevProps) {
      if(!prevProps.platformsInitialized && this.props.platformsInitialized) {
        this.props.checkRevibeAccount();
        this.props.checkPlatformAuthentication();
@@ -27,6 +28,8 @@ class App extends React.Component {
   async componentDidMount() {
     await this.props.initializePlatforms();
     NetInfo.addEventListener( state => this.props.connection(state.isConnected && state.isInternetReachable) )
+
+    BackgroundTimer.runBackgroundTimer(this.props.continuousTimeUpdate, 250)
 
     MusicControl.enableBackgroundMode(true);
     MusicControl.handleAudioInterruptions(true);    // on iOS, pause playback during audio interruptions (incoming calls) and resume afterwards.
@@ -92,6 +95,7 @@ const mapDispatchToProps = dispatch => ({
     prevSong: () => dispatch(prevSong()),
     seek: (time) => dispatch(seek(time)),
     setScrubbing: () => dispatch(setScrubbing()),
+    continuousTimeUpdate: () => dispatch(continuousTimeUpdate()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

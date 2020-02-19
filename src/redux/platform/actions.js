@@ -5,7 +5,7 @@ from realm and any incoming data will be saved to realm
 */
 
 import { getPlatform } from './../../api/utils';
-import { createPlatformsIfNeeded, getActivePlatforms} from './../../realm/utils/v1';
+import { getActivePlatforms} from './../../realm/utils/v1';
 
 
 const assignPlatforms = platforms => ({
@@ -102,23 +102,5 @@ export function removePlatformData(platformName) {
     var platforms = getState().platformState.platforms
     delete platforms[platformName]
     dispatch(updatePlatform(platforms));
-  }
-}
-
-export function removePlatformSong(platformName, song) {
-  return async (dispatch, getState) => {
-    var platform = getState().platformState.platforms[platformName]
-    platform.removeSong(song)
-    platform.library =  platform.getLibrary()
-    dispatch(updatePlatformData(platform));
-  }
-}
-
-export function savePlatformSong(platformName, song) {
-  return async (dispatch, getState) => {
-    var platform = getState().platformState.platforms[platformName]
-    platform.saveSong(song)
-    platform.library =  platform.getLibrary()
-    dispatch(updatePlatformData(platform));
   }
 }

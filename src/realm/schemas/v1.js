@@ -26,7 +26,6 @@ export const SongSchema = {
     contributors: "Contributor[]",
     duration: "int?",
     platform: "string",
-    uploaded_date: "date"
   }
 };
 

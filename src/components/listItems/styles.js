@@ -2,72 +2,54 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 
 export default {
 
-  libraryItem: {
+  listItem: {
     height: hp("8.5%"),
     paddingRight: 0,
   },
-
-  libraryItemText: {
-    flex: .9,
+  image: {
+    width: hp("7%"),
+    height: hp("7%"),
+    resizeMode: 'contain',
+    backgroundColor: "#121212",
+  },
+  textContainer: {
+    marginLeft: wp("3%"),
     justifyContent: "center",
     flexDirection:"column",
     paddingLeft:0,
-    color : "white",
     fontWeight: "bold",
     textAlign: "left",
     alignItems:"flex-start",
-    width: wp("80%")
+    width: wp("65%")
   },
-  songOptionContainer: {
-    height: hp("5%"),
-    flex:1,
-    justifyContent: "center",
-    alignItems:"center"
-  },
-  searchItemText: {
-    flex: .9,
-    justifyContent: "center",
-    flexDirection:"column",
-    paddingLeft:0,
-    color : "white",
-    fontWeight: "bold",
-    textAlign: "left",
-    alignItems:"flex-start",
-    width: wp("80%"),
-    color:"white",
-    paddingLeft: wp("3%"),
-  },
-  songText: {
+  mainText: {
     fontWeight: "bold",
     fontSize: hp("2%"),
     textAlign: "left",
   },
-  artistText: {
+  noteText: {
     fontSize: hp("1.7%"),
     textAlign: "left",
   },
-  songOptions: {
+
+  arrowContainer: {
+    height: hp("5%"),
+    width: wp("5%"),
+    justifyContent: "center",
+    alignItems:"flex-end"
+  },
+  ellipsisContainer: {
+    height: hp("5%"),
+    width: wp("5%"),
+    flex:1,
+    justifyContent: "center",
+    alignItems:"center"
+  },
+  ellipsisContainerImageAdjusted: {
+    marginLeft: hp("7%")
+  },
+  ellipsis: {
     fontSize: hp("2.5%"),
     color: "white"
   },
-  artistImage: {
-    width: hp("7%"),
-    height: hp("7%"),
-    resizeMode: "contain",
-  },
-
-  footer: {
-    padding: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  showHideText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: hp("1.9%"),
-    fontWeight: "bold",
-
-  },
-
 }

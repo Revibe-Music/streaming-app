@@ -15,13 +15,19 @@ import {
 } from "native-base";
 import { View, Image } from "react-native";
 import Modal from "react-native-modal";
+import { connect } from 'react-redux';
+
 import ForgotPassword from "./forgotPassword";
 import AccountSync from "./../../components/accountSync/index";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
 import RevibeAPI from './../../api/Revibe'
+import YouTubeAPI from './../../api/Youtube'
+
 import styles from "./styles";
-import { connect } from 'react-redux';
-import { updatePlatformData, checkPlatformAuthentication } from './../../redux/platform/actions'
+import { getPlatform } from './../../api/utils';
+
+
+import { initializePlatforms, updatePlatformData } from './../../redux/platform/actions'
 
 
 
@@ -33,25 +39,26 @@ class Login extends Component {
     super(props);
     this.state = {
       forgotPasswordModal: false,
-      email: "riley.stephens22@gmail.com",
+      username: "rstephens2812",
       password: "Reed1rile2",
-      first_name: "Riley",
+      first_name: "",
       syncing: false,
       error: {},
     };
     this.revibe = new RevibeAPI()
+    this.youtube = new YouTubeAPI()
     this.toggleForgotPasswordModal = this.toggleForgotPasswordModal.bind(this);
     this.fetchConnectedAccounts = this.fetchConnectedAccounts.bind(this);
     this.syncAccounts = this.syncAccounts.bind(this);
   }
 
-  async fetchConnectedAccounts(token) {
-    var connectedPlatforms = await this.revibe.getConnectedPlatforms(token)
+  async fetchConnectedAccounts() {
+    var connectedPlatforms = await this.revibe.fetchConnectedPlatforms()
     connectedPlatforms = connectedPlatforms.platforms
     for(var x=0; x<connectedPlatforms.length; x++) {
-      let platform = new Platform(connectedPlatforms[x].name)
-      platform.saveCredentials({accessToken: connectedPlatforms[x].access_token, refreshToken: connectedPlatforms[x].refresh_token})
-      await platform.silentLogin({accessToken: connectedPlatforms[x].access_token, refreshToken: connectedPlatforms[x].refresh_token})
+      let platform = getPlatform(connectedPlatforms[x].name)
+      platform.saveToken({accessToken: connectedPlatforms[x].access_token, refreshToken: connectedPlatforms[x].refresh_token})
+      await platform.refreshToken()
       this.props.updatePlatformData(platform)
     }
     this.setState({ syncing: true})
@@ -71,22 +78,22 @@ class Login extends Component {
 
   async _loginButtonPressed () {
     try {
-      var token = await this.revibe.login({email: this.state.email, password: this.state.password});
-      if(Object.keys(token).filter(x => x==="accessToken").length>0) {
-        let youtube = getPlatform("YouTube")
-        var user = await this.revibe.getUser(token.accessToken)
-        this.setState({ firstName: user.first_name })
-        await this.fetchConnectedAccounts(token.accessToken)
+      var response = await this.revibe.login(this.state.username, this.state.password);
+      if(response.hasOwnProperty("first_name")) {
+        this.setState({ firstName: response.first_name, syncing: true })
+        await this.youtube.login()
+        this.setState({ firstName: response.first_name })
+        this.props.initializePlatforms()
+        // await this.fetchConnectedAccounts(response.access_token)
         setTimeout(this.syncAccounts, 5000)
       }
       else {
-        this.setState({error: token})
+        this.setState({error: response})
       }
     }
     catch(error) {
       console.log(error);
     }
-
   }
 
 
@@ -109,10 +116,10 @@ class Login extends Component {
             {Object.keys(this.state.error).filter(x => x === "non_field_errors").length>0 ? <Text style={styles.authenticationError}> {this.state.error.non_field_errors} </Text>: null}
 
               <Item stackedLabel style={{ marginRight: 15}}>
-                <Label style={styles.label}>Email</Label>
-                <Input autoCapitalize="none" onChangeText={(text) => this.setState({ email:text.toLowerCase() })} style={styles.formInputField}/>
+                <Label style={styles.label}>Username</Label>
+                <Input autoCapitalize="none" onChangeText={(text) => this.setState({ username:text.toLowerCase() })} style={styles.formInputField}/>
               </Item>
-              {Object.keys(this.state.error).filter(x => x === "email").length>0 ? <Text style={styles.authenticationError}> {this.state.error.email} </Text>: null}
+              {Object.keys(this.state.error).filter(x => x === "username").length>0 ? <Text style={styles.authenticationError}> {this.state.error.username} </Text>: null}
 
               <Item stackedLabel style={{ marginRight: 15}}>
                 <Label style={styles.label}>Password</Label>
@@ -166,8 +173,8 @@ function mapStateToProps(state) {
 };
 
 const mapDispatchToProps = dispatch => ({
+    initializePlatforms: () => dispatch(initializePlatforms()),
     updatePlatformData: (platform) => dispatch(updatePlatformData(platform)),
-    checkPlatformAuthentication: () => dispatch(checkPlatformAuthentication()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)

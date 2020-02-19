@@ -4,6 +4,7 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { audioReducer } from './audio/reducers';
 import { platformReducer } from './platform/reducers';
 import { connectionReducer } from './connection/reducers';
+import { navigationReducer } from './navigation/reducers';
 
 
 
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   audioState: audioReducer,
   platformState: platformReducer,
   connectionState: connectionReducer,
+  naviationState: navigationReducer,
 });
 
 const store = createStore(

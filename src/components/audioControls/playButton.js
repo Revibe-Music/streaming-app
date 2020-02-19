@@ -24,7 +24,6 @@ class PlayButton extends Component{
       if(this.props.audioInterupted) {
         var currentTime = new Date();
         var timeDiff = Math.abs(currentTime - this.props.audioInteruptTime) / 60000;
-        console.log(timeDiff);
         if(timeDiff <= 2) {
           this.set_resume();
         }

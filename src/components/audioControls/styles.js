@@ -11,8 +11,6 @@ export default {
       marginLeft:wp("10%"),
       justifyContent: 'center',
       alignItems: 'center'
-
-
   },
   seekBar: {
       marginTop: hp("5%"),

@@ -24,14 +24,15 @@ class Signup extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {firstName: "Riley",
-                  lastName: "Stephens",
-                  username: "rstephens28",
-                  email: "riley.stephens28@gmail.com",
-                  password1: "Reed1rile2",
-                  password2: "Reed1rile2",
-                  error: {},
-                };
+    this.state = {
+      firstName: "Riley",
+      lastName: "Stephens",
+      username: "rstephens28",
+      email: "riley.stephens28@gmail.com",
+      password1: "Reed1rile2",
+      password2: "Reed1rile2",
+      error: {},
+    };
 
     this.revibe = new RevibeAPI()
   }

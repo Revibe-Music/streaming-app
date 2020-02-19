@@ -1,7 +1,5 @@
-import store from './../rootReducer';
 import MusicControl from 'react-native-music-control';
 import BackgroundTimer from 'react-native-background-timer';
-
 
 const play = (index, playlist, activePlatform, inQueue) => {
   return {
@@ -59,8 +57,6 @@ const setAudioInterupt = (audioInterupted, audioInteruptTime) => ({
 });
 
 
-
-
 // Audio Controls
  const playSong = (index, playlist=null, inQueue=false) => {
   return async (dispatch, getState) => {
@@ -85,15 +81,15 @@ const setAudioInterupt = (audioInterupted, audioInteruptTime) => ({
 
       dispatch(play(index, playlist, platform.name, inQueue));
 
-      platform.play(playlist[index].uri)
+      // const timer = BackgroundTimer.setInterval(continuousTimeUpdate, 1000);
 
-      BackgroundTimer.runBackgroundTimer(continuousTimeUpdate, 250)
+      platform.play(playlist[index].uri)
 
       MusicControl.setNowPlaying({
         title: playlist[index].name,
-        artwork: playlist[index].Album.image, // URL or RN's image require()
-        artist: playlist[index].Artist.name,
-        album: playlist[index].platform !== "YouTube"? playlist[index].Album.name : "YouTube",
+        artwork: playlist[index].album.smallImage, // URL or RN's image require()
+        artist: playlist[index].contributors['0'].artist.name,
+        album: playlist[index].platform !== "YouTube"? playlist[index].album.name : "YouTube",
         duration: !!playlist[index].duration ? playlist[index].duration : 0, // (Seconds)
       })
   }
@@ -103,7 +99,6 @@ const pauseSong = () => {
   return (dispatch, getState) => {
       let platform = getState().platformState.platforms[getState().audioState.activePlatform]  // get active platform
       if (!!platform){
-        BackgroundTimer.stopBackgroundTimer(); //Stop updating time
         platform.pause()
         MusicControl.updatePlayback({
           state: MusicControl.STATE_PAUSE,
@@ -118,7 +113,6 @@ const pauseSong = () => {
   return (dispatch, getState) => {
       let platform = getState().platformState.platforms[getState().audioState.activePlatform]  // get active platform
       if (!!platform) {
-        BackgroundTimer.runBackgroundTimer(continuousTimeUpdate, 250)
         platform.resume()
         MusicControl.updatePlayback({
           state: MusicControl.STATE_PLAYING,
@@ -159,7 +153,7 @@ const pauseSong = () => {
   }
 }
 
-const addToQueue = (song, platform) => {
+const addToQueue = (song) => {
  return (dispatch, getState) => {
    dispatch(editQueue(getState().audioState.queue.concat([song])));
  }
@@ -179,8 +173,8 @@ const updateQueue = queue => {
       var platforms = getState().platformState.platforms
       var platformNames = Object.keys(platforms)
       for(var x=0; x<platformNames.length; x++) {
-        if(getState().platformState.platforms[platformNames[x]].library.length > 0) {
-          combinedPlaylists = combinedPlaylists.concat(getState().platformState.platforms[platformNames[x]].library)
+        if(getState().platformState.platforms[platformNames[x]].library.allSongs.length > 0) {
+          combinedPlaylists = combinedPlaylists.concat(getState().platformState.platforms[platformNames[x]].library.allSongs)
         }
       }
       let i = combinedPlaylists.length;
@@ -244,13 +238,14 @@ const updateSongTime = (currentTime) => {
         var playlist = getState().audioState.playlist
         var index = getState().audioState.currentIndex
         dispatch(updateSongTime(currentTime));
+        var image = playlist[index].album.images.length > 0 ? playlist[index].album.images[0].url : null
 
         MusicControl.updatePlayback({
           state: getState().audioState.isPlaying ? MusicControl.STATE_PLAY : MusicControl.STATE_PAUSE,
           title: playlist[index].name,
-          artwork: playlist[index].Album.image, // URL or RN's image require()
-          artist: playlist[index].Artist.name,
-          album: playlist[index].platform !== "YouTube" ? playlist[index].Album.name : "YouTube",
+          // artwork: image,               // URL or RN's image require()
+          artist: playlist[index].contributors['0'].artist.name,
+          album: playlist[index].platform !== "YouTube" ? playlist[index].album.name : "YouTube",
           duration: !!playlist[index].duration ? playlist[index].duration : getState().audioState.duration, // (Seconds)
           elapsedTime: currentTime
         })
@@ -264,4 +259,4 @@ const updateAudioInterupt = (interupted, interuptTime) => {
    }
 }
 
-export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt }
+export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt, continuousTimeUpdate }

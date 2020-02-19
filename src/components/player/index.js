@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, Alert, Image, Dimensions, Animated} from "react-native";
+import { View, Text, Alert, Image, TouchableOpacity, Animated} from "react-native";
 import Modal from "react-native-modal";
 import { Container,Content,Header,Left,Right,Body,Button,Icon,Footer, FooterTab } from "native-base";
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -16,6 +16,7 @@ import VideoPlayer from "./../audioControls/videoPlayer";
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import OfflineNotice from './../offlineNotice/index';
 import styles from "./styles";
+import { selectSong } from './../../redux/navigation/actions'
 import { continuousTimeUpdate } from './../../redux/audio/actions';
 import { connect } from 'react-redux';
 
@@ -33,9 +34,31 @@ class Player extends Component {
           playerOpen: false,  // is the state of the player minimized or maximized
         }
         this.animatedValue = new Animated.Value(0)
+        this.toggleOptionsMenu = this.toggleOptionsMenu.bind(this);
         this.togglePlayerModal = this.togglePlayerModal.bind(this);
         this.onAnimatedValueChange = this.onAnimatedValueChange.bind(this);
         this.listener = this.animatedValue.addListener(throttle(this.onAnimatedValueChange, 100)) //need to throttle bc if not show/hide animation is slow
+    }
+
+    componentDidUpdate(prevProps) {
+      // very tempory way to close player when user selects go to artist
+      // or go to album to get plyer to close. The issue is that if
+      // user is already on artist or album page then existing options menu
+      // also closes the player. Will need to figure out how to get active page
+      // from navigation
+      if(prevProps.selectedSong && !this.props.selectedSong) {
+        var routes = this.props.navigation.state.routes
+        for(var x=0; x<routes.length; x++) {
+          if(routes[x].routes.length > 1) {
+            this.togglePlayerModal()
+            break
+          }
+        }
+      }
+    }
+
+    toggleOptionsMenu() {
+      this.props.selectSong(this.props.playlist[this.props.currentIndex])
     }
 
     onAnimatedValueChange({ value }) {
@@ -121,12 +144,19 @@ class Player extends Component {
                 </Button>
               </Left>
               <Body style={styles.headerBody}>
-              <OfflineNotice />
-              </Body>
-              <Right>
               <View style={styles.logoContainer}>
               {platformIcon}
               </View>
+
+              <OfflineNotice />
+              </Body>
+              <Right>
+              <TouchableOpacity
+                style={styles.ellipsisContainer}
+                onPress={this.toggleOptionsMenu}
+               >
+               <Icon type="FontAwesome" name="ellipsis-h" style={styles.ellipsis} />
+              </TouchableOpacity>
               </Right>
             </Header>
             </>
@@ -195,14 +225,21 @@ class Player extends Component {
                 { this.state.playerVisible ?
                   <>
                   <View style={{flex: 0.8, alignItems: "center"}}>
-                  <SongInfo playerVisible={this.state.playerVisible}/>
+                  <SongInfo
+                    name={this.props.playlist[this.props.currentIndex].name}
+                    artists={this.props.playlist[this.props.currentIndex].contributors}
+                    playerVisible={this.state.playerVisible}
+                  />
                   </View>
                     {playerControls}
-
                   </>
                   :
                     <>
-                    <SongInfo playerVisible={this.state.playerVisible}/>
+                    <SongInfo
+                      name={this.props.playlist[this.props.currentIndex].name}
+                      artists={this.props.playlist[this.props.currentIndex].contributors}
+                      playerVisible={this.state.playerVisible}
+                    />
                     <View style={{flex: 0.2, alignItems: "center"}}>
                       <PlayButton size={hp("3.5%")}/>
                     </View>
@@ -225,9 +262,16 @@ class Player extends Component {
 
 function mapStateToProps(state) {
   return {
+    playlist: state.audioState.playlist,
+    currentIndex: state.audioState.currentIndex,
     hasAudio: state.audioState.hasAudio,
     activePlatform: state.audioState.activePlatform,
+    selectedSong: state.naviationState.selectedSong,
   }
 };
 
-export default connect(mapStateToProps)(Player)
+const mapDispatchToProps = dispatch => ({
+    selectSong: (song) => dispatch(selectSong(song)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Player)

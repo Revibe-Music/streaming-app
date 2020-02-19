@@ -1,11 +1,10 @@
 import React, { Component } from "react";
 import { View, Image, Alert } from "react-native";
-import Loading from "./../loading";
 import { Button, Text, Icon } from "native-base";
 import { BarIndicator } from 'react-native-indicators';
-
 import { connect } from 'react-redux';
 
+import AnimatedPopover from './../animatedPopover/index';
 import SpotifyAPI from './../../api/Spotify';
 import { updatePlatformData, removePlatformData } from './../../redux/platform/actions'
 import styles from ".//styles";
@@ -23,14 +22,16 @@ class SpotifyAccount extends Component {
   }
 
   async connectSpotify() {
-      var session = await this.spotify.login();
-      if(this.spotify.getProfile().product === "premium") {
-        if (!!session) {
-          this.setState({loading: true})
-          await this.spotify.fetchLibrarySongs()
-          this.props.updatePlatformData(this.spotify)
-          this.setState({loading: false})
+      await this.spotify.login();
+      var profile = await this.spotify.getProfile()
+      if(profile.product === "premium") {
+        this.setState({loading: true})
+        var songs = await this.spotify.fetchLibrarySongs()
+        for(var x=0; x< songs.length; x++) {
+          this.spotify.saveToLibrary(songs[x])
         }
+        this.props.updatePlatformData(this.spotify)
+        this.setState({loading: false})
       }
       else {
         await this.spotify.logout()
@@ -64,9 +65,7 @@ class SpotifyAccount extends Component {
           <View style={styles.logoRow}>
             <Icon type="FontAwesome" name={"spotify"} style={styles.logo} />
             {this.state.loading  ?
-              <View style={styles.loadingIndicator}>
-                <BarIndicator animationDuration={700} color='#7248bd' count={5} />
-              </View>
+              <AnimatedPopover type="Loading" show={this.state.loading} />
               :
               <Button
               style={this.spotify.hasLoggedIn() ? styles.disconnectBtn : styles.connectBtn}

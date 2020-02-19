@@ -37,7 +37,7 @@ export default {
         marginTop: 30
     },
     shuffle: {
-        fontSize: 15,
+        fontSize: 15,  
         letterSpacing: 1.2,
         fontWeight: "bold",
     },
@@ -51,5 +51,8 @@ export default {
         width: deviceWidth,
         paddingRight: 0,
         marginRight: 0
-    }
+    },
+    loadingIndicator: {
+      marginTop: 100,
+    },
 };

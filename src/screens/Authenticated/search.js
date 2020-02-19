@@ -5,9 +5,11 @@ import { BarIndicator } from 'react-native-indicators';
 import {default as SearchBar} from 'react-native-search-box';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { connect } from 'react-redux';
-import SearchSongList from "./../../components/lists/searchSongList";
-import SearchArtistList from "./../../components/lists/searchArtistList";
 
+import List from "./../../components/lists/List";
+import OptionsMenu from "./../../components/OptionsMenu/index";
+import AnimatedPopover from './../../components/animatedPopover/index';
+import { playSong } from './../../redux/audio/actions';
 import styles from "./styles";
 
 
@@ -21,10 +23,19 @@ class Search extends Component {
     super(props);
     this.state = {
       didSearch: false,
-      spotifyResults: {songs:[], artists: []},
-      youtubeResults: {songs:[], artists: []},
+      results: {},
       loading: false,
     };
+    var platformNames = Object.keys(this.props.platforms)
+    for(var x=0; x<platformNames.length; x++) {
+      this.state.results[platformNames[x]] = {Songs: [], Atists: [], Albums: []}
+    }
+
+    this.platformLogo = {
+      Revibe: require("../../../assets/RevibeLogo.png"),
+      Spotify: require("../../../assets/SpotifyLogo.png"),
+      YouTube: require("../../../assets/YouTubeLogo.png"),
+    }
 
     this.search = this.search.bind(this);
     this.cancelSearch = this.cancelSearch.bind(this);
@@ -35,47 +46,86 @@ class Search extends Component {
   async search(text) {
     if(!!text) {
       if (this.props.connected) {
-          this.setState({ loading: true });
+          this.setState({ loading: true, didSearch: true });
           var platformsFetching = []
           var platformNames = Object.keys(this.props.platforms)
-          platformNames = platformNames.filter(x => x=="Revibe")
+          // platformNames = platformNames.filter(x => x=="Revibe")
 
           for(var x=0; x<platformNames.length; x++) {
             platformsFetching.push(this.props.platforms[platformNames[x]].search(text))
           }
           var searchResults = await Promise.all(platformsFetching)
 
-          var newState = {}
+          var results = {}
           for(var x=0; x<searchResults.length; x++) {
-            if(platformNames[x]==="YouTube") {
-              newState[platformNames[x].toLowerCase()+"Results"] = {songs: searchResults[x].songs}
-            }
-            else {
-              newState[platformNames[x].toLowerCase()+"Results"] = {songs: searchResults[x].songs, artists: searchResults[x].artists} // need to initialize object here
-            }
+            results[platformNames[x]] = searchResults[x]
           }
-          newState["loading"] = false
-          newState["didSearch"] = true
-          this.setState(newState)
+          this.setState({results: results, loading: false, didSearch: true})
       }
       else {
         // show no internet connection
       }
     }
     else {
-      this.setState({
-        youtubeResults: {songs:[], artists: []},
-        spotifyResults: {songs:[], artists: []},
-      });
+      var results = {}
+      var platformNames = Object.keys(this.props.platforms)
+      for(var x=0; x<platformNames.length; x++) {
+        results[platformNames[x]] = {Songs: [], Artists: [], Albums: []}
+      }
+      this.setState({results: results});
     }
   }
 
   cancelSearch() {
-    this.setState({
-      youtubeResults: {songs:[], artists: []},
-      spotifyResults: {songs:[], artists: []},
-      didSearch: false
-    });
+    var results = {}
+    var platformNames = Object.keys(this.props.platforms)
+    for(var x=0; x<platformNames.length; x++) {
+      results[platformNames[x]] = {Songs: [], Artists: [], Albums: []}
+    }
+    this.setState({results: results,didSearch: false});
+  }
+
+  displayResults() {
+    const resultTypes = ["songs", "artists", "albums"]
+    const activePlatformNames = Object.keys(this.props.platforms);
+    return (
+      <Tabs
+        tabBarPosition="top"
+        tabBarUnderlineStyle={styles.tabs}
+      >
+        {resultTypes.map(contentType => {
+          const type = contentType.charAt(0).toUpperCase() + contentType.substring(1)
+          return (
+            <Tab heading={type} style={styles.container} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
+              <Content>
+              {activePlatformNames.map(platform => {
+                return (
+                  <View>
+                    <Image
+                      style={styles.searchPlatformLogo}
+                      source={this.platformLogo[platform]}
+                    />
+                    <View style={{minHeight: 1,}}>
+                      <List
+                        data={this.state.results[platform][contentType].slice(0,5)}
+                        type={type.slice(0, -1)}
+                        allowRefresh={false}
+                        displayType={true}
+                        navigation={this.props.navigation}
+                      />
+                    </View>
+                  </View>
+                )
+              }
+            )}
+            </Content>
+          </Tab>
+          )
+        }
+      )}
+    </Tabs>
+    )
+
   }
 
   availablePlatforms() {
@@ -106,7 +156,6 @@ class Search extends Component {
         <Right></Right>
       </Header>
       <Container style={styles.container}>
-
         <SearchBar
           blurOnSubmit
           onSearch={this.search}
@@ -128,157 +177,16 @@ class Search extends Component {
           style={styles.searchText}
         />
 
-          {!(this.state.spotifyResults.songs.length === 0 && this.state.spotifyResults.artists.length === 0 && this.state.youtubeResults.songs.length === 0 && !this.state.didSearch) ?
+          {this.state.didSearch ?
             <>
             {this.state.loading  ?
               <Content>
-              <View style={styles.loadingIndicator}>
-                <BarIndicator
-                  animationDuration={700}
-                  color='#7248bd'
-                  count={5}
-                />
-              </View>
+                <AnimatedPopover type="Loading" show={this.state.loading} />
               </Content>
               :
-              <Tabs
-                tabBarPosition="top"
-                tabBarUnderlineStyle={styles.tabs}
-              >
-                <Tab heading="Songs" style={styles.container} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
-                <Content>
-                { Object.keys(this.props.platforms).filter(x => x==="Spotify").length > 0 ?
-                  <>
-                  {this.state.spotifyResults.songs.length > 0 ?
-                    <View>
-                      <Image
-                        style={styles.searchPlatformLogo}
-                        source={require("../../../assets/spotify_logo.png")}
-                      />
-                      <SearchSongList
-                        results={this.state.spotifyResults.songs}
-                        platform={this.props.platforms["Spotify"]}
-                        navigation={this.props.navigation}
-                      />
-                    </View>
-                    :
-                    <>
-                    {this.state.didSearch ?
-                      <View>
-                        <Image
-                          style={styles.searchPlatformLogo}
-                          source={require("../../../assets/spotify_logo.png")}
-                        />
-                        <Text style={styles.searchNoResults}> No Results </Text>
-                      </View>
-                      :
-                      null
-                    }
-                    </>
-                  }
-                  </>
-                :
-                 null
-               }
-               {this.state.revibeResults.songs.length > 0 ?
-                 <View>
-                 <Image
-                   style={styles.searchPlatformLogo}
-                   source={require("../../../assets/revibetransparent.png")}
-                 />
-                 <SearchSongList
-                   results={this.state.revibeResults.songs}
-                   platform={this.props.platforms["Revibe"]}
-                   navigation={this.props.navigation}
-                 />
-                 </View>
-               :
-               <>
-               {this.state.didSearch ?
-                 <View>
-                   <Image
-                     style={styles.searchPlatformLogo}
-                     source={require("../../../assets/revibetransparent.png")}
-                   />
-                   <Text style={styles.searchNoResults}> No Results </Text>
-                 </View>
-                 :
-                 null
-               }
-               </>
-               }
-                {this.state.youtubeResults.songs.length > 0 ?
-                  <View>
-                  <Image
-                    style={styles.searchPlatformLogo}
-                    source={require("../../../assets/youtube_logo.png")}
-                  />
-                  <SearchSongList
-                    results={this.state.youtubeResults.songs}
-                    platform={this.props.platforms["YouTube"]}
-                    navigation={this.props.navigation}
-                  />
-                  </View>
-                :
-                <>
-                {this.state.didSearch ?
-                  <View>
-                    <Image
-                      style={styles.searchPlatformLogo}
-                      source={require("../../../assets/youtube_logo.png")}
-                    />
-                    <Text style={styles.searchNoResults}> No Results </Text>
-                  </View>
-                  :
-                  null
-                }
-                </>
-                }
-
-
-                </Content>
-
-                </Tab>
-                <Tab heading="Artists" style={styles.container} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
-                <Content>
-
-                { Object.keys(this.props.platforms).filter(x => x==="Spotify").length > 0 ?
-                  <>
-                  {this.state.spotifyResults.artists.length > 0  ?
-                    <View>
-                      <Image
-                        style={styles.searchPlatformLogo}
-                        source={require("../../../assets/spotify_logo.png")}
-                      />
-                      <SearchArtistList
-                        results={this.state.spotifyResults.artists}
-                        platform={this.props.platforms["Spotify"]}
-                        navigation={this.props.navigation}
-                      />
-                    </View>
-                    :
-                    <>
-                    {this.state.didSearch ?
-                      <View>
-                        <Image
-                          style={styles.searchPlatformLogo}
-                          source={require("../../../assets/spotify_logo.png")}
-                        />
-                        <Text style={styles.searchNoResults}> No Results </Text>
-                      </View>
-                      :
-                      null
-                    }
-                    </>
-                  }
-                  </>
-                :
-                null
-              }
-
-                </Content>
-                </Tab>
-              </Tabs>
+              <>
+              {this.displayResults()}
+              </>
             }
             </>
             :
@@ -295,6 +203,7 @@ class Search extends Component {
             </Content>
 
           }
+        <OptionsMenu navigation={this.props.navigation} />
       </Container>
       </>
     );
@@ -308,4 +217,9 @@ function mapStateToProps(state) {
   }
 };
 
-export default connect(mapStateToProps)(Search)
+const mapDispatchToProps = dispatch => ({
+    playSong: (index, playlist) => dispatch(playSong(index, playlist)),
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Search)

@@ -12,7 +12,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
     this.name = "YouTube";
   }
 
-  _handleErrors(response) {
+  async _handleErrors(response) {
     var errors = {}
     if(response.status === 400) {
       // bad request ish
@@ -20,9 +20,10 @@ export default class YouTubeAPI extends BasePlatformAPI {
     }
     if(response.status === 401) {
       // unauthorized ish
-      this.refreshToken()
+      await this.refreshToken()
     }
     if(response.status === 403) {
+      await this.login()
       // forbidden ish
 
     }
@@ -62,6 +63,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
     formattedContributors = []
     for(var x=0; x<contributors.length; x++) {
       let contributor = {
+        id: contributors[x].artist_id + itemId,
         type: contributors[x].contribution_type,
         artist: {
           name: contributors[x].artist_name,
@@ -80,9 +82,9 @@ export default class YouTubeAPI extends BasePlatformAPI {
     // parse content returned from Revibe API
     var formattedSong = {
       name: song['title'],
-      id: song['id'],
-      uri: song['uri'],
-      contributors: this._parseContributors(song['contributions']),
+      id: song['song_id'],
+      uri: song['song_uri'],
+      contributors: this._parseContributors(song['contributions'],song['song_id']),
       duration: parseFloat(song['duration']),
       album: this._parseAlbum(song['album']),
       platform: "YouTube",
@@ -97,6 +99,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
       id: video.id.videoId,
       uri: video.id.videoId,
       contributors: [{
+        id:video.snippet.channelId + video.id.videoId + "song",
         type: "Artist",
         artist: {
           name: video.snippet.channelTitle,
@@ -110,8 +113,37 @@ export default class YouTubeAPI extends BasePlatformAPI {
         name: "YouTube",
         id: video.id.videoId,
         uri: video.id.videoId,
+        type: "single",
+        contributors: [{
+          id:video.snippet.channelId + video.id.videoId + "album",
+          type: "Artist",
+          artist: {
+            name: video.snippet.channelTitle,
+            id: video.snippet.channelId,
+            uri: video.snippet.channelId,
+            platform: "YouTube",
+            images: []  // need to get these
+          }
+        }],
+        uploaded_date: video.snippet.publishedAt,
         platform: "YouTube",
-        images: []  // need to get these
+        images: [
+          {
+            height: video.snippet.thumbnails.default.height,
+            width: video.snippet.thumbnails.default.width,
+            url: video.snippet.thumbnails.default.url,
+          },
+          {
+            height: video.snippet.thumbnails.medium.height,
+            width: video.snippet.thumbnails.medium.width,
+            url: video.snippet.thumbnails.medium.url,
+          },
+          {
+            height: video.snippet.thumbnails.high.height,
+            width: video.snippet.thumbnails.high.width,
+            url: video.snippet.thumbnails.high.url,
+          }
+        ]  // need to get these
       },
       platform: "YouTube",
     }
@@ -127,7 +159,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
       platform: "YouTube",
       type: album['type'],
       uploaded_date: album['uploaded_date'],
-      images: []  // need to get these
+      images: this._parseImages(artist['images'])
     }
     return formattedAlbum
   }
@@ -139,20 +171,42 @@ export default class YouTubeAPI extends BasePlatformAPI {
       id: artist['artist_id'],
       uri: artist['artist_uri'],
       platform: "YouTube",
-      images: []  // need to get these
+      images: this._parseImages(artist['images'])
     }
     return formattedArtist
   }
 
-  async _getApiKey() {
-    // need Jordan to implement this endpoint
-    // return await this._request("administration/youtube-key/", "GET", null)
-    // save to realm as accessToken
-
-    return "AIzaSyDGF2iMfqVKbdkNwyJwQqD8VkaNwOSghBs"    // temp solution
+  _parseImages(images) {
+    formattedImages = []
+    for(var x=0; x<images.length; x++) {
+      let image = {
+        height: images[x].height,
+        width: images[x].width,
+        url: images[x].url,
+      }
+      formattedImages.push(image)
+    }
+    return formattedImages
   }
 
-  async _request(endpoint, method, body, authenticated=false) {
+
+  _formatResponse(response) {
+    if(response.hasOwnProperty('data')) {
+      response = response.data
+    }
+    if(response.hasOwnProperty('results')) {
+      response = response.results
+    }
+    if(response.hasOwnProperty('items')) {
+      response = response.items
+    }
+    // else {
+    //   console.log("Could not find 'results' root key in:",response[x]);
+    // }
+    return response
+  }
+
+  async _request(endpoint, method, body, authenticated=false, handlePagination=false, pageSize=50, limit=null) {
     var headers = {'Accept': 'application/json', 'Content-Type': 'application/json' }
     if (authenticated) {
       // if token id expired, refresh before sending with new request
@@ -163,6 +217,9 @@ export default class YouTubeAPI extends BasePlatformAPI {
       var url = IP + endpoint
     }
     else {
+      if(!this.getToken()) {
+        await this.login()
+      }
       var url = `https://www.googleapis.com/youtube/v3/${endpoint}&key=${this.getToken().accessToken}`
     }
 
@@ -187,31 +244,25 @@ export default class YouTubeAPI extends BasePlatformAPI {
             console.log(offset);
           }
           var response = await Promise.all(promiseArray);
+          response.unshift(initialRequest);           // add tracks from initial request
           // possible root key: results
           for(var x=0; x<response.length; x++) {
-            if(response.hasOwnProperty('results')) {
-              response[x] = response[x].results
-            }
-            else {
-              console.log("Could not find 'results' root key in:",response[x]);
-            }
-            if(!response[x].isArray()) {
-              console.log("Yo this bitch is not an array!");
-            }
+            response[x] = this._formatResponse(response[x])
           }
           response = [].concat.apply([], objects);    //merge arrays of songs into one array
-          response.unshift(initialRequest);           // add tracks from initial request
         }
         else {
           request.url = url
           response = await axios(request)
+          response = this._formatResponse(response)
         }
         break
       }
       catch(error) {
         // need to check if youtube api token needs to be exchanged
+        console.log(error);
         response = error.response
-        response.data = this._handleErrors(error.response)
+        response.data = await this._handleErrors(error.response)
         numRequestsSent += 1
       }
     }
@@ -229,14 +280,20 @@ export default class YouTubeAPI extends BasePlatformAPI {
   }
 
 
+
   async login() {
-    // Maybe get Youtube api key here?
     /**
-    * Summary: This function does not apply because YouTube is a public platform (required implementation).
+    * Summary: Fetch YouTube API key and store (required implementation).
     *
     * @see  BasePlatformAPI
     *
     */
+    var response = await this._request("administration/youtubekey/", "GET", null, true)
+    var token = {
+      platform: "YouTube",
+      accessToken: response.key,
+    }
+    this.saveToken(token)
   }
 
   async refreshToken() {
@@ -246,18 +303,19 @@ export default class YouTubeAPI extends BasePlatformAPI {
     * @see  BasePlatformAPI
     */
 
-    var refreshToken = this.getToken("Revibe").refreshToken
+    var token = this.getToken("Revibe")
     var data = {
-      refresh_token: refreshToken,
+      refresh_token: token.refreshToken,
       device_type: "phone"
     }
-    var response = await this._request("account/refresh-token/", "POST", data, true)
-    var token = {
-      accessToken: response.data.access_token,
-      refreshToken: refreshToken,
-      expiration: this._generateExpiration(1)
+    var response = await this._request("account/refresh-token/", "POST", data)
+    var newToken = {
+      accessToken: response.access_token,
+      refreshToken: response.refresh_token,
+      expiration: this._generateExpiration(1),
+      platform: "Revibe"
     }
-    this.updateToken(token, "Revibe");
+    token.update(newToken)
   }
 
   async logout() {
@@ -266,7 +324,8 @@ export default class YouTubeAPI extends BasePlatformAPI {
     *
     * @see  BasePlatformAPI
     */
-    this.removeToken()
+    var token = this.getToken()
+    token.remove()
   }
 
 
@@ -348,8 +407,8 @@ export default class YouTubeAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
 
-    var songs = await this._request('search?part=snippet&videoCategoryId=10&type=video&maxResults=10&channelId='+id, "GET", null)
-    for(var x=0; x<search.items.length; x++) {
+    var search = await this._request('search?part=snippet&videoCategoryId=10&type=video&maxResults=10&channelId='+id, "GET", null)
+    for(var x=0; x<search.length; x++) {
       songs[x] = this._parseVideo(search.songs[x]);
     }
     return results;
@@ -377,11 +436,10 @@ export default class YouTubeAPI extends BasePlatformAPI {
     *
     * @return {Object} List containing song objects, list containing album objects, list containing artist objects
     */
-
     var search = await this._request('search?part=snippet&videoCategoryId=10&type=video&maxResults=10&q='+query, "GET", null)
     var results = {songs: [], albums: [], artists: []};
-    for(var x=0; x<search.items.length; x++) {
-      results.songs.push(this._parseVideo(search.songs[x]));
+    for(var x=0; x<search.length; x++) {
+      results.songs.push(this._parseVideo(search[x]));
     }
     return results;
   }
@@ -405,7 +463,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
       album: song.album,
       artist: song.artist,
     }
-    await this._request("music/library/songs/", "POST", data, true)
+    // await this._request("music/library/songs/", "POST", data, true)
     this.saveToLibrary(song)   // save to realm database
   }
 
@@ -476,7 +534,8 @@ export default class YouTubeAPI extends BasePlatformAPI {
     */
 
     try {
-      var position = await player.current.getCurrentTime()
+      // var position = await player.current.getCurrentTime()
+      var position = await this.player.current.getCurrentTime()
     }
     catch(error) {
       var position = 0
@@ -506,7 +565,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
     */
 
     try {
-      player.current.seekTo(time);
+      this.player.current.seekTo(time);
     }
     catch(error) {
       console.log("Cant seek until player initialized");

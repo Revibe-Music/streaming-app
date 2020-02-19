@@ -8,47 +8,74 @@ import { TouchableOpacity, View, Text } from 'react-native'
 import { Container, Tabs, Tab, Icon, Header, Left, Body, Right, Button } from "native-base";
 import { connect } from 'react-redux';
 import styles from "./styles";
-import SplashScreen from "react-native-splash-screen";
 import {default as SearchBar} from 'react-native-search-box';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import { shuffleSongs } from './../../redux/audio/actions'
-import SpotifySongs from "./../../components/libraries/spotifySongs";
-import YouTubeSongs from "./../../components/libraries/youtubeSongs";
-import RevibeSongs from "./../../components/libraries/revibeSongs";
-import LibraryList from "./../../components/lists/libraryList";
-import ArtistList from "./../../components/lists/artistList";
-import AlbumList from "./../../components/lists/albumList";
+import { shuffleSongs, playSong } from './../../redux/audio/actions'
+import List from "./../../components/lists/List";
+import OptionsMenu from "./../../components/OptionsMenu/index";
+
+import realm from './../../realm/realm';
 
 
 class Library extends Component {
-
-  constructor(props) {
-     super(props);
-     this.state = {
-       filtering: false,
-       selectedFilter: "Songs",
-       filterText: "",
-       filteredData: {}
-     }
-     this.openFilter = this.openFilter.bind(this)
-     this.closeFilter = this.closeFilter.bind(this)
-     this.setFilterType = this.setFilterType.bind(this)
-     this.setFilterText = this.setFilterText.bind(this)
-     this.filter = this.filter.bind(this)
-     this.renderMedia = this.renderMedia.bind(this)
-   }
 
   static navigationOptions = {
     header: null
   };
 
+  constructor(props) {
+     super(props);
+
+     this.state = {
+       filtering: false,
+       selectedFilter: "Song",
+       filterText: "",
+       filteredData: {}
+     }
+
+     var activePlatformNames = Object.keys(this.props.platforms);
+     for(var x=0; x<activePlatformNames.length; x++) {
+       this.state[activePlatformNames[x] + "Songs"] = this.props.platforms[activePlatformNames[x]].library.allSongs
+     }
+     this.updateSongs = this.updateSongs.bind(this)
+     this.openFilter = this.openFilter.bind(this)
+     this.closeFilter = this.closeFilter.bind(this)
+     this.setFilterType = this.setFilterType.bind(this)
+     this.setFilterText = this.setFilterText.bind(this)
+     this.filter = this.filter.bind(this)
+  }
+
+  componentDidMount () {
+    var activePlatformNames = Object.keys(this.props.platforms);
+    for(var x=0; x<activePlatformNames.length; x++) {
+      const platformName = activePlatformNames[x]
+      this.props.platforms[platformName].library.addListener(() => {
+        this.updateSongs(platformName)
+      })
+    }
+  }
+
+  componentWillUnmount() {
+    var activePlatformNames = Object.keys(this.props.platforms);
+    for(var x=0; x<activePlatformNames.length; x++) {
+      const platformName = activePlatformNames[x]
+      this.props.platforms[platformName].library.removeListener()
+    }
+  }
+
+  updateSongs(platform) {
+    this.setState({[platform+"Songs"]: this.props.platforms[platform].library.allSongs})
+  }
+
   openFilter() {
     this.setState({ filtering: true })
     this.filter("", "")
   }
+
   closeFilter() {
-    this.setState({ filtering: false, filteredData: {}, selectedFilter:"Songs"})
+    this.setState({ filtering: false, filteredData: {}, selectedFilter:"Song"})
   }
+
   setFilterType(type) {
     if(type !== this.state.selectedFilter) {
       this.setState({ selectedFilter: type })
@@ -62,60 +89,17 @@ class Library extends Component {
   }
 
   filter(type, text) {
-    // var platformNames = Object.keys(this.props.platforms).filter(x => x!=="Revibe")
     var filteredPlatformData = {}
+    var platformNames = Object.keys(this.props.platforms)
     for(var x=0; x<platformNames.length; x++) {
       filteredPlatformData[platformNames[x]] = this.props.platforms[platformNames[x]].filterData(type, text)
     }
     this.setState({ filteredData: filteredPlatformData })
   }
 
-  renderMedia(platform) {
-    if(this.state.filtering && this.state.filteredData[platform]) {
-      if(this.state.filteredData[platform].length > 0) {
-        if(this.state.selectedFilter === "Artists") {
-          return (<Container style={[{backgroundColor: "#121212",}, this.state.filtering ? {paddingTop:hp("15%")} : {paddingTop:hp("7%")}]}>
-                    <ArtistList artists={this.state.filteredData[platform]} displaySavedSongs={true} platform={this.props.platforms[platform]} navigation={this.props.navigation}/>
-                  </Container>)
-        }
-        else if(this.state.selectedFilter === "Albums") {
-          return (<Container style={[{backgroundColor: "#121212",}, this.state.filtering ? {paddingTop:hp("15%")} : {paddingTop:hp("7%")}]}>
-                    <AlbumList albums={this.state.filteredData[platform]} displaySavedSongs={true} platform={this.props.platforms[platform]} navigation={this.props.navigation}/>
-                  </Container>)
-        }
-        else {
-          return (<Container style={[{backgroundColor: "#121212",}, this.state.filtering ? {paddingTop:hp("15%")} : {paddingTop:hp("7%")}]}>
-                    <LibraryList filtering={true} songs={this.state.filteredData[platform]} platform={this.props.platforms[platform]} navigation={this.props.navigation}/>
-                  </Container>)
-        }
-      }
-      else {
-        return (<Container style={[{backgroundColor: "#121212",}, this.state.filtering ? {paddingTop:hp("15%")} : {paddingTop:hp("7%")}]}>
-                  <Text style={styles.noFilterResultsText}>No Results.</Text>
-               </Container>)
-      }
-    }
-    else {
-      if(platform === "Spotify") {
-        return (<SpotifySongs filtering={this.state.filtering} navigation={this.props.navigation} />)
-      }
-      else if(platform === "YouTube") {
-        return (<YouTubeSongs filtering={this.state.filtering} navigation={this.props.navigation} />)
-      }
-      else {
-        return (<RevibeSongs filtering={this.state.filtering} navigation={this.props.navigation} />)
-      }
-    }
-  }
-
-  renderLibrary(platform) {
-
-  }
-
 
   render() {
     const activePlatformNames = Object.keys(this.props.platforms);
-
     return (
       <>
       <Header style={styles.libraryHeader} androidStatusBarColor="#222325" iosBarStyle="light-content">
@@ -134,33 +118,11 @@ class Library extends Component {
         </Right>
       </Header>
 
-      <Container style={styles.container}>
-
-        <Tabs tabBarPosition="top" tabBarUnderlineStyle={styles.tabs}>
-
-        {activePlatformNames.filter(name => name==="Spotify").length > 0 ?
-          <Tab heading="Spotify" style={styles.tab} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
-            {this.renderMedia("Spotify")}
-          </Tab>
-          :
-          null
-        }
-        <Tab heading="YouTube" style={styles.tab} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
-          {this.renderMedia("YouTube")}
-        </Tab>
-        <Tab heading="Revibe" style={styles.tab} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
-          {this.renderMedia("Revibe")}
-        </Tab>
-        </Tabs>
-      </Container>
-      <View style={[styles.filterOptionConainter, this.state.filtering ? null : {flexDirection:"row"}]} >
-
-      {this.state.filtering ?
-        <View styles={{width: wp("90%")}}>
+      <View style={styles.container}>
+      <View style={{width: wp("90%"), marginLeft: "5%"}}>
         <SearchBar
           defaultValue=""
           blurOnSubmit={false}
-          autoFocus={true}
           onDelete={() => this.setFilterText("") }
           onChangeText={this.setFilterText}
           onCancel={this.closeFilter}
@@ -180,36 +142,9 @@ class Library extends Component {
           placeholderExpandedMargin={wp("10%")}
           style={styles.searchText}
         />
-        <View style={{flexDirection:"row", width: wp("75%"), marginTop: wp("3%")}} >
-        <Left>
-          <Button
-          style={[styles.filterButtonSmall, this.state.selectedFilter === "Songs" ? {backgroundColor: "#7248BD"} : {backgroundColor: "#222222"}] }
-          onPress={() => this.setFilterType("Songs")}
-          >
-            <Text style={styles.filterTextSmall}> Songs </Text>
-          </Button>
-        </Left>
-        <Body>
-          <Button
-          style={[styles.filterButtonSmall, this.state.selectedFilter === "Artists" ? {backgroundColor: "#7248BD"} : {backgroundColor: "#222222"}] }
-          onPress={() => this.setFilterType("Artists")}
-          >
-            <Text style={styles.filterTextSmall}> Artists </Text>
-          </Button>
-        </Body>
-        <Right>
-          <Button
-          style={[styles.filterButtonSmall, this.state.selectedFilter === "Albums" ? {backgroundColor: "#7248BD"} : {backgroundColor: "#222222"}]}
-          onPress={() => this.setFilterType("Albums")}
-          >
-            <Text style={styles.filterTextSmall}> Albums </Text>
-          </Button>
-        </Right>
         </View>
-        </View>
-        :
-        <>
-        <Left>
+
+        <View style={{flexDirection:"row", marginTop: hp("1%"), justifyContent: "space-evenly"}} >
           <Button
           style={styles.filterButtonLarge}
           onPress={() => this.props.shuffleSongs()}
@@ -217,8 +152,6 @@ class Library extends Component {
             <Text style={styles.filterTextLarge}> Shuffle </Text>
             <Icon type="Entypo" name="shuffle" style={styles.filterIconsLarge} />
           </Button>
-        </Left>
-        <Right>
           <Button
           style={styles.filterButtonLarge}
           onPress={this.openFilter}
@@ -226,15 +159,34 @@ class Library extends Component {
             <Text style={styles.filterTextLarge}> Filter </Text>
             <Icon type="MaterialCommunityIcons" name="xbox-controller-menu" style={styles.filterIconsLarge} />
           </Button>
-        </Right>
-        </>
-      }
+          </View>
+      <Container style={{backgroundColor: "#121212"}}>
+      <Tabs tabBarPosition="top" tabBarUnderlineStyle={styles.tabs}>
+        {activePlatformNames.map(platform => (
+          <Tab heading={platform} style={styles.tab} tabStyle={styles.tabStyle} activeTabStyle={styles.activeTabStyle} textStyle={styles.tabText} activeTextStyle={styles.activeTabText}>
+            <Container style={{backgroundColor: "#121212"}}>
+              <List
+                data={this.state.filteredData[platform] ? this.state.filteredData[platform] : this.state[platform+"Songs"]}
+                type={this.state.selectedFilter}
+                allowRefresh={!this.state.filtering}
+                onRefresh={() => console.log("Refreshing!")}
+                noDataText="Your Library is empty."
+                navigation={this.props.navigation}
+                onClick={(index, playlist) => this.props.playSong(index,playlist)}
+              />
+            </Container>
+          </Tab>
+        ))}
+      </Tabs>
+      <OptionsMenu navigation={this.props.navigation} />
+      </Container>
       </View>
-
       </>
     );
   }
 }
+
+
 function mapStateToProps(state) {
   return {
     platforms: state.platformState.platforms,
@@ -243,6 +195,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = dispatch => ({
     shuffleSongs: () => dispatch(shuffleSongs()),
+    playSong: (index, playlist) => dispatch(playSong(index, playlist))
 });
 
 

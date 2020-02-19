@@ -1,91 +1,116 @@
 import React, { PureComponent } from 'react';
 import { View, TouchableOpacity } from "react-native";
-import { Text, ListItem, Icon } from "native-base";
-import SongOptions from "./../songOptions/index";
-import styles from "./styles";
+import { Text,  Icon, ListItem as BaseListItem } from "native-base";
+import PropTypes from 'prop-types';
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import ImageLoad from 'react-native-image-placeholder';
 import { connect } from 'react-redux';
-import { playSong  } from './../../redux/audio/actions';
+import { compact } from 'lodash';
+
+import OptionsMenu from "./../OptionsMenu/index";
+import { playSong } from './../../redux/audio/actions'
+import { selectSong } from './../../redux/navigation/actions'
+import styles from "./styles";
 
 class SongItem extends PureComponent {
 
   constructor(props) {
-   super(props);
-   //need to pass platform and library
-   this.state={color:"white"}
-   this.songPressed = this.songPressed.bind(this);
-   this.isCurrentSong = this.isCurrentSong.bind(this);
- }
+    super(props);
 
- componentDidMount() {
-   this.isCurrentSong()
- }
-
- componentDidUpdate() {
-   this.isCurrentSong()
- }
-
-  async songPressed() {
-    var index = this.props.playlist.findIndex(x => x.name === this.props.song.name && x.Artist.name === this.props.song.Artist.name);
-    this.props.playSong(index, this.props.playlist);
-    this.setState({color: "#7248BD"})
+    this.toggleOptionsMenu = this.toggleOptionsMenu.bind(this)
+    this.setColor = this.setColor.bind(this)
+    this.setArtist = this.setArtist.bind(this)
+    this.onClick = this.onClick.bind(this)
   }
 
-  isCurrentSong() {
-    if(!!this.props.activePlatform) {
-      if(this.props.currentplaylist[this.props.currentIndex].name === this.props.song.name && this.props.currentplaylist[this.props.currentIndex].Artist.name === this.props.song.Artist.name) {
-        this.setState({color: "#7248BD"})
-      }
-      else {
-        this.setState({color: "white"})
+  toggleOptionsMenu() {
+    this.props.selectSong(this.props.song)
+  }
+
+  setColor() {
+    if(this.props.activePlatform) {
+      if(this.props.currentplaylist[this.props.currentIndex].id === this.props.song.id) {
+        return "#7248BD"
       }
     }
+    return "white"
+  }
 
+  setArtist() {
+    const song = this.props.song
+    var contributors = Object.keys(this.props.song.contributors).map(x => this.props.song.contributors[x])
+    var contributorString = compact(contributors.map(function(x) {if(x.type === "Artist") return x.artist.name})).join(', ')
+    if(this.props.displayType) {
+       contributorString = `Song • ${contributorString}`
+    }
+    return contributorString
+  }
+
+  onClick() {
+    var index = this.props.playlist.map(function(e) { return e.id; }).indexOf(this.props.song.id);
+    this.props.playSong(index, this.props.playlist)
   }
 
   render() {
     return (
-      <ListItem noBorder style={styles.libraryItem}>
-        <TouchableOpacity
-         onPress={() => {
-           this.songPressed();
-         }}
-         >
-         <View style={styles.libraryItemText}>
-           <View>
-             <Text style={[styles.songText,{color:this.state.color}]} numberOfLines={1}>{this.props.song.name}</Text>
-           </View>
-           <View>
-             <Text numberOfLines={1} note style={styles.artistText}>{this.props.song.Artist.name}</Text>
+      <BaseListItem noBorder style={styles.listItem}>
+        <TouchableOpacity onPress={this.onClick}>
+          <View style={{flexDirection: "row"}}>
+            {this.props.displayImage ?
+              <ImageLoad
+                  isShowActivity={false}
+                  style={styles.image} // rounded or na?
+                  placeholderStyle={styles.image}
+                  source={{uri: this.props.song.album.mediumImage ? this.props.song.album.mediumImage : this.props.song.album.images[2].url}}
+                  placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
+              />
+            :
+            null
+            }
+            <View style={styles.textContainer}>
+             <View>
+               <Text style={[styles.mainText,{color:this.setColor()}]} numberOfLines={1}>{this.props.song.name}</Text>
+             </View>
+             <View>
+               <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist()}</Text>
+             </View>
            </View>
          </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.songOptionContainer}
-          onPress={() => {this.props.navigation.navigate(
-            {
-              key: "SongOptions",
-              routeName: "SongOptions",
-              params: {song: this.props.song, platform:this.props.platform}
-            }
-          )}}
+        <TouchableOpacity
+          style={this.props.displayImage ? styles.ellipsisContainer : [styles.ellipsisContainerImageAdjusted,styles.ellipsisContainer]}
+          onPress={this.toggleOptionsMenu}
          >
-         <Icon type="FontAwesome" name="ellipsis-v" style={styles.songOptions} />
+         <Icon type="FontAwesome" name="ellipsis-v" style={styles.ellipsis} />
         </TouchableOpacity>
-
-      </ListItem>
+      </BaseListItem>
     )
   }
 }
-function mapStateToProps(state) {
-  return {
-    platforms: state.platformState.platforms,
-    activePlatform: state.audioState.activePlatform,
-    currentIndex: state.audioState.currentIndex,
-    currentplaylist: state.audioState.playlist,
-  }
+
+SongItem.propTypes = {
+  song: PropTypes.object,
+  playlist: PropTypes.arrayOf(PropTypes.object),
+  displayImage: PropTypes.bool,
+  displayType: PropTypes.bool,
 };
 
+SongItem.defaultProps = {
+  displayImage: true,
+  displayType: false,
+};
+
+
+function mapStateToProps(state) {
+  return {
+    currentIndex: state.audioState.currentIndex,
+    currentplaylist: state.audioState.playlist,
+    activePlatform: state.audioState.activePlatform
+  }
+};
 const mapDispatchToProps = dispatch => ({
-    playSong: (index,playlist ) => dispatch(playSong(index, playlist)),
+    selectSong: (song) => dispatch(selectSong(song)),
+    playSong: (index, playlist) => dispatch(playSong(index, playlist))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(SongItem)
+export default connect(mapStateToProps,mapDispatchToProps)(SongItem)

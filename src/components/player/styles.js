@@ -52,4 +52,16 @@ export default {
       marginBottom: hp("6%"),
     },
 
+    ellipsisContainer: {
+      height: hp("5%"),
+      width: wp("5%"),
+      // flex:1,
+      justifyContent: "center",
+      // alignItems:"center"
+    },
+    ellipsis: {
+      fontSize: hp("2.5%"),
+      color: "white"
+    },
+
 };

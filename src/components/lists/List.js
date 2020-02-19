@@ -1,14 +1,12 @@
 import React, { Component } from "react";
-import {RefreshControl, Dimensions, View } from "react-native";
+import {RefreshControl, Dimensions, View, Text,TouchableOpacity } from "react-native";
 import PropTypes from 'prop-types';
 import { RecyclerListView, DataProvider, LayoutProvider } from "recyclerlistview";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-import Loading from "./../loading/index";
-import SongItem from "./../listItems/songItem";
-import { updatePlatformData } from './../../redux/platform/actions';
-
-import { connect } from 'react-redux';
+import SongItem from "./../listItems/SongItem";
+import AlbumItem from "./../listItems/AlbumItem";
+import ArtistItem from "./../listItems/ArtistItem";
 import styles from "./styles";
 
 
@@ -24,8 +22,6 @@ class List extends Component {
            return (r1.id !== r2.id);
       });
 
-      var dimensions = this._getDimensions()
-
       this._layoutProvider = new LayoutProvider(
        index => {
             return ViewTypes.MEDIA;
@@ -33,8 +29,8 @@ class List extends Component {
             (type, dim) => {
                 switch (type) {
                     case ViewTypes.MEDIA:
-                        dim.width = dimensions.width;
-                        dim.height = dimensions.height;
+                        dim.width =  wp("100%");
+                        dim.height = hp("8%")
                         break;
                     default:
                         dim.width = 0;
@@ -45,34 +41,40 @@ class List extends Component {
         );
 
         this._rowRenderer = this._rowRenderer.bind(this);
-
         this.state = {
             refreshing: false,
         };
     }
 
-  _getDimensions() {
-    var layout = {}
-    if(this.props.type === "song") {
-      layout.height = wp("100%")
-      layout.width = hp("8%")
-    }
-    else {
-      layout.height = wp("50%")
-      layout.width = hp("20%")
-    }
-    return layout
-  }
-
-
-
-   _rowRenderer(type, data) {
-       switch (type) {
-           case ViewTypes.SONG:
-               return (
-                 <SongItem song={data} playlist={this.props.filtering ? this.props.songs : this.props.platform.library} platform={this.props.platform} searchResult={false} navigation={this.props.navigation}/>
-               )
-       }
+   _rowRenderer(type, data, index) {
+     if(this.props.type === "Song") {
+       return (
+         <SongItem
+          song={data}
+          playlist={this.props.data}
+          displayImage={this.props.displayImage}
+          displayType={this.props.displayType}
+         />
+       )
+     }
+     if(this.props.type === "Artist") {
+       return (
+         <ArtistItem
+          artist={data}
+          displayType={this.props.displayType}
+          navigation={this.props.navigation}
+         />
+       )
+     }
+     if(this.props.type === "Album") {
+       return (
+         <AlbumItem
+          album={data}
+          displayType={this.props.displayType}
+          navigation={this.props.navigation}
+         />
+       )
+     }
    }
 
    async refresh() {
@@ -83,41 +85,58 @@ class List extends Component {
 
 
   render() {
-    var data = this.dataProvider.cloneWithRows(this.props.songs)
 
+    if(this.props.data.length > 0) {
+      var data = this.dataProvider.cloneWithRows(this.props.data)
+
+      return (
+        <RecyclerListView
+          layoutProvider={this._layoutProvider}
+          dataProvider={data}
+          rowRenderer={this._rowRenderer}
+          optimizeForInsertDeleteAnimations={true}
+          extendedState={this.state}
+          scrollViewProps={!this.props.allowRefresh ?
+            null :
+            {
+            refreshControl: (
+              <RefreshControl
+              onRefresh={this.refresh}
+              refreshing={this.state.refreshing}
+              />
+            )
+          }}
+        />
+      )
+    }
     return (
-      <RecyclerListView
-        layoutProvider={this._layoutProvider}
-        dataProvider={data}
-        rowRenderer={this._rowRenderer}
-        optimizeForInsertDeleteAnimations={true}
-        extendedState={this.state}
-        scrollViewProps={this.props.allowRefresh ?
-          null :
-          {
-          refreshControl: (
-            <RefreshControl
-            onRefresh={this.refresh}
-            refreshing={this.state.refreshing}
-            />
-          )
-        }}
-      />
+      <View style={styles.textContainer}>
+        <Text style={styles.noDataText}>{this.props.noDataText}</Text>
+      </View>
     )
+
   }
 }
 
 List.propTypes = {
   data: PropTypes.array.isRequired,
-  type: PropTypes.oneOfType(["song","artist","album"]),
-  platform: PropTypes.object.isRequired,                   // this object "owns" the contributions (will be an album or song most likely)
-  allowRefresh: PropTypes.bool,                   // this object "owns" the contributions (will be an album or song most likely)
-  onRefresh: PropTypes.func,            // function that is called whenever a tag is added
+  noDataText: PropTypes.string,
+  type: PropTypes.oneOfType(["Song","Artist","Album"]),
+  displayType: PropTypes.bool,
+  displayImage: PropTypes.bool,
+  allowRefresh: PropTypes.bool,
+  isLocal: PropTypes.bool,
+  onRefresh: PropTypes.func,
 };
 
 List.defaultProps = {
   allowRefresh: true,
-  onRefresh: () => console.log("Must pass function to onRefresh props in order for pull-to-refresh to do anything.");
+  isLocal: false,
+  onRefresh: () => console.log("Must pass function to onRefresh props in order for pull-to-refresh to do anything."),
+  displayType: false,
+  displayImage: true,
+  noDataText: "No Results."
 };
+
 
 export default List

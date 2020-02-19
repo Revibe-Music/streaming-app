@@ -9,7 +9,7 @@ import { Container,ListItem, Icon, Header, Left, Body, Right } from "native-base
 import DraggableFlatList from 'react-native-draggable-dynamic-flatlist'
 import { connect } from 'react-redux';
 
-import SongItem from './../../components/listItems/songItem'
+import OptionsMenu from "./../../components/OptionsMenu/index";
 import { updateQueue } from './../../redux/audio/actions'
 import styles from "./styles";
 
@@ -32,7 +32,7 @@ class Queue extends Component {
             <Text style={[styles.songText,{color:"white"}]} numberOfLines={1}>{item.name}</Text>
           </View>
           <View>
-            <Text numberOfLines={1} note style={[styles.artistText,{color:"grey"}]}>{this.props.searchResult ? "Song • " : ""}{item.Artist.name}</Text>
+            <Text numberOfLines={1} note style={[styles.artistText,{color:"grey"}]}>{this.props.searchResult ? "Song • " : ""}{item.contributors[0].artist.name}</Text>
           </View>
         </View>
         <TouchableOpacity
@@ -73,6 +73,7 @@ class Queue extends Component {
       :
       <Text style={styles.emptyQueueText}>Your queue is empty.</Text>
       }
+      <OptionsMenu navigation={this.props.navigation} />
       </Container>
       </>
     );

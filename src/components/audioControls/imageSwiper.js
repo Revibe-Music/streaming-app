@@ -70,10 +70,16 @@ class ImageSwiper extends Component{
     }
 
     _rowRenderer(type, data) {
+      if(Array.isArray(data.album.images)) {
+        var image = data.album.images.length > 0 ? data.album.images[0].url : null
+      }
+      else {
+        var image = Object.keys(data.album.images).length ? data.album.images["0"].url : null
+      }
         switch (type) {
             case ViewTypes.SONG:
                 return (
-                  <AlbumArt album={data.Album.image} />
+                  <AlbumArt album={image} />
                 )
         }
     }

@@ -15,7 +15,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     this.name = "Revibe";
   }
 
-  _handleErrors(response) {
+  async _handleErrors(response) {
     var errors = {}
     if(response.status === 400) {
       // bad request ish
@@ -23,7 +23,8 @@ export default class RevibeAPI extends BasePlatformAPI {
     }
     if(response.status === 401) {
       // unauthorized ish
-      this.refreshToken()
+      console.log("Yo in 401 handler");
+      await this.refreshToken()
     }
     if(response.status === 403) {
       // forbidden ish
@@ -68,17 +69,17 @@ export default class RevibeAPI extends BasePlatformAPI {
     return errors
   }
 
-  _parseContributors(contributors) {
+  _parseContributors(contributors, itemId) {
     formattedContributors = []
     for(var x=0; x<contributors.length; x++) {
       let contributor = {
+        id: contributors[x].artist_id + itemId,
         type: contributors[x].contribution_type,
         artist: {
           name: contributors[x].artist_name,
           id: contributors[x].artist_id,
           uri: contributors[x].artist_uri,
           platform: "Revibe",
-          images: []  // need to get these
         }
       }
       formattedContributors.push(contributor)
@@ -89,9 +90,9 @@ export default class RevibeAPI extends BasePlatformAPI {
   _parseSong(song) {
     var formattedSong = {
       name: song['title'],
-      id: song['id'],
-      uri: song['uri'],
-      contributors: this._parseContributors(song['contributions']),
+      id: song['song_id'],
+      uri: song['song_uri'],
+      contributors: this._parseContributors(song['contributors'], song['song_id']),
       duration: parseFloat(song['duration']),
       album: this._parseAlbum(song['album']),
       platform: "Revibe",
@@ -105,9 +106,10 @@ export default class RevibeAPI extends BasePlatformAPI {
       id: album['album_id'],
       uri: album['album_uri'],
       platform: "Revibe",
+      contributors: this._parseContributors(album['contributors'], album['album_id']),
       type: album['type'],
       uploaded_date: album['uploaded_date'],
-      images: []  // need to get these
+      images: this._parseImages(album.images)
     }
     return formattedAlbum
   }
@@ -118,7 +120,7 @@ export default class RevibeAPI extends BasePlatformAPI {
       id: artist['artist_id'],
       uri: artist['artist_uri'],
       platform: "Revibe",
-      images: []  // need to get these
+      images: this._parseImages(artist.images)
     }
     return formattedArtist
   }
@@ -132,14 +134,29 @@ export default class RevibeAPI extends BasePlatformAPI {
       return formattedPlaylist
   }
 
+  _parseImages(images) {
+    formattedImages = []
+    for(var x=0; x<images.length; x++) {
+      let image = {
+        height: images[x].height,
+        width: images[x].width,
+        url: images[x].url,
+      }
+      formattedImages.push(image)
+    }
+    return formattedImages
+  }
+
   async _request(endpoint, method, body, authenticated=false, handlePagination=false, pageSize=100, limit=null) {
     var headers = {'Accept': 'application/json', 'Content-Type': 'application/json' }
     if (authenticated) {
       // if token id expired, refresh before sending with new request
-      if(!this.isLoggedIn()) {
-        await this.refreshToken()
+      if(this.hasLoggedIn()) {
+        if(!this.isLoggedIn()) {
+          await this.refreshToken()
+        }
+        headers['Authorization'] = `Bearer ${this.getToken().accessToken}`
       }
-      headers['Authorization'] = `Bearer ${this.getToken().accessToken}`
     }
     var numRequestsSent = 0
     var maxRequestAttempts = 2
@@ -160,20 +177,17 @@ export default class RevibeAPI extends BasePlatformAPI {
             console.log(offset);
           }
           var response = await Promise.all(promiseArray);
+          response.unshift(initialRequest);     // add tracks from initial request
           // possible root key: results
           for(var x=0; x<response.length; x++) {
-            if(response.hasOwnProperty('results')) {
-              response[x] = response[x].results
+            if(response[x].data.hasOwnProperty('results')) {
+              response[x] = response[x].data.results
             }
             else {
               console.log("Could not find 'results' root key in:",response[x]);
             }
-            if(!response[x].isArray()) {
-              console.log("Yo this bitch is not an array!");
-            }
           }
-          response = [].concat.apply([], objects);    //merge arrays of songs into one array
-          response.unshift(initialRequest);     // add tracks from initial request
+          response = [].concat.apply([], response);    //merge arrays of songs into one array
         }
         else {
           request.url = `${IP}${endpoint}`
@@ -184,7 +198,7 @@ export default class RevibeAPI extends BasePlatformAPI {
       catch(error) {
         console.log(error);
         response = error.response
-        response.data = this._handleErrors(error.response)
+        response.data = await this._handleErrors(error.response)
         numRequestsSent += 1
       }
     }
@@ -219,8 +233,11 @@ export default class RevibeAPI extends BasePlatformAPI {
       var token = {
         accessToken: response.data.access_token,
         refreshToken: response.data.refresh_token,
-        expiration: this._generateExpiration(1)
+        expiration: this._generateExpiration(1.9),
+        platform: "Revibe"
       }
+      this.saveToken(token)
+
       var user = {
         "first_name": response.data.user.first_name,
         "last_name": response.data.user.last_name,
@@ -234,11 +251,9 @@ export default class RevibeAPI extends BasePlatformAPI {
       }
       if(response.data.user.profile.country) user.country = response.data.user.profile.country
       if(response.data.user.profile.image) user.image = response.data.user.profile.image
-      this.saveToken(token)
       DefaultPreference.setMultiple(user)
     }
     return response.data
-
   }
 
   async login(username, password) {
@@ -256,15 +271,40 @@ export default class RevibeAPI extends BasePlatformAPI {
     var data = {
       username: username,
       password: password,
+      device_type: "phone"
     }
     var response = await this._request("account/login/", "POST", data)
-    var token = {
-      accessToken: response.date.token,
-      refreshToken: response.date.refresh_token,
-      expiration: this._generateExpiration(1)
+    if(response.data.hasOwnProperty("access_token")) {
+      var token = {
+        platform: "Revibe",
+        accessToken: response.data.access_token,
+        refreshToken: response.data.refresh_token,
+        expiration: this._generateExpiration(1.9),
+      }
+
+      var user = {
+        "first_name": response.data.user.first_name,
+        "last_name": response.data.user.last_name,
+        "allow_email_marketing": response.data.user.profile.allow_email_marketing,
+        "allow_explicit": response.data.user.profile.allow_explicit,
+        "allow_listening_data": response.data.user.profile.allow_listening_data,
+        "email": response.data.user.profile.email,
+        "skip_youtube_when_phone_is_locked": response.data.user.profile.skip_youtube_when_phone_is_locked,
+        "user_id": response.data.user.user_id,
+        "username": response.data.user.username
+      }
+      if(response.data.user.profile.country) user.country = response.data.user.profile.country
+      if(response.data.user.profile.image) user.image = response.data.user.profile.image
+
+      // save token to realm
+      this.saveToken(token)
+
+      // save user to default preferences
+      DefaultPreference.setMultiple(user)
+      return response.data.user
     }
-    this.saveToken(token)
-    return response.data.user
+
+    return response.data
   }
 
   async refreshToken() {
@@ -275,18 +315,19 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     */
 
-    var refreshToken = this.getToken().refreshToken
+    var token = this.getToken()
     var data = {
-      refresh_token: refreshToken,
+      refresh_token: token.refreshToken,
       device_type: "phone"
     }
     var response = await this._request("account/refresh-token/", "POST", data)
-    var token = {
+    var newToken = {
       accessToken: response.data.access_token,
-      refreshToken: refreshToken,
-      expiration: this._generateExpiration(1)
+      refreshToken: response.data.refresh_token,
+      expiration: this._generateExpiration(1.9),
+      platform: "Revibe"
     }
-    this.updateToken(token);
+    token.update(newToken)
   }
 
   async logout() {
@@ -297,9 +338,10 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     */
 
-    var data = {access_token: this.getToken().accessToken}
+    var token = this.getToken()
+    var data = {access_token: token.accessToken}
     await this._request("account/logout/", "POST", data)
-    this.removeToken()
+    token.remove()
   }
 
   async getProfile() {
@@ -409,7 +451,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @return {Object} List containing album objects
     */
 
-    var albums = await this._request(`content/artist/${id}/albums/`, "GET", null, true)
+    var albums = await this._request(`content/artist/${id}/albums/`, "GET", null, true, true)
     for(var x=0; x<albums.length; x++) {
       albums[x] = this._parseAlbum(albums[x])
       // probably need to look at date added here
@@ -447,8 +489,8 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @return {Object} List containing song objects
     */
-
-    var songs = await this._request(`content/artist/${id}/albums/`, "GET", null, true)
+    var songs = await this._request(`content/album/${id}/songs/`, "GET", null, true)
+    songs = songs.data
     for(var x=0; x<songs.length; x++) {
       songs[x] = this._parseSong(songs[x])
       // probably need to look at date added here
@@ -482,14 +524,14 @@ export default class RevibeAPI extends BasePlatformAPI {
 
     var search = await this._request("content/search/?text="+query, "GET", null, true)
     var results = {artists: [], songs: [], albums: []};
-    for(var x=0; x<search.songs.length; x++) {
-      results.songs.push(this._parseSong(search.songs[x]));
+    for(var x=0; x<search.data.songs.length; x++) {
+      results.songs.push(this._parseSong(search.data.songs[x]));
     }
-    for(var x=0; x<search.artists.length; x++) {
-      results.artists.push(this._parseArtist(search.artists[x]));
+    for(var x=0; x<search.data.artists.length; x++) {
+      results.artists.push(this._parseArtist(search.data.artists[x]));
     }
-    for(var x=0; x<search.albums.length; x++) {
-      results.albums.push(this._parseAlbum(search.albums[x]));
+    for(var x=0; x<search.data.albums.length; x++) {
+      results.albums.push(this._parseAlbum(search.data.albums[x]));
     }
     return results;
   }
@@ -502,12 +544,12 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @param {number}   time    seconds value to seek to
     */
-    var data = {song_id: song.id}
-    await this._request("music/library/songs/", "POST", data, true)
+    // var data = {song_id: song.id}
+    // await this._request("music/library/songs/", "POST", data, true)
     this.saveToLibrary(song)   // save to realm database
   }
 
-  async removeSongFromLibrary(song) {
+  removeSongFromLibrary(id) {
     /**
     * Summary: Remove song from Revibe library.
     *
@@ -515,9 +557,9 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @param {number}   time    seconds value to seek to
     */
-    var data = {song_id: song.id}
-    await this._request("music/library/songs/", "DELETE",data, true)
-    this.removeFromLibrary(song)   // save to realm database
+    // var data = {song_id: song.id}
+    // await this._request("music/library/songs/", "DELETE",data, true)
+    this.removeFromLibrary(id)   // save to realm database
   }
 
   async addAlbumToLibrary(album) {
@@ -551,7 +593,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     */
 
     this.pause() // pause current song if one is playing
-    this.player = new Sound("https://revibe-media.s3.us-east-2.amazonaws.com/media/audio/songs/"+uri+".mp3", null, (error) => {
+    this.player = new Sound(`https://revibe-media.s3.amazonaws.com/media/audio/songs/${uri}/outputs/mp4/medium.mp4`, null, (error) => {
       if (error) {
         console.log('failed to load the song', error);
         return;

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { View, Image, } from "react-native";
-import Loading from "./../../../components/loading";
 import { Button, Text, Icon } from "native-base";
 import { connect } from 'react-redux';
 

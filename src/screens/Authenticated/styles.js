@@ -324,44 +324,44 @@ export default {
     width: wp("80%"),
     left: wp("10%"),
     right: wp("10%"),
-    position: "absolute",
+    // position: "absolute",
     top: hp("22%"),
 
   },
   filterButtonLarge: {
-    height: hp("4%"),
-    width: wp("30%"),
+    height: hp("5%"),
+    width: wp("40%"),
     borderRadius: hp(".8%"),
     backgroundColor: "#7248BD",
     justifyContent: "center",
     alignItems:"center",
   },
   filterTextLarge : {
-    fontSize: hp("1.5%"),
+    fontSize: hp("2.2%"),
     color: "white",
     marginLeft: hp(".2%"),
     marginRight: hp(".2%")
   },
   filterIconsLarge : {
-    fontSize: hp("2%"),
+    fontSize: hp("2.5%"),
     color: "white",
     marginLeft: hp(".2%"),
     marginRight: hp(".2%")
   },
 
-  filterButtonSmall: {
-    height: hp("3.5%"),
-    width: wp("20%"),
-    borderRadius: hp(".8%"),
-    justifyContent: "center",
-    alignItems:"center",
-  },
-  filterTextSmall : {
-    color: "white",
-    fontSize: hp("1.5%"),
-    marginLeft: hp(".2%"),
-    marginRight: hp(".2%")
-  },
+  // filterButtonSmall: {
+  //   height: hp("3.5%"),
+  //   width: wp("20%"),
+  //   borderRadius: hp(".8%"),
+  //   justifyContent: "center",
+  //   alignItems:"center",
+  // },
+  // filterTextSmall : {
+  //   color: "white",
+  //   fontSize: hp("1.5%"),
+  //   marginLeft: hp(".2%"),
+  //   marginRight: hp(".2%")
+  // },
   noFilterResultsText: {
     marginTop: hp("15%"),
     fontSize: hp("2.5%"),
