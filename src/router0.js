@@ -15,7 +15,7 @@ import Artist from "./screens/Authenticated/artist/index";
 import Album from "./screens/Authenticated/album/index";
 import ViewAll from "./screens/Authenticated/viewAll/index";
 
-import Menu from "./components/Drawer/Menu";
+import Drawer from "./components/Drawer/Drawer";
 import DrawerItem from "./components/Drawer/DrawerItem";
 
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -27,38 +27,16 @@ import { HeaderBackButton } from 'react-navigation';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 
-const DrawerNav = createDrawerNavigator(
-  {
-    Home: {
-      screen: Library,
-      navigationOptions: navOpt => ({
-        drawerLabel: ({ focused }) => (
-          <DrawerItem focused={focused} title="Home" />
-        ),
-      })
-    },
-    Accounts: {
-      screen: Settings,
-      navigationOptions: navOpt => ({
-        drawerLabel: ({ focused }) => (
-          <DrawerItem focused={focused} screen="Settings" title="Manage Accounts" />
-        )
-      })
-    },
-  },
-  Menu
-);
 
 const LibraryNav = createStackNavigator(
   {
     Artist: {screen: Artist},
     Album: {screen: Album},
     Settings: {screen: Settings},
-    Library: {screen: DrawerNav},
+    Library: {screen: Library}
   },
   {
     initialRouteName: "Library",
-    headerMode: 'none'
   }
 );
 
@@ -85,6 +63,27 @@ const QueueNav = createStackNavigator(
   }
 );
 
+const DrawerNav = createDrawerNavigator(
+  {
+    Library: {
+      screen: Library,
+      navigationOptions: navOpt => ({
+        drawerLabel: ({ focused }) => (
+          <DrawerItem focused={focused} title="Home" />
+        )
+      })
+    },
+    // Accounts: {
+    //   screen: ProfileStack,
+    //   navigationOptions: navOpt => ({
+    //     drawerLabel: ({ focused }) => (
+    //       <DrawerItem focused={focused} screen="Profile" title="Profile" />
+    //     )
+    //   })
+    // },
+  },
+  Drawer
+);
 
 const activeTintLabelColor = "#7248BD";
 const inactiveTintLabelColor = "#8E8E93";
@@ -95,8 +94,6 @@ const AppStack = createBottomTabNavigator(
       Library : {
         screen: LibraryNav,
         navigationOptions: {
-          header: null,
-          headerTransparent: true,
           tabBarLabel: ({ focused }) => <Text style={{ fontSize: hp("1.4%"), color: focused ? activeTintLabelColor : inactiveTintLabelColor }}>Library</Text>,
           tabBarIcon: ({ focused }) => <Icon type="Ionicons" name="ios-albums" style={{fontSize: hp("4%"), paddingTop: hp(".25%"), color: focused ? activeTintLabelColor : inactiveTintLabelColor}} />
         }

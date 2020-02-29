@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Image, } from "react-native";
+import { View, Image, Alert} from "react-native";
 import { Button, Text, Icon } from "native-base";
 import { connect } from 'react-redux';
 
@@ -18,16 +18,22 @@ class SpotifyLogin extends Component {
   }
 
   async spotifyLoginButtonWasPressed() {
-      var session = await this.spotify.login();
-      if(this.spotify.getProfile().product === "premium") {
-        if (!!session) {
-          this.props.updatePlatformData(this.spotify)
-        }
+      await this.spotify.login();
+      var profile = await this.spotify.getProfile()
+      if(profile.product === "premium") {
+        this.props.updatePlatformData(this.spotify)
       }
       else {
         this.spotify.logout()
         //Need to show alert or modal saying that a premium account is required and maybe giving link to sign up for one
-        console.log("Must have a premium spotify account dawgg");
+        Alert.alert(
+          'Sorry, you must have a premium Spotify account.',
+          '',
+          [
+            {text: 'OK', onPress: () => console.log('OK Pressed')},
+          ],
+          {cancelable: false},
+        );
       }
   }
 

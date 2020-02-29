@@ -36,6 +36,7 @@ class Player extends Component {
         this.animatedValue = new Animated.Value(0)
         this.toggleOptionsMenu = this.toggleOptionsMenu.bind(this);
         this.togglePlayerModal = this.togglePlayerModal.bind(this);
+        this.handlePlayerDrag = this.handlePlayerDrag.bind(this);
         this.onAnimatedValueChange = this.onAnimatedValueChange.bind(this);
         this.listener = this.animatedValue.addListener(throttle(this.onAnimatedValueChange, 100)) //need to throttle bc if not show/hide animation is slow
     }
@@ -46,12 +47,15 @@ class Player extends Component {
       // user is already on artist or album page then existing options menu
       // also closes the player. Will need to figure out how to get active page
       // from navigation
-      if(prevProps.selectedSong && !this.props.selectedSong) {
-        var routes = this.props.navigation.state.routes
-        for(var x=0; x<routes.length; x++) {
-          if(routes[x].routes.length > 1) {
-            this.togglePlayerModal()
-            break
+      if(this.props.hasAudio) {
+        if(prevProps.selectedSong && !this.props.selectedSong) {
+          var routes = this.props.navigation.state.routes
+          for(var x=0; x<routes.length; x++) {
+            if(routes[x].routes.length > 1) {
+              this._panel.hide()
+              this.props.navigation.setParams({ visible: true })
+              break
+            }
           }
         }
       }

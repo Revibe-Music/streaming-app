@@ -1,58 +1,108 @@
 const React = require("react-native");
-const { Dimensions } = React;
-const deviceHeight = Dimensions.get("window").height;
-const deviceWidth = Dimensions.get("window").width;
-
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-
 export default {
-    container: {
-        backgroundColor: "#121212",
-        flex: 1
-    },
-    center: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "space-between"
-    },
-    albumImg: {
-        width: deviceHeight / 3.5,
-        height: deviceHeight / 3.5,
-        top: 20
-    },
-    albumImgPlaceholder: {
-        backgroundColor:"#222222",
-        width: deviceHeight / 3.5,
-        height: deviceHeight / 3.5,
-        resizeMode: "center",
-    },
-    albumName: {
-        color: "white",
-        textAlign: "center",
-        fontSize: 20,
-    },
-    albumNameView: {
-        width: deviceHeight / 3.5,
-        marginTop: 30
-    },
-    shuffle: {
-        fontSize: 15,  
-        letterSpacing: 1.2,
-        fontWeight: "bold",
-    },
-    shuffleBtn: {
-        backgroundColor: "#7248BD",
-        height: hp("5%"),
-    },
-    listItemContainerStyle: {
-        flex: 1,
-        flexDirection: "row",
-        width: deviceWidth,
-        paddingRight: 0,
-        marginRight: 0
-    },
-    loadingIndicator: {
-      marginTop: 100,
-    },
+  container: {
+      backgroundColor: "#121212",
+      flex: 1
+  },
+  center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "space-between"
+  },
+  image: {
+    height: hp("30"),
+    width: wp("100"),
+    alignSelf: 'stretch',
+    resizeMode: 'cover',
+  },
+  title: {
+    textAlign: "center",
+    fontSize: hp("2.5"),
+    color: "white"
+  },
+  name: {
+    fontWeight: 'bold',
+  },
+  section: {
+    padding: 20,
+    backgroundColor: '#121212',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  sectionContent: {
+    fontSize: 16,
+    textAlign: 'justify',
+  },
+  keywords: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
+  },
+  keywordContainer: {
+    backgroundColor: '#999999',
+    borderRadius: 10,
+    margin: 10,
+    padding: 10,
+  },
+  keyword: {
+    fontSize: 16,
+    color: 'white',
+  },
+  titleContainer: {
+    flex: 1,
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backArrowContainer: {
+    marginTop: hp("3")
+  },
+  imageTitle: {
+    color: 'white',
+    backgroundColor: 'transparent',
+    fontSize: hp("4"),
+  },
+  navTitleView: {
+    height: hp("10"),
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 16,
+    opacity: 0,
+  },
+  navTitle: {
+    color: 'white',
+    fontSize: 18,
+    backgroundColor: 'transparent',
+  },
+  sectionLarge: {
+    height: 600,
+  },
+  shuffle: {
+      fontSize: 15,
+      letterSpacing: 1.2,
+      fontWeight: "bold",
+      color: "white"
+  },
+  shuffleBtn: {
+      backgroundColor: "#7248BD",
+      height: hp("5%"),
+      width: wp("35%"),
+      marginTop: hp("2"),
+  },
+  textContainer: {
+    paddingTop: hp("10%"),
+    flex: 1,
+    justifyContent: "center",
+    alignItems:"center",
+  },
+  noDataText: {
+    fontSize: hp("2.5%"),
+    color: "white",
+    textAlign: "center",
+  },
 };

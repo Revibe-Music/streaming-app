@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
-import { View, TouchableOpacity, Modal, Image } from "react-native";
+import { View, TouchableOpacity, TouchableHighlight, TouchableWithoutFeedback, Image,ScrollView } from "react-native";
 import { Container, Content, Button, Text, Icon, ListItem } from "native-base";
 import PropTypes from 'prop-types';
+import Modal from "react-native-modal";
 import ImageLoad from 'react-native-image-placeholder';
 import { connect } from 'react-redux';
 import { compact } from 'lodash';
@@ -22,6 +23,7 @@ class OptionsMenu extends PureComponent {
        saving:false,
        deleting: false,
        addingToQueue: false,
+       displayArtists: false,
      }
 
      this.closeOptionsMenu = this.closeOptionsMenu.bind(this);
@@ -31,21 +33,23 @@ class OptionsMenu extends PureComponent {
      this.addSongToQueue = this.addSongToQueue.bind(this);
      this.goToArtist = this.goToArtist.bind(this);
      this.goToAlbum = this.goToAlbum.bind(this);
+     this.displayArtists = this.displayArtists.bind(this);
 
    }
 
    closeOptionsMenu() {
      this.props.selectSong(null)
+     this.setState({displayArtists: false})
    }
 
    songInLibrary() {
      // check if object is already saved to determine to show "Add" or "Remove"
      if(this.props.song) {
        var platform = getPlatform(this.props.song.platform)
-       return platform.library.allSongs.filter(x => x.id === this.props.song.id).length > 0
+       return platform.library.songIsSaved(this.props.song)
+       // return platform.library.allSongs.filter(x => x.id === this.props.song.id).length > 0
      }
      return false
-
    }
 
    addSongToLibrary() {
@@ -61,7 +65,7 @@ class OptionsMenu extends PureComponent {
    removeSongFromLibrary() {
      this.setState({ deleting: true })
      var platform = getPlatform(this.props.song.platform)
-     platform.removeFromLibrary(this.props.song.id)
+     platform.removeSongFromLibrary(this.props.song.id)
      this.setState({ songSaved: false })
      setTimeout(() => {
        this.setState({ deleting: false })
@@ -76,31 +80,94 @@ class OptionsMenu extends PureComponent {
      }, 1300)
    }
 
-  goToArtist() {
-    this.closeOptionsMenu()
-    this.props.navigation.navigate(
-      {
-        key: "Artist",
-        routeName: "Artist",
-        params:{
-          artist: this.props.song.contributors[0].artist,
-        }
-      }
-    )
-  }
+   setArtist() {
+     if(this.state.displayArtists) {
+       return null
+     }
+     const song = this.props.song
+     var contributors = Object.keys(this.props.song.contributors).map(x => this.props.song.contributors[x])
+     var contributorString = compact(contributors.map(function(x) {if(x.type === "Artist") return x.artist.name})).join(', ')
+     if(this.props.displayType) {
+        contributorString = `Song • ${contributorString}`
+     }
+     return contributorString
+   }
+
+   displayArtists() {
+     const contributors = Object.keys(this.props.song.contributors).map(x => this.props.song.contributors[x].artist)
+     return (
+       contributors.map(artist => (
+         <ListItem style={{borderBottomWidth:0}}>
+           <TouchableOpacity
+             activeOpacity={0.9}
+             onPress={() => this.goToArtist(artist)}
+             style={{flexDirection: 'row', alignItems: 'center'}}
+           >
+            <View style={{flex: 1}}>
+             <Text style={styles.selectArtistText}> {artist.name}</Text>
+            </View>
+           </TouchableOpacity>
+         </ListItem>
+       ))
+     )
+   }
+
+   goToArtist(artist=null) {
+     if(artist) {
+       this.closeOptionsMenu()
+       this.props.navigation.navigate(
+         {
+           key: artist.name,
+           routeName: "Artist",
+           params:{
+             artist: artist,
+           }
+         }
+       )
+       this.setState({displayArtists: false})
+     }
+     else if(Object.keys(this.props.song.contributors).length > 1) {
+       this.setState({displayArtists: true})
+     }
+     else {
+       this.closeOptionsMenu()
+       this.props.navigation.navigate(
+         {
+           key: "Artist",
+           routeName: "Artist",
+           params:{
+             artist: this.props.song.contributors[0].artist,
+           }
+         }
+       )
+       this.setState({displayArtists: false})
+     }
+   }
 
   goToAlbum() {
     this.closeOptionsMenu()
     var album = this.props.song.platform === "YouTube" ? this.props.song.contributors[0].artist : this.props.song.album
     this.props.navigation.navigate(
       {
-        key: "Album",
+        key: album.name,
         routeName: "Album",
         params: {
           album: album,
           songs: [],
         }
       })
+  }
+
+  getImage() {
+    var size=0
+    var index = 0
+    for(var x=0; x<this.props.song.album.images.length; x++) {
+      if(this.props.song.album.images[x].height > size) {
+        size = this.props.song.album.images[x].height
+        index = x
+      }
+    }
+    return this.props.song.album.images[index].url
   }
 
   render() {
@@ -112,93 +179,126 @@ class OptionsMenu extends PureComponent {
       animationType="slide"
       transparent
       visible={true}
-      hardwareAccelerated={true}
+      onSwipeComplete={this.closeOptionsMenu}
       supportedOrientations={["portrait"]}
+      style={{margin: 0, padding: 0}}
     >
-        <View style={styles.optionContainer} />
+        <View style={styles.optionContainer} >
         <AnimatedPopover type="Save" show={this.state.saving} text="Saving..."/>
         <AnimatedPopover type="Delete" show={this.state.deleting} text="Deleting..." />
         <AnimatedPopover type="Queue" show={this.state.addingToQueue} text="Queuing..." />
-        <Content scrollEnabled={false}>
+        <TouchableOpacity
+          style={this.props.displayImage ? styles.ellipsisContainer : [styles.ellipsisContainerImageAdjusted,styles.ellipsisContainer]}
+          onPress={this.toggleOptionsMenu}
+         >
+         <Icon type="FontAwesome" name="ellipsis-v" style={styles.ellipsis} />
+        </TouchableOpacity>
           <Button style={styles.closeButton} transparent onPress={() => this.closeOptionsMenu()}>
             <Icon transparent={false} name="md-close" style={styles.closeButtonIcon}/>
           </Button>
-          <View style={styles.detailsContainer}>
-            <ImageLoad
-                isShowActivity={false}
-                style={styles.image}
-                placeholderStyle={styles.image}
-                source={{uri: this.props.song.album.mediumImage ? this.props.song.album.mediumImage : this.props.song.album.images[2].url}}
-                placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
-            />
-            <Text style={styles.mainText}>{this.props.song.name}</Text>
-            <Text style={styles.noteText}>{this.contributorString}</Text>
-          </View>
+
 
           <View>
-          <ListItem style={{borderBottomWidth:0}}>
-          {this.songInLibrary() ?
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={this.removeSongFromLibrary}
-              style={{flexDirection: 'row'}}
-            >
-              <Icon style={styles.actionItemIcon} type="FontAwesome" name="remove" />
-              <Text style={styles.actionItemText}> Remove from library</Text>
-            </TouchableOpacity>
+          {this.state.displayArtists ?
+            null
           :
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={this.addSongToLibrary}
-              style={{flexDirection: 'row'}}
-            >
-              <Icon style={styles.actionItemIcon} type="FontAwesome" name="plus" />
-              <Text style={styles.actionItemText}> Add to library</Text>
-            </TouchableOpacity>
-          }
-          </ListItem>
+            <>
+            <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.detailsContainer}>
+              <ImageLoad
+                  isShowActivity={false}
+                  style={styles.image}
+                  placeholderStyle={styles.image}
+                  source={{uri: this.getImage()}}
+                  placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
+              />
+              <Text style={styles.mainText}>{this.props.song.name}</Text>
+              <Text style={styles.noteText}>{this.setArtist()}</Text>
+            </View>
+              <ListItem style={{borderBottomWidth:0}}>
+              {this.songInLibrary() ?
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={this.removeSongFromLibrary}
+                  style={{flexDirection: 'row'}}
+                >
+                  <Icon style={styles.actionItemIcon} type="FontAwesome" name="remove" />
+                  <Text style={styles.actionItemText}> Remove from library</Text>
+                </TouchableOpacity>
+              :
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={this.addSongToLibrary}
+                  style={{flexDirection: 'row'}}
+                >
+                  <Icon style={styles.actionItemIcon} type="FontAwesome" name="plus" />
+                  <Text style={styles.actionItemText}> Add to library</Text>
+                </TouchableOpacity>
+              }
+              </ListItem>
 
-          <ListItem style={{borderBottomWidth:0}}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={this.addSongToQueue}
-            style={{flexDirection: 'row'}}
-          >
-            <Icon style={styles.actionItemIcon} type="MaterialCommunityIcons" name="playlist-plus" />
-            <Text style={styles.actionItemText}> Add to queue</Text>
-          </TouchableOpacity>
-          </ListItem>
-          {this.props.song.platform !== "YouTube" ?
-            <ListItem style={{borderBottomWidth:0}}>
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={() => this.goToArtist()}
-              style={{flexDirection: 'row'}}
-            >
-              <Icon style={styles.actionItemIcon} type="FontAwesome" name="user" />
-              <Text style={styles.actionItemText}> Go to artist</Text>
-            </TouchableOpacity>
-            </ListItem>
+              <ListItem style={{borderBottomWidth:0}}>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={this.addSongToQueue}
+                style={{flexDirection: 'row'}}
+              >
+                <Icon style={styles.actionItemIcon} type="MaterialCommunityIcons" name="playlist-plus" />
+                <Text style={styles.actionItemText}> Add to queue</Text>
+              </TouchableOpacity>
+              </ListItem>
+              {this.props.song.platform !== "YouTube" ?
+                <ListItem style={{borderBottomWidth:0}}>
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => this.goToArtist()}
+                  style={{flexDirection: 'row'}}
+                >
+                  <Icon style={styles.actionItemIcon} type="FontAwesome" name="user" />
+                  <Text style={styles.actionItemText}> Go to artist</Text>
+                </TouchableOpacity>
+                </ListItem>
+              :
+                null
+              }
+              <ListItem style={{borderBottomWidth:0}}>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => this.goToAlbum()}
+                style={{flexDirection: 'row'}}
+              >
+              {this.props.song.platform !== "YouTube" ?
+                <Icon style={styles.actionItemIcon} type="FontAwesome5" name="compact-disc" />
+              :
+                <Icon style={styles.actionItemIcon} type="MaterialCommunityIcons" name="youtube-tv" />
+              }
+                <Text style={styles.actionItemText}> {this.props.song.platform === "YouTube" ? "Go to channel" : "Go to album"}</Text>
+              </TouchableOpacity>
+              </ListItem>
+              </ScrollView >
+            </>
+          }
+          </View>
+          {this.state.displayArtists ?
+            <View style={styles.selectArtistContainer}>
+            <Text style={{marginLeft: "5%",color: "white"}}> Select an artist:</Text>
+            <View style={styles.selectArtistScrollview}>
+              <ScrollView>
+                {this.displayArtists()}
+              </ScrollView>
+              </View>
+
+                <Button style={styles.selectArtistCancelButton}
+                block
+                onPress={() => this.setState({displayArtists: false}) }
+                >
+                  <Text style={styles.selectArtistCancelText}>Cancel</Text>
+                </Button>
+            </View>
           :
             null
           }
-          <ListItem style={{borderBottomWidth:0}}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => this.goToAlbum()}
-            style={{flexDirection: 'row'}}
-          >
-          {this.props.song.platform !== "YouTube" ?
-            <Icon style={styles.actionItemIcon} type="FontAwesome5" name="compact-disc" />
-          :
-            <Icon style={styles.actionItemIcon} type="MaterialCommunityIcons" name="youtube-tv" />
-          }
-            <Text style={styles.actionItemText}> {this.props.song.platform === "YouTube" ? "Go To Channel" : "Go To Album"}</Text>
-          </TouchableOpacity>
-          </ListItem>
-          </View>
-
-        </Content>
+        </View>
       </Modal>
     )
   }

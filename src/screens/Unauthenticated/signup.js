@@ -13,6 +13,7 @@ import {
 import { connect } from 'react-redux';
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
 import RevibeAPI from './../../api/Revibe'
+import YouTubeAPI from './../../api/Youtube'
 import { initializePlatforms } from './../../redux/platform/actions';
 
 import styles from "./styles";
@@ -25,16 +26,17 @@ class Signup extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      firstName: "Riley",
-      lastName: "Stephens",
-      username: "rstephens28",
-      email: "riley.stephens28@gmail.com",
-      password1: "Reed1rile2",
-      password2: "Reed1rile2",
+      firstName: "",
+      lastName: "",
+      username: "",
+      email: "",
+      password1: "",
+      password2: "",
       error: {},
     };
 
     this.revibe = new RevibeAPI()
+    this.youtube = new YouTubeAPI()
   }
 
   async _registerButtonPressed() {
@@ -43,6 +45,7 @@ class Signup extends Component {
       try {
         var response = await this.revibe.register(this.state.firstName, this.state.lastName, this.state.username, this.state.email, this.state.password1)
         if(response.access_token) {
+          await this.youtube.login()
           this.props.initializePlatforms()
           this.props.navigation.navigate(
             {

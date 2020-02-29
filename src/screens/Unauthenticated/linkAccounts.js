@@ -28,7 +28,7 @@ class LinkAccounts extends Component {
       platformsFetching.push(this.props.platforms[platformNames[x]].fetchLibrarySongs())
     }
     await Promise.all(platformsFetching)
-    this.setState({syncing:false})
+    this.setState({syncing:false}) 
     this.props.navigation.navigate("Authenticated")
   }
 

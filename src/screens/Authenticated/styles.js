@@ -19,7 +19,8 @@ export default {
   libraryHeader: {
     backgroundColor: "#121212",
     borderBottomWidth: 0,
-    height: hp("6.5%")
+    height: hp("6.5%"),
+    margin: 0
   },
 
   // TABS
@@ -45,7 +46,6 @@ export default {
     color: "white",
     fontSize: hp("2.1%")
   },
-
   searchBar: {
     backgroundColor: "#121212",
     height: hp("11%")
@@ -53,6 +53,7 @@ export default {
   searchText: {
     backgroundColor: "#222222",
     color: "white",
+    textAlign: "left",
     fontSize: hp("2.5%"),
   },
   searchTextIcon: {
@@ -102,8 +103,6 @@ export default {
     backgroundColor: "#7248BD"
   },
 
-
-
   center: {
     flex: 1,
     alignItems: "center",
@@ -118,15 +117,15 @@ export default {
     width: null,
     borderColor: "black",
     },
-    overlay: {
-      position: "absolute",
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-      backgroundColor: "#1DB954",
-      opacity: 0.4
-    },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "#1DB954",
+    opacity: 0.4
+  },
   text: {
     textAlign: "center",
     fontSize: 13,
@@ -349,19 +348,6 @@ export default {
     marginRight: hp(".2%")
   },
 
-  // filterButtonSmall: {
-  //   height: hp("3.5%"),
-  //   width: wp("20%"),
-  //   borderRadius: hp(".8%"),
-  //   justifyContent: "center",
-  //   alignItems:"center",
-  // },
-  // filterTextSmall : {
-  //   color: "white",
-  //   fontSize: hp("1.5%"),
-  //   marginLeft: hp(".2%"),
-  //   marginRight: hp(".2%")
-  // },
   noFilterResultsText: {
     marginTop: hp("15%"),
     fontSize: hp("2.5%"),
@@ -369,7 +355,42 @@ export default {
     textAlign: "center",
   },
 
+  filterListItem: {
+    paddingRight: 0,
+  },
+  filterCheckbox: {
+    marginLeft: hp("2%"),
+    justifyContent: "center",
+    alignItems:"center",
+    height: hp("3%"),
+    width: hp("3%"),
+    marginBottom: 0
+  },
+  filterOptionText: {
+    marginLeft: hp("3%"),
+    fontSize: hp("2.5%"),
+    color: "white",
+  },
+  textContainer: {
+    justifyContent: "center",
+    flexDirection:"column",
+    paddingLeft:0,
+    fontWeight: "bold",
+    textAlign: "left",
+    alignItems:"flex-start",
+    width: wp("65%")
+  },
+  filterCancelButton: {
+    marginLeft: 0,
+    width: wp('80%'),
+    height: hp('5%'),
+    backgroundColor: "transparent",
+    alignSelf: 'center',
+    marginTop: hp("5%"),
+  },
 
-
-
+  filterCancelText: {
+    fontSize: hp("2.5%"),
+    color: "white",
+  },
 };

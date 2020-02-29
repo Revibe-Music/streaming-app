@@ -4,8 +4,11 @@ account authentication state. All data will be pulled
 from realm and any incoming data will be saved to realm
 */
 
+import CookieManager from 'react-native-cookies';
+
 import { getPlatform } from './../../api/utils';
 import { getActivePlatforms} from './../../realm/utils/v1';
+import realm from './../../realm/realm';
 
 
 const assignPlatforms = platforms => ({
@@ -50,6 +53,7 @@ export function initializePlatforms() {
     var platforms = {}
     for(var x=0; x<platformNames.length; x++) {
       platforms[platformNames[x]] = getPlatform(platformNames[x])
+      await platforms[platformNames[x]].initialize()
     }
     dispatch(assignPlatforms(platforms));
   }
@@ -73,18 +77,25 @@ export function checkPlatformAuthentication() {
     var platforms = getState().platformState.platforms
     var platformNames = Object.keys(platforms)
     for(var x=0; x<platformNames.length; x++) {
-      if(platforms[platformNames[x]].platformType === "private") {
-        if(!platforms[platformNames[x]].isLoggedIn()) {
-          try {
-            await platforms[platformNames[x]].silentLogin()
-          }
-          catch(error) {
-            console.log("Error in checkPlatformAuthentication during silentLogin: "+error);
-          }
-        }
-      }
+      platforms[platformNames[x]].initialize()
     }
     dispatch(checkIsLoggedIn(true));   // may do more checks here to ensure platforms are actually logged into
+  }
+}
+
+export function logoutAllPlatforms() {
+  // this will be called on launch
+  return async (dispatch, getState) => {
+    await CookieManager.clearAll(true)
+    var platforms = getState().platformState.platforms
+    var platformNames = Object.keys(platforms)
+    for(var x=0; x<platformNames.length; x++) {
+      platforms[platformNames[x]].logout()
+    }
+    realm.write(() => {
+      realm.deleteAll();
+    });
+    dispatch(updatePlatform({}));
   }
 }
 

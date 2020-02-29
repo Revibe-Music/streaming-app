@@ -97,6 +97,8 @@ export const audioReducer = (state = initialState, action) => {
             audioInterupted: action.audioInterupted,
             audioInteruptTime: action.audioInteruptTime,
          };
+     case 'RESET_AUDIO':
+        return initialState;
       default:
          return state;
    }

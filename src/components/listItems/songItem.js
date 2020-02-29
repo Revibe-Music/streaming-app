@@ -20,6 +20,7 @@ class SongItem extends PureComponent {
     this.toggleOptionsMenu = this.toggleOptionsMenu.bind(this)
     this.setColor = this.setColor.bind(this)
     this.setArtist = this.setArtist.bind(this)
+    this.getImage = this.getImage.bind(this)
     this.onClick = this.onClick.bind(this)
   }
 
@@ -46,6 +47,17 @@ class SongItem extends PureComponent {
     return contributorString
   }
 
+  getImage() {
+    this.props.song.album.images = Object.keys(this.props.song.album.images).map(x => this.props.song.album.images[x])
+    if(this.props.song.album.images.length > 0) {
+      var image = this.props.song.album.images.reduce(function(prev, curr) {
+          return prev.height < curr.height ? prev : curr;
+      });
+      return {uri: image.url}
+    }
+    return require("./../../../assets/albumArtPlaceholder.png")
+  }
+
   onClick() {
     var index = this.props.playlist.map(function(e) { return e.id; }).indexOf(this.props.song.id);
     this.props.playSong(index, this.props.playlist)
@@ -61,7 +73,7 @@ class SongItem extends PureComponent {
                   isShowActivity={false}
                   style={styles.image} // rounded or na?
                   placeholderStyle={styles.image}
-                  source={{uri: this.props.song.album.mediumImage ? this.props.song.album.mediumImage : this.props.song.album.images[2].url}}
+                  source={this.getImage()}
                   placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
               />
             :

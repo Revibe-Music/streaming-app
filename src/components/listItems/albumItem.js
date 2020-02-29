@@ -6,6 +6,7 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ImageLoad from 'react-native-image-placeholder';
 import { compact } from 'lodash';
 
+import { getPlatform } from './../../api/utils';
 import styles from "./styles";
 
 class AlbumItem extends PureComponent {
@@ -29,20 +30,38 @@ class AlbumItem extends PureComponent {
   }
 
   goToAlbum() {
+    var songs = this.props.songs
     var album = this.props.album.platform === "YouTube" ? this.props.album.contributors[0].artist : this.props.album
+    if(this.props.isLocal) {
+      songs = getPlatform(this.props.album.platform).getSavedAlbumSongs(this.props.album.id)
+      var key = album.name+"Local"
+    }
+    else {
+      var key = album.name+"Remote"
+    }
     var navigationOptions = {
-      key: "Album",
+      key: key,
       routeName: "Album",
       params: {
         album: album,
-        songs: this.props.songs,
+        songs: songs,
       }
     }
     this.props.navigation.navigate(navigationOptions)
   }
 
+  getImage() {
+    this.props.album.images = Object.keys(this.props.album.images).map(x => this.props.album.images[x])
+    if(this.props.album.images.length > 0) {
+      var image = this.props.album.images.reduce(function(prev, curr) {
+          return prev.height < curr.height ? prev : curr;
+      });
+      return {uri: image.url}
+    }
+    return require("./../../../assets/albumPlaceholder.png")
+  }
+
   render() {
-    console.log(this.props.album);
     return (
       <BaseListItem noBorder style={styles.listItem}>
         <TouchableOpacity onPress={this.goToAlbum}>
@@ -51,7 +70,7 @@ class AlbumItem extends PureComponent {
                 isShowActivity={false}
                 style={styles.image} // rounded or na?
                 placeholderStyle={styles.image}
-                source={{uri: this.props.album.mediumImage ? this.props.album.mediumImage : this.props.album.images[2].url}}
+                source={this.getImage()}
                 placeholderSource={require("./../../../assets/albumPlaceholder.png")}
             />
             <View style={styles.textContainer}>
@@ -74,13 +93,15 @@ class AlbumItem extends PureComponent {
 
 AlbumItem.propTypes = {
   album: PropTypes.object,
-  songs: PropTypes.arrayOf(PropTypes.objects),
+  songs: PropTypes.array,
   displayType: PropTypes.bool,
+  isLocal: PropTypes.bool,
 };
 
 AlbumItem.defaultProps = {
   songs: [],
   displayType: false,
+  isLocal: false,
 };
 
 

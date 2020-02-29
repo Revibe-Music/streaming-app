@@ -6,6 +6,10 @@ export default {
     height: hp("8.5%"),
     paddingRight: 0,
   },
+  listFooterItem: {
+    height: hp("6%"),
+    paddingRight: 0,
+  },
   image: {
     width: hp("7%"),
     height: hp("7%"),
@@ -22,6 +26,14 @@ export default {
     alignItems:"flex-start",
     width: wp("65%")
   },
+  footerTextContainer: {
+    paddingLeft:0,
+    fontWeight: "bold",
+    alignItems:"flex-start",
+    justifyContent: "center",
+    width: wp("83%")
+  },
+
   mainText: {
     fontWeight: "bold",
     fontSize: hp("2%"),

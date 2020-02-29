@@ -12,6 +12,12 @@ export default class YouTubeAPI extends BasePlatformAPI {
     this.name = "YouTube";
   }
 
+  async initialize() {
+    if(!this.hasLoggedIn()) {
+      await this.login()
+    }
+  }
+
   async _handleErrors(response) {
     var errors = {}
     if(response.status === 400) {
@@ -23,7 +29,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
       await this.refreshToken()
     }
     if(response.status === 403) {
-      await this.login()
+      await this.login(this.getToken())
       // forbidden ish
 
     }
@@ -48,34 +54,29 @@ export default class YouTubeAPI extends BasePlatformAPI {
       // internal server error ish
 
     }
-    else if(response.status === 501){
+    else if(response.status === 501) {
       // not implemented error ish
 
     }
-    else if(response.status === 503){
+    else if(response.status === 503) {
       // Service unavailable error ish
     }
     return errors
   }
 
-  _parseContributors(contributors) {
-    // parse content returned from Revibe API
-    formattedContributors = []
-    for(var x=0; x<contributors.length; x++) {
-      let contributor = {
-        id: contributors[x].artist_id + itemId,
-        type: contributors[x].contribution_type,
-        artist: {
-          name: contributors[x].artist_name,
-          id: contributors[x].artist_id,
-          uri: contributors[x].artist_uri,
-          platform: "YouTube",
-          images: []  // need to get these
-        }
+  _parseContributors(contributors, itemId) {
+    let contributor = {
+      id: contributors.artist_id + itemId,
+      type: "Artist",
+      artist: {
+        name: contributors.name,
+        id: contributors.artist_id,
+        uri: contributors.artist_uri,
+        platform: "YouTube",
+        images: this._parseImages(contributors['images'])
       }
-      formattedContributors.push(contributor)
     }
-    return formattedContributors
+    return [contributor]
   }
 
   _parseSong(song) {
@@ -84,12 +85,51 @@ export default class YouTubeAPI extends BasePlatformAPI {
       name: song['title'],
       id: song['song_id'],
       uri: song['song_uri'],
-      contributors: this._parseContributors(song['contributions'],song['song_id']),
-      duration: parseFloat(song['duration']),
+      contributors: this._parseContributors(song['uploaded_by'],song['song_id']),
+      duration: song['duration'] !== null ? parseFloat(song['duration']) : 0,
       album: this._parseAlbum(song['album']),
       platform: "YouTube",
     }
     return formattedSong
+  }
+
+  _parseAlbum(album) {
+    var formattedAlbum = {
+      name: album['name'],
+      id: album['album_id'],
+      uri: album['album_uri'],
+      platform: "YouTube",
+      contributors: this._parseContributors(album['uploaded_by'], album['album_id']),
+      type: "Single",
+      uploaded_date: album['uploaded_date'],
+      images: this._parseImages(album.images)
+    }
+    return formattedAlbum
+  }
+
+  _parseArtist(artist) {
+    // parse content returned from Revibe API
+    var formattedArtist = {
+      name: artist['name'],
+      id: artist['artist_id'],
+      uri: artist['artist_uri'],
+      platform: "YouTube",
+      images: this._parseImages(artist['images'])
+    }
+    return formattedArtist
+  }
+
+  _parseImages(images) {
+    formattedImages = []
+    for(var x=0; x<images.length; x++) {
+      let image = {
+        height: images[x].height,
+        width: images[x].width,
+        url: images[x].url,
+      }
+      formattedImages.push(image)
+    }
+    return formattedImages
   }
 
   _parseVideo(video) {
@@ -129,18 +169,18 @@ export default class YouTubeAPI extends BasePlatformAPI {
         platform: "YouTube",
         images: [
           {
-            height: video.snippet.thumbnails.default.height,
-            width: video.snippet.thumbnails.default.width,
+            height: 90,
+            width: 120,
             url: video.snippet.thumbnails.default.url,
           },
           {
-            height: video.snippet.thumbnails.medium.height,
-            width: video.snippet.thumbnails.medium.width,
+            height: 180,
+            width: 320,
             url: video.snippet.thumbnails.medium.url,
           },
           {
-            height: video.snippet.thumbnails.high.height,
-            width: video.snippet.thumbnails.high.width,
+            height: 360,
+            width: 480,
             url: video.snippet.thumbnails.high.url,
           }
         ]  // need to get these
@@ -150,45 +190,33 @@ export default class YouTubeAPI extends BasePlatformAPI {
     return formattedVideo
   }
 
-  _parseAlbum(album) {
-    // parse content returned from Revibe API
-    var formattedAlbum = {
-      name: album['name'],
-      id: album['album_id'],
-      uri: album['album_uri'],
+  _parseChannel(channel) {
+    // parse content returned from YouTube API
+    var formattedChannel = {
       platform: "YouTube",
-      type: album['type'],
-      uploaded_date: album['uploaded_date'],
-      images: this._parseImages(artist['images'])
+      name: he.decode(channel.snippet.title),
+      id: channel.snippet.channelId,
+      uri: channel.snippet.channelId,
+      images: [
+        {
+          height: 88,
+          width: 88,
+          url: channel.snippet.thumbnails.default.url,
+        },
+        {
+          height: 240,
+          width: 240,
+          url: channel.snippet.thumbnails.medium.url,
+        },
+        {
+          height: 800,
+          width: 800,
+          url: channel.snippet.thumbnails.high.url,
+        }
+      ]  // need to get these
     }
-    return formattedAlbum
+    return formattedChannel
   }
-
-  _parseArtist(artist) {
-    // parse content returned from Revibe API
-    var formattedArtist = {
-      name: artist['name'],
-      id: artist['artist_id'],
-      uri: artist['artist_uri'],
-      platform: "YouTube",
-      images: this._parseImages(artist['images'])
-    }
-    return formattedArtist
-  }
-
-  _parseImages(images) {
-    formattedImages = []
-    for(var x=0; x<images.length; x++) {
-      let image = {
-        height: images[x].height,
-        width: images[x].width,
-        url: images[x].url,
-      }
-      formattedImages.push(image)
-    }
-    return formattedImages
-  }
-
 
   _formatResponse(response) {
     if(response.hasOwnProperty('data')) {
@@ -200,9 +228,6 @@ export default class YouTubeAPI extends BasePlatformAPI {
     if(response.hasOwnProperty('items')) {
       response = response.items
     }
-    // else {
-    //   console.log("Could not find 'results' root key in:",response[x]);
-    // }
     return response
   }
 
@@ -232,24 +257,34 @@ export default class YouTubeAPI extends BasePlatformAPI {
       try {
         if(handlePagination) {
           // may also have to consider pagination for YouTube
-          request.url = `${IP}${endpoint}?limit=${pageSize}`
+          if(endpoint.includes("?")) {
+            request.url = `${IP}${endpoint}&limit=${pageSize}`
+          }
+          else {
+            request.url = `${IP}${endpoint}?limit=${pageSize}`
+          }
           var initialRequest = await axios(request)
           var total = limit !== null ? limit : initialRequest['count'];
           var promiseArray = []
           var offset = pageSize;
           while (offset < total) {
-            request.url = `${url}?offset=${offset}&limit=${pageSize}`
-            promiseArray.push(axios(request));
+            request.url = `${IP}${endpoint}?offset=${offset}&limit=${pageSize}`
+            promiseArray.push(axios(request))
             offset += pageSize;
             console.log(offset);
           }
           var response = await Promise.all(promiseArray);
-          response.unshift(initialRequest);           // add tracks from initial request
+          response.unshift(initialRequest);     // add tracks from initial request
           // possible root key: results
           for(var x=0; x<response.length; x++) {
-            response[x] = this._formatResponse(response[x])
+            if(response[x].data.hasOwnProperty('results')) {
+              response[x] = response[x].data.results
+            }
+            else {
+              console.log("Could not find 'results' root key in:",response[x]);
+            }
           }
-          response = [].concat.apply([], objects);    //merge arrays of songs into one array
+          response = [].concat.apply([], response);    //merge arrays of songs into one array
         }
         else {
           request.url = url
@@ -279,16 +314,19 @@ export default class YouTubeAPI extends BasePlatformAPI {
     return true
   }
 
-
-
-  async login() {
+  async login(currentToken=null) {
     /**
     * Summary: Fetch YouTube API key and store (required implementation).
     *
     * @see  BasePlatformAPI
     *
     */
-    var response = await this._request("administration/youtubekey/", "GET", null, true)
+    if(currentToken) {
+      var response = await this._request("administration/youtubekey/", "GET", {old_key: currentToken}, true)
+    }
+    else {
+      var response = await this._request("administration/youtubekey/", "GET", null, true)
+    }
     var token = {
       platform: "YouTube",
       accessToken: response.key,
@@ -306,7 +344,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
     var token = this.getToken("Revibe")
     var data = {
       refresh_token: token.refreshToken,
-      device_type: "phone"
+      device_type: "mobile"
     }
     var response = await this._request("account/refresh-token/", "POST", data)
     var newToken = {
@@ -325,9 +363,9 @@ export default class YouTubeAPI extends BasePlatformAPI {
     * @see  BasePlatformAPI
     */
     var token = this.getToken()
-    token.remove()
+    token.delete()
+    this.library.delete()
   }
-
 
   async fetchLibrarySongs() {
     /**
@@ -338,11 +376,15 @@ export default class YouTubeAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
 
-    var songs =  await this._request("music/library/songs/?platform=YouTube", "GET", null, true)
+    var songs =  await this._request("music/library/songs/?platform=YouTube", "GET", null, true, true)
     for(var x=0; x<songs.length; x++) {
-      songs[x] = this._parseSong(songs[x])
-      // probably need to look at date added here
+      var dateSaved = songs[x].date_saved
+      songs[x] = this._parseSong(songs[x].song)
+      songs[x].dateSaved = dateSaved
+      this.saveToLibrary(songs[x])   // save to realm database
     }
+    return songs
+
     return songs
   }
 
@@ -408,8 +450,9 @@ export default class YouTubeAPI extends BasePlatformAPI {
     */
 
     var search = await this._request('search?part=snippet&videoCategoryId=10&type=video&maxResults=10&channelId='+id, "GET", null)
+    results = []
     for(var x=0; x<search.length; x++) {
-      songs[x] = this._parseVideo(search.songs[x]);
+      results.push(this._parseVideo(search[x]));
     }
     return results;
   }
@@ -426,6 +469,61 @@ export default class YouTubeAPI extends BasePlatformAPI {
     return []
   }
 
+  async fetchArtist(id) {
+    /**
+    * Summary: Fetch artist from id (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   id    id of album to get songs from
+    *
+    * @return {Object} List containing song objects
+    */
+    var response = await this._request('channels?part=snippet&&maxResults=1&id='+id, "GET", null)
+    return this._parseChannel(response[0])
+  }
+
+  async fetchArtists(ids) {
+    /**
+    * Summary: Fetch artist from id (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   id    id of album to get songs from
+    *
+    * @return {Object} List containing song objects
+    */
+    var response = await this._request('channels?part=snippet&&maxResults='+ids.length+'&id='+ids.join(), "GET", null)
+    return this._parseChannel(response[0])
+  }
+
+  async fetchAlbum(id) {
+    /**
+    * Summary: Dummy function, does not apply to YouTube (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   id    id of album to get songs from
+    *
+    * @return {Object} List containing song objects
+    */
+    return {}
+  }
+
+  async fetchSong(id) {
+    /**
+    * Summary: Fetch song from id (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {string}   id    id of album to get songs from
+    *
+    * @return {Object} List containing song objects
+    */
+    var response = await this._request('videos?part=snippet&&maxResults=1&id='+id, "GET", null)
+    return this._parseVideo(response)
+  }
+
   async search(query) {
     /**
     * Summary: Search songs, albums, and artist based on query string (required implementation).
@@ -436,10 +534,18 @@ export default class YouTubeAPI extends BasePlatformAPI {
     *
     * @return {Object} List containing song objects, list containing album objects, list containing artist objects
     */
-    var search = await this._request('search?part=snippet&videoCategoryId=10&type=video&maxResults=10&q='+query, "GET", null)
+
+    var search = await this._request('search?part=snippet&topicId=/m/04rlf&type=channel,video&maxResults=10&q='+query, "GET", null)
     var results = {songs: [], albums: [], artists: []};
-    for(var x=0; x<search.length; x++) {
-      results.songs.push(this._parseVideo(search[x]));
+    if(Array.isArray(search)) {
+      for(var x=0; x<search.length; x++) {
+        if(search[x].id.kind === "youtube#video") {
+          results.songs.push(this._parseVideo(search[x]));
+        }
+        else {
+          results.artists.push(this._parseChannel(search[x]));
+        }
+      }
     }
     return results;
   }
@@ -452,6 +558,10 @@ export default class YouTubeAPI extends BasePlatformAPI {
     *
     * @param {Object}   song    song to add to library
     */
+    var artist = await this.fetchArtist(song.contributors[0].artist.id)
+    song.contributors[0].artist.images = artist.images
+    song.album.contributors[0].artist.images = artist.images
+
     var data = {
       platform: song.platform,
       song: {
@@ -460,10 +570,51 @@ export default class YouTubeAPI extends BasePlatformAPI {
         title: song.name,
         duration: song.duration,
       },
-      album: song.album,
-      artist: song.artist,
+      artist: {
+        artist_id: song.contributors[0].artist.id,
+        artist_uri: song.contributors[0].artist.uri,
+        name: song.contributors[0].artist.name,
+        image_refs: [
+          {
+            ref: artist.images[0].url,
+            height: artist.images[0].height,
+            width: artist.images[0].width,
+          },
+          {
+            ref: artist.images[1].url,
+            height: artist.images[1].height,
+            width: artist.images[1].width,
+          },
+          {
+            ref: artist.images[2].url,
+            height: artist.images[2].height,
+            width: artist.images[2].width,
+          },
+
+        ],
+      },
+      album: {
+        image_refs: [
+          {
+            ref: song.album.images[0].url,
+            height: song.album.images[0].height,
+            width: song.album.images[0].width,
+          },
+          {
+            ref: song.album.images[1].url,
+            height: song.album.images[1].height,
+            width: song.album.images[1].width,
+          },
+          {
+            ref: song.album.images[2].url,
+            height: song.album.images[2].height,
+            width: song.album.images[2].width,
+          },
+
+        ]
+      }
     }
-    // await this._request("music/library/songs/", "POST", data, true)
+    await this._request("music/library/songs/", "POST", data, true)
     this.saveToLibrary(song)   // save to realm database
   }
 

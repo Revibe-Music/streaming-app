@@ -11,15 +11,21 @@ export default {
   optionContainer: {
     backgroundColor: "#121212",
     opacity: .95,
-    position:"absolute",
-    top:0,
-    left:0,
-    bottom:0,
-    right:0
+    width: "100%",
+    height: "100%"
   },
-  closeButton: {
+  closeButtonContainer: {
+    height: hp("5%"),
+    width: wp("7%"),
+    flex:1,
+    justifyContent: "center",
+    alignItems:"center",
     marginTop: hp("4%"),
-    marginLeft: wp("2%"),
+    marginLeft: wp("3%"),
+  },
+
+  closeButton: {
+    fontSize: hp("3")
   },
   closeButtonIcon: {
     color: "white",
@@ -39,6 +45,7 @@ export default {
     width: hp("30%"),
     height: hp("30%"),
     marginBottom: 30,
+    resizeMode: "contain"
   },
   mainText: {
     textAlign:"center",
@@ -68,6 +75,38 @@ export default {
     fontWeight: "bold",
     fontSize: hp("2.2%"),
     marginTop: hp("2%"),
+  },
+
+  selectArtistContainer: {
+    marginTop:hp("10"),
+    flex: 1
+  },
+  selectArtistScrollview: {
+    marginTop:hp("5"),
+    height:hp("50"),
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+  },
+
+  selectArtistText: {
+    textAlign:"left",
+    color: "white",
+    fontWeight: "bold",
+    fontSize: hp("2.2%"),
+    marginTop: hp("2%"),
+  },
+  selectArtistCancelButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: wp('80%'),
+    height: hp('5%'),
+    backgroundColor: "transparent",
+    alignSelf: 'center',
+    marginTop: hp("15")
+  },
+  selectArtistCancelText: {
+    fontSize: hp("3%"),
+    color: "white",
   },
 
 }

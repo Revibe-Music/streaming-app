@@ -10,11 +10,38 @@ export default class SavedSong {
     }
   }
 
-  create(song) {
+  _validate(song) {
+    // structure song and all nested objects to put in realm format
     if(!song.dateSaved) {
       song.dateSaved = new Date().toLocaleString()
     }
-    var savedSong = {song: song, dateSaved: song.dateSaved}
+    if(!Array.isArray(song.album.images)) {
+      song.album.images = Object.keys(song.album.images).map(x => song.album.images[x])
+    }
+    if(!Array.isArray(song.album.contributors)) {
+      song.album.contributors = Object.keys(song.album.contributors).map(x => song.album.contributors[x])
+    }
+    if(!Array.isArray(song.contributors)) {
+      song.contributors = Object.keys(song.contributors).map(x => song.contributors[x])
+    }
+    for(var y=0; y<song.album.contributors.length; y++) {
+      const index = y
+      if(!Array.isArray(song.album.contributors[index].artist.images)) {
+        song.album.contributors[index].artist.images = Object.keys(song.album.contributors[index].artist.images).map(x => song.album.contributors[index].artist.images[x])
+      }
+    }
+    for(var y=0; y<song.contributors.length; y++) {
+      const index = y
+      if(!Array.isArray(song.contributors[index].artist.images)) {
+        song.contributors[index].artist.images = Object.keys(song.contributors[index].artist.images).map(x => song.contributors[index].artist.images[x])
+      }
+    }
+    return song
+  }
+
+  create(song) {
+    var formattedSong = this._validate(song)
+    var savedSong = {song: formattedSong, dateSaved: song.dateSaved}
     var newObject = {}
     realm.write(() => {
       newObject.object = realm.create('SavedSong', savedSong, true);
@@ -29,7 +56,6 @@ export default class SavedSong {
       song.delete()
     }
     realm.write(() => {
-      console.log('DELETING SAVED SONG');
       realm.delete(this);
     })
 

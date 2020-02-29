@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ImageLoad from 'react-native-image-placeholder';
 
+import { getPlatform } from './../../api/utils';
 import styles from "./styles";
 
 class ArtistItem extends PureComponent {
@@ -28,14 +29,50 @@ class ArtistItem extends PureComponent {
   }
 
   goToArtist() {
-    var navigationOptions = {
-      key: "Artist",
-      routeName: "Artist",
-      params: {
-        artist: this.props.artist,
+    if(this.props.isLocal) {
+      var songs = getPlatform(this.props.artist.platform).getSavedArtistSongs(this.props.artist.id)
+      var navigationOptions = {
+        key: "Album",
+        routeName: "Album",
+        params: {
+          album: this.props.artist,
+          songs: songs,
+        }
+      }
+    }
+    else {
+      if(this.props.artist.platform === "YouTube") {
+        var navigationOptions = {
+          key: "Album",
+          routeName: "Album",
+          params: {
+            album: this.props.artist,
+            songs: []
+          }
+        }
+      }
+      else {
+        var navigationOptions = {
+          key: "Artist",
+          routeName: "Artist",
+          params: {
+            artist: this.props.artist,
+          }
+        }
       }
     }
     this.props.navigation.navigate(navigationOptions)
+  }
+
+  getImage() {
+    this.props.artist.images = Object.keys(this.props.artist.images).map(x => this.props.artist.images[x])
+    if(this.props.artist.images.length > 0) {
+      var image = this.props.artist.images.reduce(function(prev, curr) {
+          return prev.height < curr.height ? prev : curr;
+      });
+      return {uri: image.url}
+    }
+    return require("./../../../assets/userPlaceholder.png")
   }
 
   render() {
@@ -48,7 +85,7 @@ class ArtistItem extends PureComponent {
                 style={styles.image} // rounded or na?
                 placeholderStyle={styles.image}
                 borderRadius={hp("3.5%")}
-                source={{uri: this.props.artist.mediumImage ? this.props.artist.mediumImage : this.props.artist.images[2].url}}
+                source={this.getImage()}
                 placeholderSource={require("./../../../assets/userPlaceholder.png")}
             />
             <View style={styles.textContainer}>

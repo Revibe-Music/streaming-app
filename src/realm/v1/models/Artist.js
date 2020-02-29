@@ -16,21 +16,37 @@ export default class Artist {
 
   get smallImage() {
     if(Object.keys(this.images).length > 0) {
-      return this.images["1"].url
+      var size=100000
+      var index = 0
+      for(var x=0; x<this.images.length; x++) {
+        if(this.images[x].height < size) {
+          size = this.images[x].height
+          index = x
+        }
+      }
+      return this.images[index].url
     }
     return null
   }
 
   get mediumImage() {
     if(Object.keys(this.images).length > 0) {
-      return this.images["2"].url
+      return this.images[Math.round((this.images.length - 1) / 2)].url;
     }
     return null
   }
 
   get largeImage() {
     if(Object.keys(this.images).length > 0) {
-      return this.images["3"].url
+      var size=0
+      var index = 0
+      for(var x=0; x<this.images.length; x++) {
+        if(this.images[x].height > size) {
+          size = this.images[x].height
+          index = x
+        }
+      }
+      return this.images[index].url
     }
     return null
   }
@@ -53,7 +69,7 @@ export default class Artist {
     while(this.images.length > 0) {
       this.images[0].delete()
     }
-    
+
     // delete artist
     realm.write(() => {
 

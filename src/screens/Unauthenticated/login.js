@@ -27,7 +27,7 @@ import styles from "./styles";
 import { getPlatform } from './../../api/utils';
 
 
-import { initializePlatforms, updatePlatformData } from './../../redux/platform/actions'
+import { initializePlatforms } from './../../redux/platform/actions'
 
 
 
@@ -39,8 +39,8 @@ class Login extends Component {
     super(props);
     this.state = {
       forgotPasswordModal: false,
-      username: "rstephens2812",
-      password: "Reed1rile2",
+      username: "",
+      password: "",
       first_name: "",
       syncing: false,
       error: {},
@@ -54,12 +54,9 @@ class Login extends Component {
 
   async fetchConnectedAccounts() {
     var connectedPlatforms = await this.revibe.fetchConnectedPlatforms()
-    connectedPlatforms = connectedPlatforms.platforms
     for(var x=0; x<connectedPlatforms.length; x++) {
-      let platform = getPlatform(connectedPlatforms[x].name)
-      platform.saveToken({accessToken: connectedPlatforms[x].access_token, refreshToken: connectedPlatforms[x].refresh_token})
-      await platform.refreshToken()
-      this.props.updatePlatformData(platform)
+      let platform = getPlatform(connectedPlatforms[x].platform)
+      platform.saveToken(connectedPlatforms[x])
     }
     this.setState({ syncing: true})
   }
@@ -83,8 +80,8 @@ class Login extends Component {
         this.setState({ firstName: response.first_name, syncing: true })
         await this.youtube.login()
         this.setState({ firstName: response.first_name })
-        this.props.initializePlatforms()
-        // await this.fetchConnectedAccounts(response.access_token)
+        await this.fetchConnectedAccounts()
+        await this.props.initializePlatforms()
         setTimeout(this.syncAccounts, 5000)
       }
       else {
@@ -100,8 +97,6 @@ class Login extends Component {
   toggleForgotPasswordModal() {
     this.setState({ forgotPasswordModal: !this.state.forgotPasswordModal });
   }
-
-  // <Divider borderColor="#7248BD" color="#7248BD" orientation="center"borderBottomWidth={5}>OR</Divider>
 
   render() {
     return (
@@ -174,7 +169,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = dispatch => ({
     initializePlatforms: () => dispatch(initializePlatforms()),
-    updatePlatformData: (platform) => dispatch(updatePlatformData(platform)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)

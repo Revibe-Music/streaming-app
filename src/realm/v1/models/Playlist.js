@@ -14,7 +14,6 @@ export default class Playlist {
   }
 
   create(name, id) {
-    console.log("Creating playlist");
     var newObject = {}
     realm.write(() => {
       newObject.object = realm.create('Playlist', {name: name, id: id});

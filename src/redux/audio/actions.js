@@ -1,5 +1,6 @@
 import MusicControl from 'react-native-music-control';
 import BackgroundTimer from 'react-native-background-timer';
+import { getPlatform } from './../../api/utils';
 
 const play = (index, playlist, activePlatform, inQueue) => {
   return {
@@ -56,10 +57,22 @@ const setAudioInterupt = (audioInterupted, audioInteruptTime) => ({
   audioInteruptTime: audioInteruptTime
 });
 
+const reset = () => ({
+  type: 'RESET_AUDIO',
+});
+
 
 // Audio Controls
  const playSong = (index, playlist=null, inQueue=false) => {
   return async (dispatch, getState) => {
+
+      if(getState().audioState.playlist.length > 0) {
+        if(getState().audioState.time.current > 30) {
+          var song = getState().audioState.playlist[getState().audioState.currentIndex]
+          var revibe = getPlatform("Revibe")
+          revibe.recordStream(song, getState().audioState.time.current)
+        }
+      }
 
       playlist = !!playlist ? playlist : getState().audioState.playlist
 
@@ -84,10 +97,16 @@ const setAudioInterupt = (audioInterupted, audioInteruptTime) => ({
       // const timer = BackgroundTimer.setInterval(continuousTimeUpdate, 1000);
 
       platform.play(playlist[index].uri)
+      if(!Array.isArray(playlist[index].album.images)) {
+        playlist[index].album.images = Object.keys(playlist[index].album.images).map(x => playlist[index].album.images[x])
+      }
+      var image = playlist[index].album.images.reduce(function(prev, curr) {
+          return prev.height < curr.height ? prev : curr;
+      });
 
       MusicControl.setNowPlaying({
         title: playlist[index].name,
-        artwork: playlist[index].album.smallImage, // URL or RN's image require()
+        artwork: image.url, // URL or RN's image require()
         artist: playlist[index].contributors['0'].artist.name,
         album: playlist[index].platform !== "YouTube"? playlist[index].album.name : "YouTube",
         duration: !!playlist[index].duration ? playlist[index].duration : 0, // (Seconds)
@@ -173,9 +192,7 @@ const updateQueue = queue => {
       var platforms = getState().platformState.platforms
       var platformNames = Object.keys(platforms)
       for(var x=0; x<platformNames.length; x++) {
-        if(getState().platformState.platforms[platformNames[x]].library.allSongs.length > 0) {
-          combinedPlaylists = combinedPlaylists.concat(getState().platformState.platforms[platformNames[x]].library.allSongs)
-        }
+        combinedPlaylists = combinedPlaylists.concat(getState().platformState.platforms[platformNames[x]].library.allSongs)
       }
       let i = combinedPlaylists.length;
       while (i--) {
@@ -259,4 +276,11 @@ const updateAudioInterupt = (interupted, interuptTime) => {
    }
 }
 
-export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt, continuousTimeUpdate }
+const resetAudio = () => {
+   return (dispatch) => {
+       dispatch(pauseSong());
+       dispatch(reset());
+   }
+}
+
+export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt, continuousTimeUpdate,resetAudio }

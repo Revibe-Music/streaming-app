@@ -36,7 +36,6 @@ export default class Song extends Realm.Object {
   }
 
   create(song) {
-    console.log("Creating song");
     var newObject = {}
     realm.write(() => {
       newObject.object = realm.create('Song', song , true);
@@ -57,7 +56,6 @@ export default class Song extends Realm.Object {
 
     realm.write(() => {
       // delete song
-      console.log('DELETING SONG');
       realm.delete(this);
     })
   }

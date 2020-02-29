@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import {RefreshControl, Dimensions, View, Text,TouchableOpacity } from "react-native";
+import {RefreshControl, Dimensions, View, Text,TouchableOpacity, ScrollView } from "react-native";
 import PropTypes from 'prop-types';
-import { RecyclerListView, DataProvider, LayoutProvider } from "recyclerlistview";
+import { RecyclerListView, DataProvider, LayoutProvider,BaseScrollView } from "recyclerlistview";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 import SongItem from "./../listItems/SongItem";
@@ -13,6 +13,7 @@ import styles from "./styles";
 const ViewTypes = {
     MEDIA: 0,
 };
+
 
 class List extends Component {
 
@@ -47,7 +48,7 @@ class List extends Component {
     }
 
    _rowRenderer(type, data, index) {
-     if(this.props.type === "Song") {
+     if(this.props.type === "Songs") {
        return (
          <SongItem
           song={data}
@@ -57,20 +58,22 @@ class List extends Component {
          />
        )
      }
-     if(this.props.type === "Artist") {
+     if(this.props.type === "Artists") {
        return (
          <ArtistItem
           artist={data}
           displayType={this.props.displayType}
+          isLocal={this.props.isLocal}
           navigation={this.props.navigation}
          />
        )
      }
-     if(this.props.type === "Album") {
+     if(this.props.type === "Albums") {
        return (
          <AlbumItem
           album={data}
           displayType={this.props.displayType}
+          isLocal={this.props.isLocal}
           navigation={this.props.navigation}
          />
        )
@@ -86,8 +89,20 @@ class List extends Component {
 
   render() {
 
+
     if(this.props.data.length > 0) {
       var data = this.dataProvider.cloneWithRows(this.props.data)
+      var scrollViewProps = {}
+      if(this.props.allowRefresh) {
+        scrollViewProps = {
+          refreshControl: (
+            <RefreshControl
+            onRefresh={this.refresh}
+            refreshing={this.state.refreshing}
+            />
+          )
+        }
+      }
 
       return (
         <RecyclerListView
@@ -96,16 +111,7 @@ class List extends Component {
           rowRenderer={this._rowRenderer}
           optimizeForInsertDeleteAnimations={true}
           extendedState={this.state}
-          scrollViewProps={!this.props.allowRefresh ?
-            null :
-            {
-            refreshControl: (
-              <RefreshControl
-              onRefresh={this.refresh}
-              refreshing={this.state.refreshing}
-              />
-            )
-          }}
+          scrollViewProps={scrollViewProps}
         />
       )
     }
@@ -121,7 +127,7 @@ class List extends Component {
 List.propTypes = {
   data: PropTypes.array.isRequired,
   noDataText: PropTypes.string,
-  type: PropTypes.oneOfType(["Song","Artist","Album"]),
+  type: PropTypes.oneOfType(["Songs","Artists","Albums"]),
   displayType: PropTypes.bool,
   displayImage: PropTypes.bool,
   allowRefresh: PropTypes.bool,
@@ -133,6 +139,7 @@ List.defaultProps = {
   allowRefresh: true,
   isLocal: false,
   onRefresh: () => console.log("Must pass function to onRefresh props in order for pull-to-refresh to do anything."),
+  isLocal: false,
   displayType: false,
   displayImage: true,
   noDataText: "No Results."

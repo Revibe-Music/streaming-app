@@ -42,11 +42,11 @@ if (nextSchemaVersion !== -1) {
 
 const realm = new Realm(schemas[schemas.length-1])
 
-
+// 
 // realm.write(() => {
 //   // let revibeToken = realm.objects('Token').filtered('platform = "Revibe"')["0"]
 //   // if(revibeToken) realm.delete(revibeToken)
-//   // realm.deleteAll();
+//   realm.deleteAll();
 // });
 
 export default realm;

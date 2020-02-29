@@ -85,6 +85,7 @@ AnimatedPopover.propTypes = {
 
 AnimatedPopover.defaultProps = {
   show: false,
+  text: ""
 };
 
 export default AnimatedPopover;

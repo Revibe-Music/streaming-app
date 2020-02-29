@@ -41,10 +41,9 @@ export default class Token {
     var newObject = {}
     realm.write(() => {
       newObject.object = realm.create('Token', token , true);
-      if(realm.objects('Library').filtered(`platform = "${token.platform}"`).length > 0) {
-        realm.delete(realm.objects('Library').filtered(`platform = "${token.platform}"`)[0])
+      if(!realm.objects('Library').filtered(`platform = "${token.platform}"`).length) {
+        newObject.object = realm.create('Library', {platform: token.platform});
       }
-      newObject.object = realm.create('Library', {platform: token.platform});
     })
     return newObject.object
   }

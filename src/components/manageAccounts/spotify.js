@@ -3,10 +3,11 @@ import { View, Image, Alert } from "react-native";
 import { Button, Text, Icon } from "native-base";
 import { BarIndicator } from 'react-native-indicators';
 import { connect } from 'react-redux';
+import CookieManager from 'react-native-cookies';
 
 import AnimatedPopover from './../animatedPopover/index';
 import SpotifyAPI from './../../api/Spotify';
-import { updatePlatformData, removePlatformData } from './../../redux/platform/actions'
+import { updatePlatformData, removePlatformData,initializePlatforms } from './../../redux/platform/actions'
 import styles from ".//styles";
 
 
@@ -27,16 +28,19 @@ class SpotifyAccount extends Component {
       if(profile.product === "premium") {
         this.setState({loading: true})
         var songs = await this.spotify.fetchLibrarySongs()
-        for(var x=0; x< songs.length; x++) {
-          this.spotify.saveToLibrary(songs[x])
-        }
-        this.props.updatePlatformData(this.spotify)
+        this.props.initializePlatforms()
         this.setState({loading: false})
       }
       else {
         await this.spotify.logout()
-        Alert.alert('Must have a premium Spotify account.')
-        //Need to show alert or modal saying that a premium account is required and maybe giving link to sign up for one
+        Alert.alert(
+          'Sorry, you must have a premium Spotify account.',
+          '',
+          [
+            {text: 'OK', onPress: () => console.log('OK Pressed')},
+          ],
+          {cancelable: false},
+        );
       }
   }
 
@@ -46,8 +50,11 @@ class SpotifyAccount extends Component {
         'This will remove all Spotify content from Revibe.',
         [
           {text: "I'm sure", onPress: async () => {
+            this.setState({loading: true})
             await this.spotify.logout();
-            this.props.removePlatformData("Spotify")
+            this.props.initializePlatforms()
+            await CookieManager.clearAll(true)
+            this.setState({loading: false})
           }},
           {
             text: 'Cancel',
@@ -57,27 +64,24 @@ class SpotifyAccount extends Component {
         ],
         {cancelable: true},
       );
-
   }
 
   render() {
         return (
+          <>
+          <AnimatedPopover type="Loading" show={this.state.loading} />
           <View style={styles.logoRow}>
             <Icon type="FontAwesome" name={"spotify"} style={styles.logo} />
-            {this.state.loading  ?
-              <AnimatedPopover type="Loading" show={this.state.loading} />
-              :
-              <Button
-              style={this.spotify.hasLoggedIn() ? styles.disconnectBtn : styles.connectBtn}
-              onPress={() => {
-                this.spotify.hasLoggedIn() ? this.disconnectSpotify() : this.connectSpotify()
-              }}
-              >
-                 <Text style={styles.accountBtnText}> {this.spotify.hasLoggedIn() ? "Disconnect" : "Connect"} </Text>
-             </Button>
-            }
+            <Button
+            style={this.spotify.hasLoggedIn() ? styles.disconnectBtn : styles.connectBtn}
+            onPress={() => {
+              this.spotify.hasLoggedIn() ? this.disconnectSpotify() : this.connectSpotify()
+            }}
+            >
+              <Text style={styles.accountBtnText}> {this.spotify.hasLoggedIn() ? "Disconnect" : "Connect"} </Text>
+            </Button>
           </View>
-
+          </>
         )
   }
 }
@@ -89,6 +93,7 @@ function mapStateToProps(state) {
 };
 
 const mapDispatchToProps = dispatch => ({
+    initializePlatforms: () => dispatch(initializePlatforms()),
     updatePlatformData: (platform) => dispatch(updatePlatformData(platform)),
     removePlatformData: (platform) => dispatch(removePlatformData(platform)),
 });

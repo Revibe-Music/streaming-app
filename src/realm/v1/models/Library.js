@@ -1,6 +1,6 @@
 import realm from './../../realm';
 import Realm from 'realm'
-import { uniqBy } from 'lodash'
+import { uniqBy, values } from 'lodash'
 import SavedSong from './SavedSong';
 
 export default class Library extends Realm.Object {
@@ -14,20 +14,61 @@ export default class Library extends Realm.Object {
   }
 
   get allSongs() {
-    return this.songs.map(x => x.song)
+    // need to do json stuff so there is no reference to realm
+    var sortedSongs = this.songs.sorted("dateSaved",true)
+    return JSON.parse(JSON.stringify(sortedSongs.map(x => x.song)))
   }
 
   get allAlbums() {
-    return uniqBy(this.songs.map(x => x.song.album), 'id');
+    if(this.platform !== "YouTube") {
+      var sortedAlbums = realm.objects('Album').filtered(`platform = "${this.platform}" SORT(name ASC)`)
+      return JSON.parse(JSON.stringify(sortedAlbums.map(x => x)))
+    }
+    return []
   }
 
   get allArtists() {
-    var artists = []
-    var songs = this.allSongs
-    for(var x=0; x<songs.length; x++) {
-      artists = artists.concat(songs[x].artists)
+    var sortedArtists = realm.objects('Artist').filtered(`platform = "${this.platform}" SORT(name ASC)`)
+    return JSON.parse(JSON.stringify(sortedArtists.map(x => x)))
+  }
+
+  _formatQuery(query, type) {
+    if(type==="Songs") {
+      return JSON.parse(JSON.stringify(query.map(x => x.song)))
     }
-    return uniqBy(artists, 'id');
+    else {
+      return JSON.parse(JSON.stringify(query.map(x => x)))
+    }
+  }
+
+  filter(type, text) {
+      var results = []
+      if(type === "Songs") {
+        results = results.concat(this._formatQuery(this.songs.filtered(`song.name BEGINSWITH[c] "${text}"`), type))
+        results = results.concat(this._formatQuery(this.songs.filtered(`song.name CONTAINS[c] "${text}"`), type))
+        results = results.concat(this._formatQuery(this.songs.filtered(`song.contributors.artist.name BEGINSWITH[c] "${text}"`), type))
+        results = results.concat(this._formatQuery(this.songs.filtered(`song.contributors.artist.name CONTAINS[c] "${text}"`), type))
+        results = results.concat(this._formatQuery(this.songs.filtered(`song.album.name BEGINSWITH[c] "${text}"`), type))
+        results = results.concat(this._formatQuery(this.songs.filtered(`song.album.name CONTAINS[c] "${text}"`), type))
+      }
+      else if(type === "Albums"){
+        var allAlbums = realm.objects('Album').filtered(`platform = "${this.platform}"`)
+        results = results.concat(this._formatQuery(allAlbums.filtered(`name BEGINSWITH[c] "${text}"`)))
+        results = results.concat(this._formatQuery(allAlbums.filtered(`name CONTAINS[c] "${text}"`)))
+        results = results.concat(this._formatQuery(allAlbums.filtered(`contributors.artist.name BEGINSWITH[c] "${text}"`)))
+        results = results.concat(this._formatQuery(allAlbums.filtered(`contributors.artist.name CONTAINS[c] "${text}"`)))
+      }
+      else {
+        var allAlbums = realm.objects('Artist').filtered(`platform = "${this.platform}"`)
+        results = results.concat(this._formatQuery(allAlbums.filtered(`name BEGINSWITH[c] "${text}"`)))
+        results = results.concat(this._formatQuery(allAlbums.filtered(`name CONTAINS[c] "${text}"`)))
+      }
+      return uniqBy(results, "id")
+  }
+
+  songIsSaved(song) {
+    //  return whether a matching song has already been saved to specific platform library
+    return this.songs.filtered(`song.id = "${song.id}"`).length > 0
   }
 
   addSong(song) {
@@ -44,14 +85,11 @@ export default class Library extends Realm.Object {
     savedSong.delete()
   }
 
-  filter(text, type) {
-
-
-  }
-
   deleteAllSongs() {
-    for(var x=0; x<this.songs.length; x++) {
-      this.songs[x].delete()
+    // delete Contributors
+    while(this.songs.length > 0) {
+      // const song = realm.objects("SavedSong").filtered(`id = "${this.songs[0].id}"`)[0]
+      this.songs[0].delete()
     }
   }
 
