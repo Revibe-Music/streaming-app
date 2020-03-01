@@ -753,7 +753,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     */
     var data = {
       song_id: song.id,
-      duration: duration,
+      stream_duration: duration,
       is_downloaded: false,
       is_saved: this.library.songIsSaved(song)
     }
