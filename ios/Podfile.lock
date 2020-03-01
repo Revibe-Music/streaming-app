@@ -264,6 +264,8 @@ PODS:
   - RNGoogleSignin (3.0.1):
     - GoogleSignIn (~> 5.0.0)
     - React
+  - RNReactNativeHapticFeedback (1.9.0):
+    - React
   - RNReanimated (1.3.0):
     - React
   - RNSound (0.11.0):
@@ -321,6 +323,7 @@ DEPENDENCIES:
   - RNEventEmitter (from `../node_modules/react-native-events`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-community/google-signin`)"
+  - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNSound (from `../node_modules/react-native-sound`)
   - RNSpotify (from `../node_modules/rn-spotify-sdk`)
@@ -413,6 +416,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
     :path: "../node_modules/@react-native-community/google-signin"
+  RNReactNativeHapticFeedback:
+    :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNSound:
@@ -468,6 +473,7 @@ SPEC CHECKSUMS:
   RNEventEmitter: a43a853a0de1dee334d007a4b3d2a6dc29c77270
   RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
   RNGoogleSignin: 39336070b35fc4cea6a98cf111e00480317be0ae
+  RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
   RNReanimated: 6abbbae2e5e72609d85aabd92a982a94566885f1
   RNSound: c980916b596cc15c8dcd2f6ecd3b13c4881dbe20
   RNSpotify: a63cc52f37dd1420e03cc76e3e885bd5ce410ff8
@@ -475,6 +481,6 @@ SPEC CHECKSUMS:
   Yoga: 14927e37bd25376d216b150ab2a561773d57911f
   YoutubePlayer-in-WKWebView: af2f5929fc78882d94bfdfeea999b661b78d9717
 
-PODFILE CHECKSUM: ee636cdff52d15cf9b269cd400d19576b7d190a5
+PODFILE CHECKSUM: a80d8a4dad0beb79db2a9f0a989abf1b0f997244
 
 COCOAPODS: 1.8.4

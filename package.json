@@ -31,6 +31,7 @@
     "react-native-elements": "^1.2.7",
     "react-native-events": "^1.0.15",
     "react-native-gesture-handler": "^1.4.1",
+    "react-native-haptic-feedback": "^1.9.0",
     "react-native-image-header-scroll-view": "^0.10.3",
     "react-native-image-placeholder": "^1.0.14",
     "react-native-indicators": "^0.16.0",
