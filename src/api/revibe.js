@@ -526,17 +526,14 @@ export default class RevibeAPI extends BasePlatformAPI {
     return songs
   }
 
-  async fetchNewReleases() {
+  async fetchBrowseContent() {
     /**
-    * NOT IMPLEMENTED *
-    * Summary: Fetch list of newly released content (required implementation).
+    * Summary: Fetch data to display on browse page
     *
-    * @see  BasePlatformAPI
-    *
-    * @return {Object} List containing song objects
+    * @return {Object} List containing browse content(songs, albums, artists) objects
     */
-
-    return []
+    var request = await this._request("/content/browse/", "GET", null, true)
+    // parse content
   }
 
   async fetchArtist(id) {
@@ -760,4 +757,6 @@ export default class RevibeAPI extends BasePlatformAPI {
     var request = await this._request("metrics/stream/", "POST", data, true)
 
   }
+
+
 }

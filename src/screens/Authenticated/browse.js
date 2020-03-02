@@ -5,56 +5,57 @@ import AsyncStorage from '@react-native-community/async-storage';
 import TouchableNativeFeed from "../../component/TouchableNativeFeedback";
 import { SpotifyParseNewReleases, SpotifyGetSavedTracks, KeyExists } from "./../../auth";
 import styles from "./styles";
+
+import RevibeAPI from "../../api/Revibe";
+
 import MusicPlayer from "./../musicPlayer/index";
 import MinPlayer from "./../minPlayer/index";
 import LoadingScreen from "./../LoadingScreen";
 import Spotify from 'rn-spotify-sdk';
 import { connect } from 'react-redux';
 
-function copy(o) {
-  var output, v, key;
-  output = Array.isArray(o) ? [] : {};
-  for (key in o) {
-      v = o[key];
-      output[key] = (typeof v === "object") ? copy(v) : v;
-  }
-  return output;
-}
-
-const shuffle = (array) => {
-  let currentIndex = array.length, temp, randomIndex;
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-    temp = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temp;
-  }
-  let arr = copy(array);
-  return arr;
-};
 
 
-class Home extends Component {
+
+class Browse extends Component {
 
   constructor(props) {
    super(props);
 
-
+   this.revibe = new RevibeAPI()
    this.renderRow = this.renderRow.bind(this);
  }
 
+ goToAlbum() {
+   var songs = this.props.songs
+   var album = this.props.album.platform === "YouTube" ? this.props.album.contributors[0].artist : this.props.album
+   if(this.props.isLocal) {
+     songs = getPlatform(this.props.album.platform).getSavedAlbumSongs(this.props.album.id)
+     var key = album.name+"Local"
+   }
+   else {
+     var key = album.name+"Remote"
+   }
+   var navigationOptions = {
+     key: key,
+     routeName: "Album",
+     params: {
+       album: album,
+       songs: songs,
+     }
+   }
+   this.props.navigation.navigate(navigationOptions)
+ }
 
-  // componentWillMount() {
-  //     if (!!!this.props.spotifyNewReleases) {
-  //         if(!Spotify.isInitialized()) {
-  //           this.props.initializeSpotifyPlayer(this.props.accessToken);
-  //         }
-  //         else {
-  //           this.props.fetchSpotifyNewReleases();
-  //         }
-  //     }
-  // }
+
+  async componentWillMount() {
+      if (this.props.connected) {
+        var browseContent = await this.revibe.fetchBrowseContent()
+      }
+      else {
+        // get from realm
+      }
+  }
 
   renderRow(item) {
     return(
@@ -156,8 +157,7 @@ class Home extends Component {
 
 function mapStateToProps(state) {
   return {
-    spotifyNewReleases: state.spotifyState.spotifyNewReleases,
-    accessToken: state.platformState.accessToken,
+    connected: state.connectionState.connected,
   }
 };
 
@@ -168,4 +168,4 @@ const mapDispatchToProps = dispatch => ({
 });
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default connect(mapStateToProps, mapDispatchToProps)(Browse)
