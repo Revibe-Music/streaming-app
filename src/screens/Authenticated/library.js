@@ -161,19 +161,11 @@ class Library extends Component {
       <>
       <Header style={styles.libraryHeader} androidStatusBarColor="#222325" iosBarStyle="light-content">
         <Left>
-
         <Text style={styles.pageTitle}> Library </Text>
-
         </Left>
         <Body>
         </Body>
         <Right>
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={()=> this.props.navigation.openDrawer()}
-        >
-        <Icon type="Ionicons" name="md-menu" style={styles.songOptions} />
-        </TouchableOpacity>
         </Right>
       </Header>
 

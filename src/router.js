@@ -5,16 +5,21 @@ import { Text, Icon, Header, Body } from "native-base";
 import { Image } from "react-native";
 
 import Login from "./screens/Unauthenticated/login";
+import LoginScreen from "./screens/Unauthenticated/LoginScreen";
+import RegisterScreen from "./screens/Unauthenticated/RegisterScreen";
 import Signup from "./screens/Unauthenticated/signup";
 import LinkAccounts from "./screens/Unauthenticated/linkAccounts";
+import Tutorial from "./screens/Unauthenticated/tutorial";
+
 import Search from "./screens/Authenticated/search";
 import Library from "./screens/Authenticated/library";
-import Queue from "./screens/Authenticated/queue";
+import Browse from "./screens/Authenticated/browse";
 import Settings from "./screens/Authenticated/settings";
 import Artist from "./screens/Authenticated/artist/index";
 import Album from "./screens/Authenticated/album/index";
 import ViewAll from "./screens/Authenticated/viewAll/index";
 
+import Logo from "./components/Logo";
 import Menu from "./components/Drawer/Menu";
 import DrawerItem from "./components/Drawer/DrawerItem";
 
@@ -30,7 +35,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 const DrawerNav = createDrawerNavigator(
   {
     Home: {
-      screen: Library,
+      screen: Browse,
       navigationOptions: navOpt => ({
         drawerLabel: ({ focused }) => (
           <DrawerItem focused={focused} title="Home" />
@@ -49,12 +54,26 @@ const DrawerNav = createDrawerNavigator(
   Menu
 );
 
+const BrowseNav = createStackNavigator(
+  {
+    Artist: {screen: Artist},
+    Album: {screen: Album},
+    Settings: {screen: Settings},
+    Browse: {screen: DrawerNav},
+
+  },
+  {
+    initialRouteName: "Browse",
+    headerMode: 'none'
+  }
+);
+
 const LibraryNav = createStackNavigator(
   {
     Artist: {screen: Artist},
     Album: {screen: Album},
     Settings: {screen: Settings},
-    Library: {screen: DrawerNav},
+    Library: {screen: Library},
   },
   {
     initialRouteName: "Library",
@@ -74,17 +93,6 @@ const SearchNav = createStackNavigator(
   }
 );
 
-const QueueNav = createStackNavigator(
-  {
-    Artist: {screen: Artist},
-    Album: {screen: Album},
-    Queue: {screen: Queue}
-  },
-  {
-    initialRouteName: "Queue",
-  }
-);
-
 
 const activeTintLabelColor = "#7248BD";
 const inactiveTintLabelColor = "#8E8E93";
@@ -92,6 +100,15 @@ const inactiveTintLabelColor = "#8E8E93";
 const AppStack = createBottomTabNavigator(
     {
 
+      Browse : {
+        screen: BrowseNav,
+        navigationOptions: {
+          header: null,
+          headerTransparent: true,
+          tabBarLabel: ({ focused }) => <Text style={{ fontSize: hp("1.4%"), color: focused ? activeTintLabelColor : inactiveTintLabelColor }}>Browse</Text>,
+          tabBarIcon: ({ focused }) => <Icon type="Ionicons" name="ios-musical-notes" style={{fontSize: hp("4%"), paddingTop: hp(".25%"), color: focused ? activeTintLabelColor : inactiveTintLabelColor}} />
+        }
+      },
       Library : {
         screen: LibraryNav,
         navigationOptions: {
@@ -108,18 +125,10 @@ const AppStack = createBottomTabNavigator(
           tabBarIcon: ({ focused }) => <Icon type="Ionicons" name="ios-search" style={{fontSize: hp("4%"), paddingTop: hp(".25%"), color: focused ? activeTintLabelColor : inactiveTintLabelColor}} />,
         }
       },
-      Queue : {
-        screen: QueueNav,
-        navigationOptions: {
-          tabBarLabel: ({ focused }) => <Text style={{ fontSize: hp("1.4%"), color: focused ? activeTintLabelColor : inactiveTintLabelColor }}>Queue</Text>,
-          tabBarIcon: ({ focused }) => <Icon type="MaterialIcons" name="queue-music" style={{fontSize: hp("4%"), paddingTop: hp(".25%"), color: focused ? activeTintLabelColor : inactiveTintLabelColor}} />
-        }
-      },
-
     },
     {
-      initialRouteName: "Library",
-      order: ["Library", "Search", "Queue"],
+      initialRouteName: "Browse",
+      order: ["Browse", "Search", "Library"],
       swipeEnabled: false,
       lazy: false,
       navigatorStyle : {
@@ -150,19 +159,17 @@ const AppStack = createBottomTabNavigator(
 const AuthStack = createStackNavigator(
   {
     Signup: {
-      screen: Signup,
+      screen: RegisterScreen,
       navigationOptions: ({navigation}) => ({
-        header: <Header style={{backgroundColor: "#121212", borderBottomWidth: 0, marginBottom:0, paddingBottom:0, paddingTop: hp('10%'),}} androidStatusBarColor="#222325" iosBarStyle="light-content" >
-                    <Image source={require("./../assets/RevibeLogo.png")} style={{width:wp('50%'), height:hp('6%'),}}/>
-                </Header>
+        header: null,
+        headerTransparent: true,
       }),
     },
     Login: {
-      screen: Login,
+      screen: LoginScreen,
       navigationOptions: ({navigation}) => ({
-        header: <Header style={{backgroundColor: "#121212", borderBottomWidth: 0, marginBottom:0, paddingBottom:0, paddingTop: hp('10%'),}} androidStatusBarColor="#222325" iosBarStyle="light-content" >
-                    <Image source={require("./../assets/RevibeLogo.png")} style={{width:wp('50%'), height:hp('6%'),}}/>
-                </Header>
+        header: null,
+        headerTransparent: true,
       }),
     },
     LinkAccounts: {
@@ -173,9 +180,16 @@ const AuthStack = createStackNavigator(
                 </Header>
       }),
     },
+    Tutorial: {
+      screen: Tutorial,
+      navigationOptions: ({navigation}) => ({
+        header: null,
+        headerTransparent: true,
+      }),
+    },
   },
   {
-    initialRouteName: "Signup",
+    initialRouteName: "Tutorial",
   }
 );
 

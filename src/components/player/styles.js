@@ -7,11 +7,11 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 export default {
     // FULLSCREEN PLAYER
     playerHeader: {
-      backgroundColor: "#0E0E0E",
+      backgroundColor: "transparent",
       height:0,
       borderBottomWidth: 0,
       marginBottom:hp("5%"),
-      marginTop: hp("7%"),
+      marginTop: hp("2%"),
     },
     playerCloseArrowButton: {
       height: hp("4%"),
@@ -20,6 +20,7 @@ export default {
       height: hp("4%"),
       color: "white",
       fontSize: hp("4%"),
+      marginLeft: wp("5%")
     },
     headerBody: {
       height: hp("4%"),
@@ -35,6 +36,11 @@ export default {
       minHeight: 1,
       minWidth: 1,
       height: wp("80%"),
+    },
+    playerIcons: {
+      height: hp("3.5%"),
+      color: "#7248BD",
+      fontSize: hp("3.5%"),
     },
     controls: {
       flex: 1,

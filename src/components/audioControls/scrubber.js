@@ -44,7 +44,6 @@ class Scrubber extends Component{
   render() {
     return (
       <>
-        <View>
         <Slider
           style={styles.seekBar}
           value={this.props.time.current}
@@ -56,7 +55,6 @@ class Scrubber extends Component{
           thumbStyle={styles.thumbStyle}
           thumbTouchSize={{width: 50, height: 40}}
         />
-        </View>
         <View style={styles.time}>
             <View style={styles.seekTimeContainer}>
                 <Text style={styles.seekTime}>{this.timeFromSeconds(this.props.time.current)}</Text>

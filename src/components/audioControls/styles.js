@@ -13,7 +13,7 @@ export default {
       alignItems: 'center'
   },
   seekBar: {
-      marginTop: hp("5%"),
+      marginTop: hp("2%"),
       width: wp("80%"),
       marginLeft: wp("10%"),
   },

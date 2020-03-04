@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* RevibeMobileAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* RevibeMobileAppTests.m */; };
 		09AA2FF26B0873CE41ADA5BD /* libPods-RevibeMobileAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BFE7785ACD798D75F4E6EC4 /* libPods-RevibeMobileAppTests.a */; };
@@ -105,6 +104,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B8C27408C31CEB883EA4D01F /* libPods-RevibeMobileApp-tvOS.a in Frameworks */,
+				1CF30B911D4C40D993266784 /* libRNColorThief-tvOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,6 +160,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		27EE42EC240EF21E0015BB15 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				EC15658C3BB043BD9A3EFE32 /* libRNColorThief.a */,
+				A60350F1D059464B80AC8101 /* libRNColorThief-tvOS.a */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -191,6 +200,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				CDD6BAD8CA86B0C4CED9C154 /* Pods */,
+				27EE42EC240EF21E0015BB15 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -373,6 +383,13 @@
 			fileType = archive.ar;
 			path = libRealmReact.a;
 			remoteRef = 2705A2F0234D1438005F976E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		27EE42F5240EF21E0015BB15 /* libRNColorThief-tvOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libRNColorThief-tvOS.a";
+			remoteRef = 27EE42F4240EF21E0015BB15 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -690,7 +707,9 @@
 				INFOPLIST_FILE = RevibeMobileAppTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -717,7 +736,9 @@
 				INFOPLIST_FILE = RevibeMobileAppTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -806,7 +827,9 @@
 				);
 				INFOPLIST_FILE = "RevibeMobileApp-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -839,7 +862,9 @@
 				);
 				INFOPLIST_FILE = "RevibeMobileApp-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -871,7 +896,9 @@
 				);
 				INFOPLIST_FILE = "RevibeMobileApp-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -903,7 +930,9 @@
 				);
 				INFOPLIST_FILE = "RevibeMobileApp-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

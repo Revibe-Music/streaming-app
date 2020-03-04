@@ -164,20 +164,30 @@ export default {
   card: {
     height: deviceHeight / 3.7,
     width: deviceWidth / 2.3,
-    backgroundColor: "#121212",
-    borderColor: "black",
+    backgroundColor: "transparent",
+    borderColor: "transparent",
     marginRight: 20,
-    marginLeft: 5
+    marginLeft: 5,
   },
   cardImg : {
     height: deviceHeight / 5,
     width: deviceWidth / 2.3,
     padding: 0,
     backgroundColor: "#121212",
-    borderRadius: 20
+    borderRadius: 20,
+    resizeMode: "contain"
+  },
+  artistCardImg : {
+    height: deviceHeight / 5,
+    width: deviceWidth / 2.3,
+    padding: 0,
+    backgroundColor: "#121212",
+    borderRadius: deviceWidth / 2.5,
+    resizeMode: "cover"
+
   },
   cardDesc: {
-    backgroundColor: "#121212",
+    backgroundColor: "transparent",
   },
   desc: {
     color: "white",
@@ -204,10 +214,11 @@ export default {
   title: {
     color: "white",
     fontWeight: "bold",
-    fontSize: 20,
-    textAlign: "center",
+    fontSize: hp("2.5%"),
+    textAlign: "left",
     marginVertical: 15,
-    letterSpacing: 1.3
+    letterSpacing: 1.3,
+    marginLeft: wp("2%")
   },
   subtitle: {
     color: "#A9A9A9",
@@ -222,8 +233,8 @@ export default {
     paddingEnd: 5,
   },
   cardItem: {
-    backgroundColor: "#121212",
-    width: deviceWidth / 2.3
+    backgroundColor: "transparent",
+    width: deviceWidth / 2.3,
   },
   cardSub: {
     color: "#A9A9A9",
@@ -392,5 +403,17 @@ export default {
   filterCancelText: {
     fontSize: hp("2.5%"),
     color: "white",
+  },
+
+  menuContainer: {
+    height: hp("5%"),
+    width: wp("5%"),
+    flex:1,
+    justifyContent: "center",
+    marginRight:wp("3%")
+  },
+  menu: {
+    fontSize: hp("3%"),
+    color: "white"
   },
 };

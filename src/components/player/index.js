@@ -4,6 +4,8 @@ import Modal from "react-native-modal";
 import { Container,Content,Header,Left,Right,Body,Button,Icon,Footer, FooterTab } from "native-base";
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { throttle } from 'lodash';
+import { getColorFromURL } from 'rn-dominant-color';
+import LinearGradient from 'react-native-linear-gradient';
 
 import TouchableNativeFeed from "../../components/TouchableNativeFeedback";
 import PreviousButton from "./../audioControls/previousButton.js";
@@ -13,6 +15,7 @@ import SongInfo from "./../audioControls/songInfo";
 import Scrubber from "./../audioControls/scrubber";
 import ImageSwiper from "./../audioControls/imageSwiper";
 import VideoPlayer from "./../audioControls/videoPlayer";
+import Queue from "./../queue/index";
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import OfflineNotice from './../offlineNotice/index';
 import styles from "./styles";
@@ -32,6 +35,9 @@ class Player extends Component {
         this.state = {
           playerVisible:false, // are the contents of the player visible (they can be visible while dragging up from minimized position)
           playerOpen: false,  // is the state of the player minimized or maximized
+          showQueue: false,
+          primaryColor: "#121212",
+          secondaryColor: "#121212",
         }
         this.animatedValue = new Animated.Value(0)
         this.toggleOptionsMenu = this.toggleOptionsMenu.bind(this);
@@ -39,15 +45,26 @@ class Player extends Component {
         this.handlePlayerDrag = this.handlePlayerDrag.bind(this);
         this.onAnimatedValueChange = this.onAnimatedValueChange.bind(this);
         this.listener = this.animatedValue.addListener(throttle(this.onAnimatedValueChange, 100)) //need to throttle bc if not show/hide animation is slow
+
     }
 
-    componentDidUpdate(prevProps) {
+    async componentDidUpdate(prevProps) {
       // very tempory way to close player when user selects go to artist
       // or go to album to get plyer to close. The issue is that if
       // user is already on artist or album page then existing options menu
       // also closes the player. Will need to figure out how to get active page
       // from navigation
       if(this.props.hasAudio) {
+        if(prevProps.playlist.length > 0) {
+          if(prevProps.playlist[prevProps.currentIndex].id !== this.props.playlist[this.props.currentIndex].id) {
+            var color = await getColorFromURL(this.props.playlist[this.props.currentIndex].album.images[1].url)
+            this.setState({primaryColor: color.primary, secondaryColor: color.secondary})
+          }
+        }
+        else if(this.props.playlist.length > 0) {
+          var color = await getColorFromURL(this.props.playlist[this.props.currentIndex].album.images[1].url)
+          this.setState({primaryColor: color.primary, secondaryColor: color.secondary})
+        }
         if(prevProps.selectedSong && !this.props.selectedSong) {
           var routes = this.props.navigation.state.routes
           for(var x=0; x<routes.length; x++) {
@@ -84,7 +101,7 @@ class Player extends Component {
         // if player is open, but dragged beloew 75% of screen height, close the player
         if(value < hp("75")) {
           this._panel.hide()
-          this.setState({playerOpen: false})
+          this.setState({playerOpen: false, showQueue: false})
         }
         else {
           this._panel.show()
@@ -109,6 +126,7 @@ class Player extends Component {
 
       this.animatedValue.removeListener(this.listener)
       if(this.state.playerVisible) {
+        this.setState({showQueue: false})
         this._panel.hide()
         this.props.navigation.setParams({ visible: true })
       }
@@ -137,7 +155,9 @@ class Player extends Component {
 
 
       if(this.state.playerVisible) {
+
         return (
+
           <>
             <Header style={styles.playerHeader} androidStatusBarColor="#222325" iosBarStyle="light-content">
               <Left>
@@ -148,19 +168,12 @@ class Player extends Component {
                 </Button>
               </Left>
               <Body style={styles.headerBody}>
-              <View style={styles.logoContainer}>
-              {platformIcon}
-              </View>
-
               <OfflineNotice />
               </Body>
               <Right>
-              <TouchableOpacity
-                style={styles.ellipsisContainer}
-                onPress={this.toggleOptionsMenu}
-               >
-               <Icon type="FontAwesome" name="ellipsis-h" style={styles.ellipsis} />
-              </TouchableOpacity>
+              <View style={styles.logoContainer}>
+              {platformIcon}
+              </View>
               </Right>
             </Header>
             </>
@@ -190,6 +203,7 @@ class Player extends Component {
 
     render() {
 
+
      const playerControls = <>
                               <Scrubber/>
                               <View style={styles.controls}>
@@ -206,7 +220,7 @@ class Player extends Component {
         <View style={!this.state.playerVisible ? styles.minPlayerContainer : null} >
         <SlidingUpPanel
           ref={c => this._panel = c}
-          draggableRange={{top:hp("93%"),bottom:0}} // top is 93% because it starts 7% up bc of tab bar bottom
+          draggableRange={{top:hp("89%"),bottom:0}} // top is 93% because it starts 7% up bc of tab bar bottom
           backdropOpacity={1}
           animatedValue={this.animatedValue}
           minimumVelocityThreshold={.75}
@@ -215,7 +229,13 @@ class Player extends Component {
           onDragEnd={(value) => this.handlePlayerDrag(value)}
           onMomentumDragEnd={(value) => this.handlePlayerDrag(value)}
         >
-        <Container style={{backgroundColor:"#0E0E0E"}} >
+
+
+
+        <LinearGradient
+          style={this.state.playerVisible ? {flex: 1, borderTopLeftRadius: hp("5%"), borderTopRightRadius: hp("5%")} : {flex: 1}}
+          colors={this.state.playerVisible && this.props.playlist[this.props.currentIndex].platform !== "YouTube"? [this.state.primaryColor, this.state.secondaryColor, '#121212'] : ['#0E0E0E', '#0E0E0E', '#0E0E0E']}
+        >
 
           {this.playerTop()}
           <Content scrollEnabled={false}>
@@ -229,13 +249,33 @@ class Player extends Component {
                 { this.state.playerVisible ?
                   <>
                   <View style={{flex: 0.8, alignItems: "center"}}>
-                  <SongInfo
-                    name={this.props.playlist[this.props.currentIndex].name}
-                    artists={this.props.playlist[this.props.currentIndex].contributors}
-                    playerVisible={this.state.playerVisible}
-                  />
+                    <SongInfo
+                      name={this.props.playlist[this.props.currentIndex].name}
+                      artists={this.props.playlist[this.props.currentIndex].contributors}
+                      playerVisible={this.state.playerVisible}
+                    />
+                    <View style={{flexDirection: "row", marginTop: 10}}>
+                      <View style={{alignItems: "flex-start", width: "50%", paddingLeft:"10%"}}>
+                        <Button
+                          transparent
+                          onPress={this.toggleOptionsMenu}
+                        >
+                          <Icon type="MaterialCommunityIcons" name="dots-horizontal-circle-outline" style={styles.playerIcons}/>
+                        </Button>
+                      </View>
+                      <View style={{alignItems: "flex-end", width: "50%", paddingRight:"10%"}}>
+                        <Button
+                          transparent
+                          onPress={() => this.setState({showQueue: true})}
+                        >
+                          <Icon type="MaterialIcons" name="queue-music" style={styles.playerIcons}/>
+                        </Button>
+                      </View>
+                    </View>
                   </View>
+
                     {playerControls}
+
                   </>
                   :
                     <>
@@ -252,9 +292,11 @@ class Player extends Component {
               </View>
             </TouchableNativeFeed>
             </Content>
-          </Container>
+            </LinearGradient>
+
 
         </SlidingUpPanel>
+        <Queue visible={this.state.showQueue} onClose={() => this.setState({showQueue: false})}/>
         </View>
 
       );

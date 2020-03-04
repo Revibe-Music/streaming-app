@@ -203,7 +203,7 @@ class OptionsMenu extends PureComponent {
             null
           :
             <>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false}>
             <View style={styles.detailsContainer}>
               <ImageLoad
                   isShowActivity={false}

@@ -14,7 +14,7 @@ export default {
     width: hp("7%"),
     height: hp("7%"),
     resizeMode: 'contain',
-    backgroundColor: "#121212",
+    backgroundColor: "transparent",
   },
   textContainer: {
     marginLeft: wp("3%"),

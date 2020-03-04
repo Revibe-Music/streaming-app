@@ -20,6 +20,24 @@ class AlbumArt extends PureComponent {
    super(props);
  }
 
+ getImage() {
+   if(this.props.images.length > 0) {
+     var images = this.props.images.filter(x => x.height < 1000)
+     var minImage = images.reduce(function(prev, curr) {
+         return prev.height < curr.height ? prev : curr;
+     });
+     var maxImage = images.reduce(function(prev, curr) {
+         return prev.height > curr.height ? prev : curr;
+     });
+     var middleImage = images.filter(x=> x!== minImage && x!==maxImage).reduce(function(prev, curr) {
+         return prev.height < curr.height ? prev : curr;
+     });
+
+     return {uri: middleImage.url}
+   }
+   return require("./../../../assets/albumArtPlaceholder.png")
+ }
+
   render() {
     return (
       <View style={styles.albumArtContainer}>
@@ -27,7 +45,7 @@ class AlbumArt extends PureComponent {
               isShowActivity={false}
               style={styles.albumArt}
               placeholderStyle={styles.albumArtPlaceholder}
-              source={{ uri: this.props.album}}
+              source={this.getImage()}
               placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
           />
       </View>
@@ -70,16 +88,10 @@ class ImageSwiper extends Component{
     }
 
     _rowRenderer(type, data) {
-      if(Array.isArray(data.album.images)) {
-        var image = data.album.images.length > 0 ? data.album.images[0].url : null
-      }
-      else {
-        var image = Object.keys(data.album.images).length ? data.album.images["0"].url : null
-      }
         switch (type) {
             case ViewTypes.SONG:
                 return (
-                  <AlbumArt album={image} />
+                  <AlbumArt images={data.album.images} />
                 )
         }
     }

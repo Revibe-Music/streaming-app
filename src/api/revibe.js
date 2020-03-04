@@ -210,7 +210,7 @@ export default class RevibeAPI extends BasePlatformAPI {
         break
       }
       catch(error) {
-        console.log(error);
+        // console.log(error);
         response = error.response
         response.data = await this._handleErrors(error.response)
         numRequestsSent += 1
@@ -532,8 +532,31 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @return {Object} List containing browse content(songs, albums, artists) objects
     */
-    var request = await this._request("/content/browse/", "GET", null, true)
-    // parse content
+    var response = await this._request("content/browse/", "GET", null, true)
+    response = response.data
+    // console.log(response);
+    for(var x=0; x<response.length; x++) {
+      const that = this
+
+      if(response[x].type==="songs") {
+        response[x].results = response[x].results.map(x => that._parseSong(x))
+      }
+      else if(response[x].type==="albums") {
+        response[x].results = response[x].results.map(x => that._parseAlbum(x))
+      }
+      else if(response[x].type==="artists") {
+        response[x].results = response[x].results.map(x => that._parseArtist(x))
+      }
+      else if(response[x].type==="artist") {
+        if(response[x].results) {
+          response[x].results = this._parseArtist(response[x].results)
+        }
+      }
+      if(response[x].name == "Top Hits - All-Time") {
+        delete response[x]
+      }
+    }
+    return response
   }
 
   async fetchArtist(id) {
@@ -750,13 +773,12 @@ export default class RevibeAPI extends BasePlatformAPI {
     */
     var data = {
       song_id: song.id,
-      stream_duration: duration,
+      stream_duration: duration.toFixed(2),
       is_downloaded: false,
       is_saved: this.library.songIsSaved(song)
     }
     var request = await this._request("metrics/stream/", "POST", data, true)
 
   }
-
 
 }
