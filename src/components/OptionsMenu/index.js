@@ -162,9 +162,11 @@ class OptionsMenu extends PureComponent {
     var size=0
     var index = 0
     for(var x=0; x<this.props.song.album.images.length; x++) {
-      if(this.props.song.album.images[x].height > size) {
-        size = this.props.song.album.images[x].height
-        index = x
+      if(this.props.song.album.images[x].height < 1000) {
+        if(this.props.song.album.images[x].height > size) {
+          size = this.props.song.album.images[x].height
+          index = x
+        }
       }
     }
     return this.props.song.album.images[index].url

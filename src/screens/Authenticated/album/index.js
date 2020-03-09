@@ -27,6 +27,8 @@ import { getPlatform } from '../../../api/utils';
 import styles from "./styles";
 
 
+
+
 class Album extends Component {
 
   static navigationOptions = {
@@ -44,6 +46,12 @@ class Album extends Component {
     this.setArtist = this.setArtist.bind(this)
     this.platform = getPlatform(this.props.navigation.state.params.album.platform)
     this.album = this.props.navigation.state.params.album
+    if(this.props.navigation.state.params.source) {
+      this.source = this.props.navigation.state.params.source
+    }
+    else {
+      this.source = "Album"
+    }
   }
 
   async componentDidMount() {
@@ -62,29 +70,37 @@ class Album extends Component {
   }
 
   setArtist() {
+    if(this.album.platform === "YouTube") {
+      if(this.props.navigation.state.params.songs.length > 0) {
+        return "Video • "+this.album.contributors[0].artist.name
+      }
+      else {
+        return "Channel • YouTube"
+      }
+    }
     if(this.album.contributors) {
-      var contributors = Object.keys(this.album.contributors).map(x => this.album.contributors[x])
-      var contributorString = compact(contributors.map(function(x) {if(x.type === "Artist") return x.artist.name})).join(', ')
-      return  `Album • ${contributorString}`
+      if(this.album.contributors.length > 0) {
+        var contributors = Object.keys(this.album.contributors).map(x => this.album.contributors[x])
+        var contributorString = compact(contributors.map(function(x) {if(x.type === "Artist") return x.artist.name})).join(', ')
+        return  `Album • ${contributorString}`
+      }
     }
     return  ""
-
-
   }
 
   getImage() {
-    if(this.album.largeImage) {
-      return {uri: this.album.largeImage}
-    }
     this.album.images = Object.keys(this.album.images).map(x => this.album.images[x])
     if(this.album.images.length > 0) {
       var size=0
       var index = 0
       for(var x=0; x<this.album.images.length; x++) {
-        if(this.album.images[x].height > size) {
-          size = this.album.images[x].height
-          index = x
+        if(this.album.images[x].height < 1000) {
+          if(this.album.images[x].height > size) {
+            size = this.album.images[x].height
+            index = x
+          }
         }
+
       }
       return {uri: this.album.images[index].url}
     }
@@ -119,12 +135,12 @@ class Album extends Component {
                 this.navTitleView = navTitleView;
               }}
             >
-              <Text style={styles.navTitle}>{this.props.navigation.state.params.album.name}</Text>
+              <Text style={styles.navTitle}>{this.album.name}</Text>
             </Animatable.View>
           )}
           renderForeground={() => (
             <View style={styles.titleContainer}>
-              <Text style={styles.imageTitle}>{this.props.navigation.state.params.album.name}</Text>
+              <Text style={styles.imageTitle}>{this.album.name}</Text>
             </View>
           )}
           renderTouchableFixedForeground={() => (
@@ -178,6 +194,7 @@ class Album extends Component {
                    playlist={this.state.songs}
                    displayImage={false}
                    displayType={false}
+                   source={this.source}
                   />
                 ))}
                 </View>

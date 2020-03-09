@@ -60,7 +60,8 @@ class SongItem extends PureComponent {
 
   onClick() {
     var index = this.props.playlist.map(function(e) { return e.id; }).indexOf(this.props.song.id);
-    this.props.playSong(index, this.props.playlist)
+    console.log(this.props.source);
+    this.props.playSong(index, this.props.playlist, false, this.props.source)
   }
 
   render() {
@@ -105,6 +106,7 @@ SongItem.propTypes = {
   playlist: PropTypes.arrayOf(PropTypes.object),
   displayImage: PropTypes.bool,
   displayType: PropTypes.bool,
+  source: PropTypes.string,
 };
 
 SongItem.defaultProps = {
@@ -122,7 +124,7 @@ function mapStateToProps(state) {
 };
 const mapDispatchToProps = dispatch => ({
     selectSong: (song) => dispatch(selectSong(song)),
-    playSong: (index, playlist) => dispatch(playSong(index, playlist))
+    playSong: (index, playlist, inQueue, source) => dispatch(playSong(index, playlist, inQueue, source))
 });
 
 export default connect(mapStateToProps,mapDispatchToProps)(SongItem)

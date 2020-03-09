@@ -17,7 +17,7 @@ import { View, Image } from "react-native";
 import Modal from "react-native-modal";
 import { connect } from 'react-redux';
 
-import ForgotPassword from "./forgotPassword";
+// import ForgotPassword from "./forgotPassword";
 import AccountSync from "./../../components/accountSync/index";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
 import RevibeAPI from './../../api/Revibe'

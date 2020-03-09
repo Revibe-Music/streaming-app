@@ -261,6 +261,8 @@ PODS:
     - React
   - RNDefaultPreference (1.4.1):
     - React
+  - RNDeviceInfo (5.5.3):
+    - React
   - RNDominantColor (1.4.3):
     - React
   - RNEventEmitter (1.0.15):
@@ -328,6 +330,7 @@ DEPENDENCIES:
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNDominantColor (from `../node_modules/rn-dominant-color`)
   - RNEventEmitter (from `../node_modules/react-native-events`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
@@ -423,6 +426,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/async-storage"
   RNDefaultPreference:
     :path: "../node_modules/react-native-default-preference"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNDominantColor:
     :path: "../node_modules/rn-dominant-color"
   RNEventEmitter:
@@ -487,6 +492,7 @@ SPEC CHECKSUMS:
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNCAsyncStorage: 8539fc80a0075fcc9c8e2dff84cd22dc5bf1dacf
   RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
+  RNDeviceInfo: 67607dfe9cfbed105838144c40187a8392aa404d
   RNDominantColor: 5fef2f987cfbca5c25e9f50bd89cf9679c77458e
   RNEventEmitter: a43a853a0de1dee334d007a4b3d2a6dc29c77270
   RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa

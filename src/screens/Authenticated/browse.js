@@ -11,6 +11,19 @@ import { connect } from 'react-redux';
 import { compact } from 'lodash';
 
 
+const shuffle = (array) => {
+  let currentIndex = array.length, temp, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temp = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temp;
+  }
+  return array;
+};
+
+
 class Browse extends Component {
 
   static navigationOptions = {
@@ -34,7 +47,12 @@ class Browse extends Component {
        // console.log(this.revibe);
        this.setState({loading: true})
        var browseContent = await this.revibe.fetchBrowseContent()
-       this.setState({content:browseContent, loading: false})
+       if(Array.isArray(browseContent)) {
+         this.setState({content:browseContent, loading: false})
+       }
+       else {
+         this.setState({loading: false})
+       }
      }
      else {
        // get from realm
@@ -49,6 +67,7 @@ class Browse extends Component {
      params: {
        album: album,
        songs: songs,
+       source: "Browse"
      }
    }
 
@@ -68,11 +87,7 @@ class Browse extends Component {
  }
 
 
-
-
-
   renderContent() {
-    // console.log(this.state.content);
     if(this.state.content.length < 1) {
       return null
     }
@@ -83,7 +98,7 @@ class Browse extends Component {
         if(content.type === "artist") {
           return (
             <>
-            <View>
+            <View style={{marginTop: 10}}>
               <Text style={styles.title}>
                 {content.name}
               </Text>
@@ -101,7 +116,7 @@ class Browse extends Component {
         else if(content.results.length > 0) {
           return (
             <>
-            <View>
+            <View style={{marginTop: 20}}>
               <Text style={styles.title}>
                 {content.name}
               </Text>
@@ -110,7 +125,7 @@ class Browse extends Component {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
                 <List
                   horizontal={true}
-                  dataArray = {content.results}
+                  dataArray = {shuffle(content.results)}
                   renderRow = {object => this.renderRow(object, content.type)}
                 />
               </ScrollView>
@@ -165,12 +180,12 @@ class Browse extends Component {
             <Body style={styles.cardItem}>
               <View style={styles.radioCardName}>
                 <View style={{ flex: 0.5}}>
-                  <Text style={styles.text}>
+                  <Text numberOfLines={1} style={styles.text}>
                     {item.name}
                   </Text>
                 </View>
                 <View style={{ flex: 0.5}}>
-                  <Text note>
+                  <Text numberOfLines={1} note>
                     {this.setArtist(item)}
                   </Text>
                 </View>
@@ -191,17 +206,17 @@ class Browse extends Component {
         <TouchableOpacity
         onPress={() => this.goToAlbum(item)}
         delayPressIn={0} useForeground >
-          <Card style={styles.card} noShadow={true}>
+          <Card style={styles.card} noShadow={false}>
             <Image source={image} style={styles.cardImg} />
             <Body style={styles.cardItem}>
               <View style={styles.radioCardName}>
                 <View style={{ flex: 0.5}}>
-                  <Text style={styles.text}>
+                  <Text numberOfLines={1} style={styles.text}>
                     {item.name}
                   </Text>
                 </View>
                 <View style={{ flex: 0.5}}>
-                  <Text note>
+                  <Text numberOfLines={1} note>
                     {this.setArtist(item)}
                   </Text>
                 </View>
@@ -221,9 +236,11 @@ class Browse extends Component {
             <Body style={styles.cardItem}>
               <View style={styles.radioCardName}>
                 <View style={{ flex: 0.5}}>
-                  <Text style={styles.text}>
+                  <Text numberOfLines={1} style={styles.text}>
                     {item.name}
                   </Text>
+                </View>
+                <View style={{ flex: 0.5}}>
                 </View>
               </View>
             </Body>
@@ -242,6 +259,7 @@ class Browse extends Component {
         <AnimatedPopover type="Loading" show={this.state.loading} />
         <ScrollView
         contentContainerStyle={{flexGrow: 1}}
+        showsVerticalScrollIndicator={false}
         bounces={false}
         style={{marginTop: 0, paddingTop: 0}}>
           <LinearGradient
@@ -265,7 +283,6 @@ class Browse extends Component {
               </View>
               </View>
               <View style={{marginTop: "5%"}}>
-
                 {this.renderContent()}
               </View>
             </View>

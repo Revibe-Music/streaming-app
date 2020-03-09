@@ -187,9 +187,16 @@ const AuthStack = createStackNavigator(
         headerTransparent: true,
       }),
     },
+    Tutorial: {
+      screen: Tutorial,
+      navigationOptions: ({navigation}) => ({
+        header: null,
+        headerTransparent: true,
+      }),
+    },
   },
   {
-    initialRouteName: "Tutorial",
+    initialRouteName: "Login",
   }
 );
 

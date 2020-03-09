@@ -81,6 +81,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
 
   _parseSong(song) {
     // parse content returned from Revibe API
+    console.log(song);
     var formattedSong = {
       name: song['title'],
       id: song['song_id'],

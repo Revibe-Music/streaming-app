@@ -70,6 +70,7 @@ class SearchTabs extends Component {
           playlist={this.state.results["songs"]}
           displayImage={true}
           displayType={true}
+          source="Search"
          />
        )
      }
@@ -79,6 +80,7 @@ class SearchTabs extends Component {
           artist={item}
           displayType={true}
           isLocal={false}
+          source="Search"
           navigation={this.props.navigation}
          />
        )
@@ -89,6 +91,7 @@ class SearchTabs extends Component {
           album={item}
           displayType={true}
           isLocal={false}
+          source="Search"
           navigation={this.props.navigation}
          />
        )

@@ -4,28 +4,32 @@ import { Button, Text, Icon } from "native-base";
 import { connect } from 'react-redux';
 
 import styles from "./../styles";
+import AnimatedPopover from './../../../components/animatedPopover/index';
 import SpotifyAPI from './../../../api/Spotify';
-import { updatePlatformData } from './../../../redux/platform/actions'
+import { updatePlatformData,initializePlatforms } from './../../../redux/platform/actions'
 
 
 class SpotifyLogin extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {Loadinging: false};
     this.spotify = new SpotifyAPI();
-    this.spotifyLoginButtonWasPressed = this.spotifyLoginButtonWasPressed.bind(this)
+
+    this.state = {
+      hasLoggedIn: this.spotify.hasLoggedIn()
+    }
+    this.connectSpotify = this.connectSpotify.bind(this)
   }
 
-  async spotifyLoginButtonWasPressed() {
+  async connectSpotify() {
       await this.spotify.login();
       var profile = await this.spotify.getProfile()
       if(profile.product === "premium") {
+        this.setState({hasLoggedIn: true})
         this.props.updatePlatformData(this.spotify)
       }
       else {
-        this.spotify.logout()
-        //Need to show alert or modal saying that a premium account is required and maybe giving link to sign up for one
+        await this.spotify.logout()
         Alert.alert(
           'Sorry, you must have a premium Spotify account.',
           '',
@@ -38,32 +42,39 @@ class SpotifyLogin extends Component {
   }
 
   render() {
-    if(!!this.spotify) {
-      if(this.spotify.hasLoggedIn()) {
-        return (
-            <View style={styles.logoRow}>
-              <Icon type="FontAwesome" name={"spotify"} style={styles.logo} />
-              <Icon type="FontAwesome" name={"check"} style={styles.check} />
-            </View>
-        )
-      }
-    }
     return (
-      <View>
-        <Button
-          style={styles.spotifyLoginButton}
-          onPress={this.spotifyLoginButtonWasPressed}
-        >
-          <Icon type="FontAwesome" name={"spotify"} style={styles.linkAccountButtonLogo} />
-          <Text style={styles.linkAccountButtonText} >Spotify</Text>
+      <>
+      <View style={styles.logoRow}>
+        <Icon type="FontAwesome" name={"spotify"} style={styles.logo} />
+        {this.state.hasLoggedIn ?
+          <Icon type="FontAwesome" name={"check"} style={styles.check} />
+        :
+          <Button
+          style={styles.connectBtn}
+          onPress={this.connectSpotify}
+          >
+          <Text style={styles.accountBtnText}> Connect</Text>
         </Button>
+        }
       </View>
+      </>
     )
   }
 }
 
+// <View>
+//   <Button
+//     style={styles.spotifyLoginButton}
+//     onPress={this.spotifyLoginButtonWasPressed}
+//   >
+//     <Icon type="FontAwesome" name={"spotify"} style={styles.linkAccountButtonLogo} />
+//     <Text style={styles.linkAccountButtonText} >Spotify</Text>
+//   </Button>
+// </View>
+
 
 const mapDispatchToProps = dispatch => ({
+    initializePlatforms: () => dispatch(initializePlatforms()),
     updatePlatformData: (platform) => dispatch(updatePlatformData(platform)),
 });
 

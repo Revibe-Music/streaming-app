@@ -45,6 +45,7 @@ class AlbumItem extends PureComponent {
       params: {
         album: album,
         songs: songs,
+        source: this.props.source+"-Album"
       }
     }
     this.props.navigation.navigate(navigationOptions)
@@ -96,6 +97,7 @@ AlbumItem.propTypes = {
   songs: PropTypes.array,
   displayType: PropTypes.bool,
   isLocal: PropTypes.bool,
+  source: PropTypes.string
 };
 
 AlbumItem.defaultProps = {

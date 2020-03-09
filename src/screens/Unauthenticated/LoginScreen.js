@@ -21,7 +21,7 @@ import Wallpaper from './../../components/Wallpaper';
 import ButtonSubmit from './../../components/ButtonSubmit';
 import SignupSection from './../../components/SignupSection';
 import UserInput from './../../components/UserInput';
-import ForgotPassword from "./forgotPassword";
+import ForgotPassword from "./ForgotPassword";
 import AccountSync from "./../../components/accountSync/index";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
 import RevibeAPI from './../../api/Revibe'
@@ -40,19 +40,25 @@ class LoginScreen extends Component {
 
     constructor(props) {
       super(props);
+
       this.state = {
         press: false,
         registering: true,
-        firstName: "Riley",
-        lastName: "Stephens",
-        username: "rstephens2712",
-        email: "riley.stephens2712",
-        password: "Reed1rile2",
+        resettingPassword: false,
+        firstName: "riley",
+        lastName: "stephens",
+        username: "rileystephens",
+        email: "rileystephens@revibe.tech",
+        password: "2IgucUMbNSceU8jmiKjD",
+        newPassword1: "",
+        newPassword2: "",
         syncing: false,
         loading: false,
         success: false,
+        showForgotPasswordModal: false,
         error: {},
       };
+
       this.revibe = new RevibeAPI()
       this.youtube = new YouTubeAPI()
       this.toggleForgotPasswordModal = this.toggleForgotPasswordModal.bind(this);
@@ -61,6 +67,7 @@ class LoginScreen extends Component {
       this.submitButtonPressed = this.submitButtonPressed.bind(this);
       this.fetchConnectedAccounts = this.fetchConnectedAccounts.bind(this);
       this.syncAccounts = this.syncAccounts.bind(this);
+      this.displayError = this.displayError.bind(this);
     }
 
     async fetchConnectedAccounts() {
@@ -97,7 +104,24 @@ class LoginScreen extends Component {
       try {
         this.setState({loading: true})
         var response = await this.revibe.login(this.state.username, this.state.password);
-        if(response.hasOwnProperty("first_name")) {
+        if(this.state.resettingPassword) {
+          if(this.state.newPassword1 !== this.state.newPassword2) {
+            this.setState({error: {passwords: "Passwords do not match"}, loading: false})
+          }
+          else {
+            var changePasswordResponse = await this.revibe.changePassword(this.state.password,this.state.newPassword1,this.state.newPassword2);
+            this.setState({ firstName: response.first_name, success: true })
+            await this.youtube.login()
+            await this.fetchConnectedAccounts()
+            await this.props.initializePlatforms()
+            this.setState({syncing: true})
+            setTimeout(this.syncAccounts, 5000)
+          }
+        }
+        else if(response.force_change_password) {
+          this.setState({resettingPassword: true, loading: false})
+        }
+        else if(response.hasOwnProperty("first_name")) {
           this.setState({ firstName: response.first_name, success: true })
           await this.youtube.login()
           await this.fetchConnectedAccounts()
@@ -106,7 +130,6 @@ class LoginScreen extends Component {
           setTimeout(this.syncAccounts, 5000)
         }
         else {
-          console.log(response);
           this.setState({error: response})
           this.setState({loading: false})
         }
@@ -126,9 +149,8 @@ class LoginScreen extends Component {
             this.props.initializePlatforms()
             this.props.navigation.navigate(
               {
-                key: "LinkAccounts",
-                routeName: "LinkAccounts",
-                params:{name: this.state.firstName}
+                key: "Tutorial",
+                routeName: "Tutorial",
               }
             )
           }
@@ -146,62 +168,10 @@ class LoginScreen extends Component {
       this.setState({ forgotPasswordModal: !this.state.forgotPasswordModal });
     }
 
-  render() {
-    return (
-      <>
-      <Wallpaper>
-        <Logo />
-        <KeyboardAvoidingView behavior="padding" style={styles.container}>
-          {Object.keys(this.state.error).length > 0 ?
-            <Text style={styles.authenticationError}>
-              {Object.keys(this.state.error)[0] === "non_field_errors" ? "" : Object.keys(this.state.error)[0] + ": "}{this.state.error[Object.keys(this.state.error)[0]]}
-            </Text>
-          :
-            null
-          }
-          <View style={{flex: 1, alignItems: "flex-end", justifyContent: "center"}} >
-          {this.state.registering ?
-            <>
-            <View style={{flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center",width: wp("91%")}} >
-              <UserInput
-                placeholder="First Name"
-                autoCapitalize={'none'}
-                returnKeyType={'done'}
-                autoCorrect={false}
-                width={wp("40%")}
-                onChange={(text) => this.setState({firstName: text})}
-              />
-              <UserInput
-                placeholder="Last Name"
-                autoCapitalize={'none'}
-                returnKeyType={'done'}
-                autoCorrect={false}
-                width={wp("40%")}
-                onChange={(text) => this.setState({lastName: text})}
-              />
-            </View>
-            <UserInput
-              icon="mail"
-              placeholder="Email"
-              autoCapitalize={'none'}
-              returnKeyType={'done'}
-              autoCorrect={false}
-              width={wp("85%")}
-              onChange={(text) => this.setState({email: text})}
-            />
-            </>
-          :
-            null
-          }
-          <UserInput
-            icon="user"
-            placeholder="Username"
-            autoCapitalize={'none'}
-            returnKeyType={'done'}
-            autoCorrect={false}
-            width={wp("85%")}
-            onChange={(text) => this.setState({username: text})}
-          />
+    displayFields() {
+      if(this.state.resettingPassword) {
+        return (
+          <>
           <UserInput
             icon="lock"
             secureTextEntry={true}
@@ -210,8 +180,127 @@ class LoginScreen extends Component {
             autoCapitalize={'none'}
             autoCorrect={false}
             width={wp("85%")}
-            onChange={(text) => this.setState({password: text})}
+            onChange={(text) => this.setState({newPassword1: text})}
           />
+          <UserInput
+            icon="lock"
+            secureTextEntry={true}
+            placeholder="Confirm Password"
+            returnKeyType={'done'}
+            autoCapitalize={'none'}
+            autoCorrect={false}
+            width={wp("85%")}
+            onChange={(text) => this.setState({newPassword2: text})}
+          />
+          </>
+        )
+      }
+      else if(this.state.registering) {
+        return (
+          <>
+          <View style={{flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center",width: wp("91%")}} >
+            <UserInput
+              placeholder="First Name"
+              autoCapitalize={'none'}
+              returnKeyType={'done'}
+              autoCorrect={false}
+              width={wp("40%")}
+              onChange={(text) => this.setState({firstName: text})}
+            />
+            <UserInput
+              placeholder="Last Name"
+              autoCapitalize={'none'}
+              returnKeyType={'done'}
+              autoCorrect={false}
+              width={wp("40%")}
+              onChange={(text) => this.setState({lastName: text})}
+            />
+          </View>
+          <UserInput
+            icon="mail"
+            placeholder="Email"
+            autoCapitalize={'none'}
+            returnKeyType={'done'}
+            autoCorrect={false}
+            width={wp("85%")}
+            onChange={(text) => this.setState({email: text})}
+          />
+          </>
+        )
+      }
+      return null
+    }
+
+    displayError() {
+      var errorKey = Object.keys(this.state.error)[0]
+      var error = this.state.error[errorKey]
+
+      // if(errorKey === "profile") {
+      //   var errorKey2 = Object.keys(error[errorKey])[0]
+      //   error = error[errorKey2]
+      // }
+      if(Array.isArray(error)) {
+        error = error[0]
+      }
+      if(error.includes("This field")) {
+        error = error.replace("This field",errorKey.replace("_", " "))
+      }
+      if(error.substr(error.length - 1) === "'") {
+        error = error.slice(0, -1)
+      }
+      // console.log(error);
+      return error.charAt(0).toUpperCase() + error.slice(1)
+    }
+
+
+
+  render() {
+    return (
+      <>
+      <Wallpaper>
+        <Logo />
+        <KeyboardAvoidingView behavior="padding" style={styles.container}>
+          {Object.keys(this.state.error).length > 0 ?
+            <Text style={styles.authenticationError}>
+              {this.displayError()}
+            </Text>
+          :
+            null
+          }
+          {this.state.resettingPassword ?
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>Reset Password</Text>
+            </View>
+          :
+            null
+          }
+          <View style={{flex: 1, alignItems: "flex-end", justifyContent: "center"}} >
+          {this.displayFields()}
+          {!this.state.resettingPassword ?
+            <>
+            <UserInput
+              icon="user"
+              placeholder="Username"
+              autoCapitalize={'none'}
+              returnKeyType={'done'}
+              autoCorrect={false}
+              width={wp("85%")}
+              onChange={(text) => this.setState({username: text})}
+            />
+            <UserInput
+              icon="lock"
+              secureTextEntry={true}
+              placeholder="Password"
+              returnKeyType={'done'}
+              autoCapitalize={'none'}
+              autoCorrect={false}
+              width={wp("85%")}
+              onChange={(text) => this.setState({password: text})}
+            />
+            </>
+          :
+            null
+          }
           </View>
 
         </KeyboardAvoidingView>
@@ -228,7 +317,11 @@ class LoginScreen extends Component {
           >
             <Text style={styles.text}>{this.state.registering ? "Login To Account" : "Create Account"}</Text>
           </TouchableOpacity>
-          <Text style={styles.text}>Forgot Password?</Text>
+          <TouchableOpacity
+            onPress={() => this.setState({showForgotPasswordModal: !this.state.showForgotPasswordModal})}
+          >
+            <Text style={styles.text}>Forgot Password?</Text>
+          </TouchableOpacity>
         </View>
 
       </Wallpaper>
@@ -244,6 +337,14 @@ class LoginScreen extends Component {
           syncText="Syncing with your accounts... "
           />
         </View>
+      </Modal>
+
+      <Modal
+      isVisible={this.state.showForgotPasswordModal}
+      backdropOpacity={1}
+      style={{ margin: 0 }}
+      >
+        <ForgotPassword onClose={() => this.setState({showForgotPasswordModal: !this.state.showForgotPasswordModal})}/>
       </Modal>
       </>
     );
@@ -264,6 +365,17 @@ const styles = StyleSheet.create({
     width: DEVICE_WIDTH,
     flexDirection: 'row',
     justifyContent: 'space-around',
+  },
+  titleContainer: {
+    flex: .2,
+    marginTop: hp("1%"),
+    alignItems: 'center',
+  },
+  title: {
+    color: 'white',
+    fontWeight: 'bold',
+    backgroundColor: 'transparent',
+    fontSize: hp("4%"),
   },
   text: {
     color: 'white',

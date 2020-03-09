@@ -10,6 +10,10 @@ const setAlbum = album => ({
     type: 'SET_ALBUM',
     album: album
 });
+const setCurrentPage = page => ({
+    type: 'SET_PAGE',
+    page: page
+});
 
 
 export function selectSong(song) {
@@ -27,5 +31,11 @@ export function selectArtist(artist) {
 export function selectAlbum(album) {
   return async (dispatch) => {
     dispatch(setArtist(album))
+  }
+}
+
+export function setPage(page) {
+  return async (dispatch) => {
+    dispatch(setCurrentPage(album))
   }
 }

@@ -2,6 +2,7 @@ var initialState = {
   selectedSong: null,     // full song object inlcuding album and contributors
   selectedArtist: null,   // full artist object
   selectedAlbum: null,    // full album object inlcuding contributors
+  currentPage: null
 };
 
 export const navigationReducer = (state = initialState, action) => {
@@ -20,6 +21,11 @@ export const navigationReducer = (state = initialState, action) => {
         return {
            ...state,
            selectedAlbum: action.album,
+        };
+      case 'SET_PAGE':
+        return {
+           ...state,
+           currentPage: action.page,
         };
       default:
          return state;

@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Container, Content, Text, View, Button } from "native-base";
 import Modal from "react-native-modal";
 import { connect } from 'react-redux';
+import DefaultPreference from 'react-native-default-preference';
+
 import AccountSync from "./../../components/accountSync/index";
 import SpotifyLogin from "./accounts/spotify";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
@@ -17,6 +19,10 @@ class LinkAccounts extends Component {
     this.syncAccounts = this.syncAccounts.bind(this)
   }
 
+  async componentDidMount() {
+    this.name = await DefaultPreference.get("first_name")
+  }
+
   async syncAccounts() {
     // need to pull all data from accounts that were signed into here
 
@@ -28,7 +34,7 @@ class LinkAccounts extends Component {
       platformsFetching.push(this.props.platforms[platformNames[x]].fetchLibrarySongs())
     }
     await Promise.all(platformsFetching)
-    this.setState({syncing:false}) 
+    this.setState({syncing:false})
     this.props.navigation.navigate("Authenticated")
   }
 
@@ -36,6 +42,7 @@ class LinkAccounts extends Component {
       return (
         <Container style={[styles.container]}>
           <Content contentContainerStyle={styles.content} scrollEnabled={false}>
+          <Text style={{color: "white", textAlign: "left",fontSize: 30, marginBottom: 30 }}> Connect your account </Text>
           {!this.props.connected ?
             <LoginOffline />
           :
@@ -72,7 +79,7 @@ class LinkAccounts extends Component {
           >
           <View style={styles.accountSyncContainer} >
             <AccountSync
-            welcomeText={"Welcome " + this.props.navigation.state.params.name}
+            welcomeText={"Welcome " + this.name}
             syncText="Setting up your Revibe account. This will only take a second..."
             />
           </View>

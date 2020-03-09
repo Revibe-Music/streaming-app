@@ -6,6 +6,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { throttle } from 'lodash';
 import { getColorFromURL } from 'rn-dominant-color';
 import LinearGradient from 'react-native-linear-gradient';
+import DeviceInfo from 'react-native-device-info';
 
 import TouchableNativeFeed from "../../components/TouchableNativeFeedback";
 import PreviousButton from "./../audioControls/previousButton.js";
@@ -22,6 +23,9 @@ import styles from "./styles";
 import { selectSong } from './../../redux/navigation/actions'
 import { continuousTimeUpdate } from './../../redux/audio/actions';
 import { connect } from 'react-redux';
+
+const device = DeviceInfo.getModel();
+const playerHeight = device.includes("X") || device.includes("11") ? hp("89.5%") : hp("93%")
 
 
 class Player extends Component {
@@ -167,9 +171,6 @@ class Player extends Component {
                   <Icon name="ios-arrow-down" style={styles.playerCloseArrow}/>
                 </Button>
               </Left>
-              <Body style={styles.headerBody}>
-              <OfflineNotice />
-              </Body>
               <Right>
               <View style={styles.logoContainer}>
               {platformIcon}
@@ -220,7 +221,7 @@ class Player extends Component {
         <View style={!this.state.playerVisible ? styles.minPlayerContainer : null} >
         <SlidingUpPanel
           ref={c => this._panel = c}
-          draggableRange={{top:hp("89%"),bottom:0}} // top is 93% because it starts 7% up bc of tab bar bottom
+          draggableRange={{top:playerHeight,bottom:0}} // top is 93% because it starts 7% up bc of tab bar bottom
           backdropOpacity={1}
           animatedValue={this.animatedValue}
           minimumVelocityThreshold={.75}
@@ -231,10 +232,10 @@ class Player extends Component {
         >
 
 
-
         <LinearGradient
-          style={this.state.playerVisible ? {flex: 1, borderTopLeftRadius: hp("5%"), borderTopRightRadius: hp("5%")} : {flex: 1}}
-          colors={this.state.playerVisible && this.props.playlist[this.props.currentIndex].platform !== "YouTube"? [this.state.primaryColor, this.state.secondaryColor, '#121212'] : ['#0E0E0E', '#0E0E0E', '#0E0E0E']}
+          style={this.state.playerVisible ? styles.playerView1 : styles.playerView2}
+          locations={[0,0.4,0.65]}
+          colors={this.state.playerVisible && this.props.playlist[this.props.currentIndex].platform !== "YouTube"? [this.state.primaryColor, this.state.secondaryColor, '#0E0E0E'] : ['#0E0E0E', '#0E0E0E', '#0E0E0E']}
         >
 
           {this.playerTop()}
@@ -291,6 +292,7 @@ class Player extends Component {
                 }
               </View>
             </TouchableNativeFeed>
+            { this.state.playerVisible ? <OfflineNotice /> : null }
             </Content>
             </LinearGradient>
 

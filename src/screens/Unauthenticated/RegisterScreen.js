@@ -21,7 +21,7 @@ import Wallpaper from './../../components/Wallpaper';
 import ButtonSubmit from './../../components/ButtonSubmit';
 import SignupSection from './../../components/SignupSection';
 import UserInput from './../../components/UserInput';
-import ForgotPassword from "./forgotPassword";
+// import ForgotPassword from "./forgotPassword";
 import AccountSync from "./../../components/accountSync/index";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
 import RevibeAPI from './../../api/Revibe'

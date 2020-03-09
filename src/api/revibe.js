@@ -58,7 +58,13 @@ export default class RevibeAPI extends BasePlatformAPI {
     else if(response.status === 417) {
       var errorKeys = Object.keys(response.data)
       for(var x=0; x<errorKeys.length; x++) {
-        errors[errorKeys[x]] = response.data[errorKeys[x]][0]
+        if(errorKeys[x] === "profile") {
+          var errorKey2 = Object.keys(response.data[errorKeys[x]])[0]
+          errors[errorKey2] = response.data[errorKeys[x]][errorKey2]
+        }
+        else {
+          errors[errorKeys[x]] = response.data[errorKeys[x]]
+        }
       }
     }
     else if(response.status === 500) {
@@ -70,6 +76,7 @@ export default class RevibeAPI extends BasePlatformAPI {
 
     }
     else if(response.status === 503){
+
       // Service unavailable error ish
 
     }
@@ -80,14 +87,15 @@ export default class RevibeAPI extends BasePlatformAPI {
     formattedContributors = []
     for(var x=0; x<contributors.length; x++) {
       var imageKey = contributors[x]['artist_images'] ? 'artist_images' : 'images'
+      var nameKey = contributors[x]['artist_name'] ? 'artist_name' : 'name'
       let contributor = {
         id: contributors[x].artist_id + itemId,
-        type: contributors[x].contribution_type,
+        type: contributors[x].contribution_type ? contributors[x].contribution_type : "Artist",
         artist: {
-          name: contributors[x].artist_name,
+          name: contributors[x][nameKey],
           id: contributors[x].artist_id,
           uri: contributors[x].artist_uri,
-          platform: "Revibe",
+          platform: contributors[x].platform,
           images: this._parseImages(contributors[x][imageKey])
         }
       }
@@ -97,25 +105,44 @@ export default class RevibeAPI extends BasePlatformAPI {
   }
 
   _parseSong(song) {
+    if(song['platform'] === "YouTube") {
+      var contributorKey = 'uploaded_by'
+      song.uploaded_by.type = "Artist"
+      song.uploaded_by = [song.uploaded_by]
+    }
+    else {
+      var contributorKey = 'contributors'
+    }
     var formattedSong = {
       name: song['title'],
       id: song['song_id'],
       uri: song['song_uri'],
-      contributors: this._parseContributors(song['contributors'], song['song_id']),
+      contributors: this._parseContributors(song[contributorKey], song['song_id']),
       duration: parseFloat(song['duration']),
       album: this._parseAlbum(song['album']),
-      platform: "Revibe",
+      platform: song['platform'],
     }
     return formattedSong
   }
 
   _parseAlbum(album) {
+    if(album['platform'] === "YouTube") {
+      var contributorKey = 'uploaded_by'
+      album.uploaded_by.type = "Artist"
+      album.uploaded_by = [album.uploaded_by]
+    }
+    else {
+      var contributorKey = 'contributors'
+    }
+    if(!album['type']) {
+      album.type = album['platform'] === "YouTube" ? "Single" : "Album"
+    }
     var formattedAlbum = {
       name: album['name'],
       id: album['album_id'],
       uri: album['album_uri'],
-      platform: "Revibe",
-      contributors: this._parseContributors(album['contributors'], album['album_id']),
+      platform: album['platform'],
+      contributors: this._parseContributors(album[contributorKey], album['album_id']),
       type: album['type'],
       uploaded_date: album['uploaded_date'],
       images: this._parseImages(album.images)
@@ -128,7 +155,7 @@ export default class RevibeAPI extends BasePlatformAPI {
       name: artist['name'],
       id: artist['artist_id'],
       uri: artist['artist_uri'],
-      platform: "Revibe",
+      platform: artist['platform'],
       images: this._parseImages(artist['images'])
     }
     return formattedArtist
@@ -210,7 +237,7 @@ export default class RevibeAPI extends BasePlatformAPI {
         break
       }
       catch(error) {
-        // console.log(error);
+        console.log(error);
         response = error.response
         response.data = await this._handleErrors(error.response)
         numRequestsSent += 1
@@ -315,6 +342,7 @@ export default class RevibeAPI extends BasePlatformAPI {
 
       // save user to default preferences
       DefaultPreference.setMultiple(user)
+
       return response.data.user
     }
 
@@ -357,6 +385,30 @@ export default class RevibeAPI extends BasePlatformAPI {
     await this._request("account/logout/", "POST", data)
     token.delete()
     this.library.delete()
+  }
+
+  async resetPassword(username) {
+    /**
+    * Summary: Send email to user with temp password.
+    *
+    *
+    */
+
+    return await this._request("account/profile/reset-password/", "POST", {username: username})
+  }
+
+  async changePassword(oldPassword, newPassword1, newPassword2) {
+    /**
+    * Summary: Change password for all future logins
+    *
+    *
+    */
+    var data = {
+      old_password: oldPassword,
+      new_password: newPassword1,
+      confirm_new_password: newPassword2
+    }
+    return await this._request("account/profile/change-password/", "POST", data, true)
   }
 
   async getProfile() {
@@ -534,10 +586,8 @@ export default class RevibeAPI extends BasePlatformAPI {
     */
     var response = await this._request("content/browse/", "GET", null, true)
     response = response.data
-    // console.log(response);
     for(var x=0; x<response.length; x++) {
       const that = this
-
       if(response[x].type==="songs") {
         response[x].results = response[x].results.map(x => that._parseSong(x))
       }

@@ -53,6 +53,7 @@ class List extends Component {
          <SongItem
           song={data}
           playlist={this.props.data}
+          source={this.props.source}
           displayImage={this.props.displayImage}
           displayType={this.props.displayType}
          />
@@ -63,6 +64,7 @@ class List extends Component {
          <ArtistItem
           artist={data}
           displayType={this.props.displayType}
+          source={this.props.source}
           isLocal={this.props.isLocal}
           navigation={this.props.navigation}
          />
@@ -73,6 +75,7 @@ class List extends Component {
          <AlbumItem
           album={data}
           displayType={this.props.displayType}
+          source={this.props.source}
           isLocal={this.props.isLocal}
           navigation={this.props.navigation}
          />
@@ -132,6 +135,7 @@ List.propTypes = {
   displayImage: PropTypes.bool,
   allowRefresh: PropTypes.bool,
   isLocal: PropTypes.bool,
+  source: PropTypes.string,
   onRefresh: PropTypes.func,
 };
 

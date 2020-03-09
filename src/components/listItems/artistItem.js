@@ -37,6 +37,7 @@ class ArtistItem extends PureComponent {
         params: {
           album: this.props.artist,
           songs: songs,
+          source: this.props.source + "-Artist"
         }
       }
     }
@@ -47,7 +48,8 @@ class ArtistItem extends PureComponent {
           routeName: "Album",
           params: {
             album: this.props.artist,
-            songs: []
+            songs: [],
+            source: this.props.source + "-Artist"
           }
         }
       }
@@ -57,6 +59,7 @@ class ArtistItem extends PureComponent {
           routeName: "Artist",
           params: {
             artist: this.props.artist,
+            source: this.props.source + "-Artist"
           }
         }
       }
@@ -110,6 +113,7 @@ class ArtistItem extends PureComponent {
 ArtistItem.propTypes = {
   artist: PropTypes.object,
   displayType: PropTypes.bool,
+  source: PropTypes.string,
 };
 
 ArtistItem.defaultProps = {

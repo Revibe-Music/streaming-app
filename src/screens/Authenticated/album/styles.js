@@ -15,7 +15,9 @@ export default {
     height: hp("30"),
     width: wp("100"),
     alignSelf: 'stretch',
-    resizeMode: 'cover',
+    resizeMode: 'center',
+    backgroundColor: "#121212",
+
   },
   title: {
     textAlign: "center",

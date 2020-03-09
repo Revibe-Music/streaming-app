@@ -2,13 +2,14 @@ import MusicControl from 'react-native-music-control';
 import BackgroundTimer from 'react-native-background-timer';
 import { getPlatform } from './../../api/utils';
 
-const play = (index, playlist, activePlatform, inQueue) => {
+const play = (index, playlist, activePlatform, inQueue, source) => {
   return {
    type: 'PLAY_SONG',
    activePlatform: activePlatform,
    playlist: playlist,
    index: index,
-   inQueue: inQueue
+   inQueue: inQueue,
+   source: source
  };
 }
 const resume = () => ({
@@ -63,8 +64,10 @@ const reset = () => ({
 
 
 // Audio Controls
- const playSong = (index, playlist=null, inQueue=false) => {
+ const playSong = (index, playlist=null, inQueue=false, source=null) => {
   return async (dispatch, getState) => {
+
+      source = !!source ? source : getState().audioState.source   //dont do anything for the time being
 
       if(getState().audioState.playlist.length > 0) {
         if(getState().audioState.time.current > 30) {
@@ -83,6 +86,7 @@ const reset = () => ({
           dispatch(editQueueIndex(null))
         }
       }
+
       var platform = getState().platformState.platforms[playlist[index].platform]  // new platform operator object from platform value
       // if platforms switch, pause current platform before switching
       if(!!getState().audioState.activePlatform ) {
@@ -92,7 +96,7 @@ const reset = () => ({
         }
       }
 
-      dispatch(play(index, playlist, platform.name, inQueue));
+      dispatch(play(index, playlist, platform.name, inQueue, source));
 
       // const timer = BackgroundTimer.setInterval(continuousTimeUpdate, 1000);
 
@@ -151,7 +155,7 @@ const pauseSong = () => {
       var newPlaylist = getState().audioState.playlist.slice(0,getState().audioState.currentIndex+1).concat(getState().audioState.queue[0]).concat(getState().audioState.playlist.slice(getState().audioState.currentIndex+1))
       dispatch(editQueue(getState().audioState.queue.slice(1)));
       dispatch(editQueueIndex(index));
-      dispatch(playSong(index, newPlaylist, true));
+      dispatch(playSong(index, newPlaylist, true, "Queue"));
     }
     else {
       dispatch(playSong(index));
@@ -166,7 +170,7 @@ const pauseSong = () => {
     }
     else {
       var index = getState().audioState.currentIndex -1 >= 0 ? getState().audioState.currentIndex -1 : 0 ; //going to need checks on curent index a d playlist index
-      dispatch(playSong(index));
+      dispatch(playSong(index,source=getState().audioState.source));
     }
 
   }
@@ -207,7 +211,8 @@ const updateQueue = queue => {
         const ri = Math.floor(Math.random() * (i + 1));
         [combinedPlaylists[i], combinedPlaylists[ri]] = [combinedPlaylists[ri], combinedPlaylists[i]];
       }
-      dispatch(playSong(0, combinedPlaylists));
+      dispatch(playSong(0, combinedPlaylists, source="Shuffle"));
+      return combinedPlaylists
   }
 }
 
@@ -267,10 +272,10 @@ const updateSongTime = (currentTime) => {
 
         MusicControl.updatePlayback({
           state: getState().audioState.isPlaying ? MusicControl.STATE_PLAY : MusicControl.STATE_PAUSE,
-          title: playlist[index].name,
+          // title: playlist[index].name,
           // artwork: image,               // URL or RN's image require()
-          artist: playlist[index].contributors['0'].artist.name,
-          album: playlist[index].platform !== "YouTube" ? playlist[index].album.name : "YouTube",
+          // artist: playlist[index].contributors['0'].artist.name,
+          // album: playlist[index].platform !== "YouTube" ? playlist[index].album.name : "YouTube",
           duration: !!playlist[index].duration ? playlist[index].duration : getState().audioState.duration, // (Seconds)
           elapsedTime: currentTime
         })

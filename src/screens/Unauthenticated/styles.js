@@ -144,6 +144,30 @@ export default {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  connectBtn: {
+    width: wp('25%'),
+    height: hp('5%'),
+    alignSelf: 'center',
+    backgroundColor: "#7248BD",
+    justifyContent: "center",
+    alignItems:"center",
+  },
+  disconnectBtn: {
+    width: wp('25%'),
+    height: hp('5%'),
+    alignSelf: 'center',
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems:"center",
+  },
+  accountBtnText: {
+    fontSize: hp("2%"),
+    color: 'white',
+    textAlign: "center",
+    paddingLeft: 0,
+    paddingRight: 0,
   }
 
 };

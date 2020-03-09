@@ -146,6 +146,7 @@ class Library extends Component {
               allowRefresh={!this.state.filtering}
               onRefresh={() => console.log("Refreshing!")}
               noDataText={this.state.filtering ? "No Results." : "Your Library is empty."}
+              source="Library"
               navigation={this.props.navigation}
             />
           </Container>

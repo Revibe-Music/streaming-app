@@ -47,7 +47,7 @@ class Scrubber extends Component{
         <Slider
           style={styles.seekBar}
           value={this.props.time.current}
-          maximumValue={this.props.time.max}
+          maximumValue={isNaN(this.props.time.max) ? 0 : this.props.time.max}
           onSlidingStart={this.changeValue}
           onSlidingComplete={this.endValueChange}
           minimumTrackTintColor="white"

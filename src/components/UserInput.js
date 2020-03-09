@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   inlineImg: {
-    zIndex: 99,
+    zIndex: 20000,
     left: 35,
     fontSize: 25
   },

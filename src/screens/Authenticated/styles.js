@@ -127,8 +127,8 @@ export default {
     opacity: 0.4
   },
   text: {
-    textAlign: "center",
-    fontSize: 13,
+    textAlign: "left",
+    fontSize: hp("2%"),
     color: "white",
     fontWeight: "700",
   },
@@ -162,29 +162,28 @@ export default {
     justifyContent: "space-evenly"
   },
   card: {
-    height: deviceHeight / 3.7,
-    width: deviceWidth / 2.3,
+    height: hp("20%"),
+    width: hp("18%"),
     backgroundColor: "transparent",
     borderColor: "transparent",
-    marginRight: 20,
-    marginLeft: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
   cardImg : {
-    height: deviceHeight / 5,
-    width: deviceWidth / 2.3,
+    height: hp("15%"),
+    width: hp("15%"),
     padding: 0,
     backgroundColor: "#121212",
     borderRadius: 20,
     resizeMode: "contain"
   },
   artistCardImg : {
-    height: deviceHeight / 5,
-    width: deviceWidth / 2.3,
+    height: hp("15%"),
+    width: hp("15%"),
     padding: 0,
     backgroundColor: "#121212",
-    borderRadius: deviceWidth / 2.5,
+    borderRadius: hp("7.5%"),
     resizeMode: "cover"
-
   },
   cardDesc: {
     backgroundColor: "transparent",
@@ -199,18 +198,23 @@ export default {
     fontWeight: "bold",
     fontSize: 18
   },
+  cardItem: {
+    backgroundColor: "transparent",
+    width: hp("15%"),
+  },
+  cardSub: {
+    color: "#A9A9A9",
+    fontSize: 10,
+    textAlign: "center",
+    fontWeight: "500"
+  },
   radioScrollView: {
     alignItems: "center",
     paddingStart: 5,
     paddingEnd: 5,
     backgroundColor: "#121212"
   },
-  radioCardName: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 5,
-    flexDirection: "column"
-  },
+
   title: {
     color: "white",
     fontWeight: "bold",
@@ -232,16 +236,7 @@ export default {
     paddingStart: 5,
     paddingEnd: 5,
   },
-  cardItem: {
-    backgroundColor: "transparent",
-    width: deviceWidth / 2.3,
-  },
-  cardSub: {
-    color: "#A9A9A9",
-    fontSize: 10,
-    textAlign: "center",
-    fontWeight: "500"
-  },
+
 
   signOutButton: {
     marginTop: 60,

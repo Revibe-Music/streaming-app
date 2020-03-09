@@ -3,6 +3,9 @@ const { Dimensions } = React;
 const deviceHeight = Dimensions.get("window").height;
 const deviceWidth = Dimensions.get("window").width;
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import DeviceInfo from 'react-native-device-info';
+
+const device = DeviceInfo.getModel();
 
 export default {
     // FULLSCREEN PLAYER
@@ -12,6 +15,14 @@ export default {
       borderBottomWidth: 0,
       marginBottom:hp("5%"),
       marginTop: hp("2%"),
+    },
+    playerView1: {
+      flex: 1,
+      borderTopLeftRadius: device.includes("X") || device.includes("11") ? hp("4.7%") : 0,
+      borderTopRightRadius: device.includes("X") || device.includes("11") ? hp("4.7%") : 0
+    },
+    playerView2: {
+      flex: 1,
     },
     playerCloseArrowButton: {
       height: hp("4%"),

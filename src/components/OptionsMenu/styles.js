@@ -44,10 +44,10 @@ export default {
     backgroundColor:"#222222",
     width: hp("30%"),
     height: hp("30%"),
-    marginBottom: 30,
     resizeMode: "contain"
   },
   mainText: {
+    paddingTop: hp("3%"),
     textAlign:"center",
     color: "white",
     fontWeight: "bold",
