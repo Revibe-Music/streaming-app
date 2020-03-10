@@ -156,6 +156,7 @@ export default class RevibeAPI extends BasePlatformAPI {
       id: artist['artist_id'],
       uri: artist['artist_uri'],
       platform: artist['platform'],
+      bio: artist['bio'],
       images: this._parseImages(artist['images'])
     }
     return formattedArtist
@@ -550,7 +551,8 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
 
-    var songs = await this._request(`content/artist/${id}/top_songs/`, "GET", null, true)
+    var response = await this._request(`content/artist/${id}/top-songs/`, "GET", null, true)
+    songs = response.data.results
     for(var x=0; x<songs.length; x++) {
       songs[x] = this._parseSong(songs[x])
       // probably need to look at date added here

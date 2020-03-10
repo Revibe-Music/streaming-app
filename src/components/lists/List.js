@@ -70,7 +70,7 @@ class List extends Component {
          />
        )
      }
-     if(this.props.type === "Albums") {
+     if(this.props.type === "Albums" || this.props.type === "Singles" || this.props.type === "EPs"  || this.props.type === "Appears On") {
        return (
          <AlbumItem
           album={data}

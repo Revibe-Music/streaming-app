@@ -17,7 +17,6 @@ export default {
     alignSelf: 'stretch',
     resizeMode: 'center',
     backgroundColor: "#121212",
-
   },
   title: {
     textAlign: "center",

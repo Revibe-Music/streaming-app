@@ -50,12 +50,13 @@ export default class SpotifyAPI extends BasePlatformAPI {
 
   _parseAlbum(album) {
     // need to account for simplified and full objects
+    var typeKey = album["album_group"] ? "album_group" : "album_type"
     var formattedAlbum = {
       platform: "Spotify",
       name: album['name'],
       id: album['id'],
       uri: album['uri'],
-      type: album['album_type'],
+      type: album[typeKey],
       uploaded_date: new Date(album['release_date']),
       contributors: this._parseContributors(album['artists'], album['id']),
       images: this._parseImages(album['images'])
@@ -137,18 +138,18 @@ export default class SpotifyAPI extends BasePlatformAPI {
         response = response.items
         response = this._formatResponse(response)
       }
-      if(response.hasOwnProperty('tracks')) {
-        response.tracks = response.tracks
-        response = this._formatResponse(response)
-      }
-      if(response.hasOwnProperty('albums')) {
-        response = response.albums
-        response = this._formatResponse(response)
-      }
-      if(response.hasOwnProperty('artists')) {
-        response = response.artists
-        response = this._formatResponse(response)
-      }
+      // if(response.hasOwnProperty('tracks')) {
+      //   response = response.tracks
+      //   response = this._formatResponse(response)
+      // }
+      // if(response.hasOwnProperty('albums')) {
+      //   response = response.albums
+      //   response = this._formatResponse(response)
+      // }
+      // if(response.hasOwnProperty('artists')) {
+      //   response = response.artists
+      //   response = this._formatResponse(response)
+      // }
     }
     return response
   }
@@ -377,7 +378,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
     * @return {Object} List containing album objects
     */
 
-    var albums = await this._execute(Spotify.getArtistAlbums, [id, {include_groups:["album","single"]}], true, true, 50)
+    var albums = await this._execute(Spotify.getArtistAlbums, [id], true, true, 50)
     for(var x=0; x<albums.length; x++) {
       albums[x] = this._parseAlbum(albums[x])
     }
@@ -396,6 +397,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
     */
 
     var songs = await this._execute(Spotify.getArtistTopTracks, [id, "from_token"], true)
+    songs = songs.tracks
     for(var x=0; x<songs.length; x++) {
       songs[x] = this._parseSong(songs[x])
     }

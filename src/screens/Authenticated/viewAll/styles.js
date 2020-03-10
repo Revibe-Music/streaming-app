@@ -13,9 +13,9 @@ export default {
     borderBottomWidth: 0,
     height: hp("6.5%")
   },
-  
+
   pageTitle: {
-    fontSize: hp("3.5%"),
+    fontSize: hp("2.6%"),
     color: "white",
     textAlign: "center",
     fontWeight: "bold",

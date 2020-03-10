@@ -174,7 +174,7 @@ export default {
     width: hp("15%"),
     padding: 0,
     backgroundColor: "#121212",
-    borderRadius: 20,
+    borderRadius: 10,
     resizeMode: "contain"
   },
   artistCardImg : {

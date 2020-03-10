@@ -52,7 +52,7 @@ export default {
     alignItems: 'flex-start',
     justifyContent: "center",
     width: wp("80%"),
-    paddingLeft: wp("5%"),
+    // paddingLeft: wp("5%"),
     color : "white",
     fontWeight: "bold",
     textAlign: "left",

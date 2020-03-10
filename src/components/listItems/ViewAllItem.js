@@ -49,7 +49,7 @@ class ViewAllItem extends PureComponent {
 
 ViewAllItem.propTypes = {
   data: PropTypes.array.isRequired,
-  type: PropTypes.oneOfType(["Songs","Artists","Albums"]),
+  type: PropTypes.oneOfType(["Songs","Artists","Albums, Singles"]),
 };
 
 

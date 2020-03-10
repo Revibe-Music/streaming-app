@@ -29,7 +29,7 @@ class ViewAll extends Component {
             <Icon name="ios-arrow-back" style={{color:"white"}}/>
           </Button>
         </Left>
-        <Body>
+        <Body style={{width: "100%"}}>
           <Text style={styles.pageTitle}>{this.type}</Text>
         </Body>
         <Right></Right>

@@ -59,6 +59,7 @@ const BrowseNav = createStackNavigator(
     Artist: {screen: Artist},
     Album: {screen: Album},
     Settings: {screen: Settings},
+    ViewAll: {screen: ViewAll},
     Browse: {screen: DrawerNav},
 
   },
@@ -72,7 +73,7 @@ const LibraryNav = createStackNavigator(
   {
     Artist: {screen: Artist},
     Album: {screen: Album},
-    Settings: {screen: Settings},
+    ViewAll: {screen: ViewAll},
     Library: {screen: Library},
   },
   {
