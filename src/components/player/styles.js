@@ -1,7 +1,4 @@
 const React = require("react-native");
-const { Dimensions } = React;
-const deviceHeight = Dimensions.get("window").height;
-const deviceWidth = Dimensions.get("window").width;
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import DeviceInfo from 'react-native-device-info';
 
@@ -44,8 +41,6 @@ export default {
       fontSize: hp("4%"),
     },
     albumArtContainer: {
-      minHeight: 1,
-      minWidth: 1,
       height: wp("80%"),
     },
     playerIcons: {
