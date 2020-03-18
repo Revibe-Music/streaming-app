@@ -4,22 +4,20 @@ import React from "react";
 import { Text, Icon, Header, Body } from "native-base";
 import { Image } from "react-native";
 
-import Login from "./screens/Unauthenticated/login";
 import LoginScreen from "./screens/Unauthenticated/LoginScreen";
 import RegisterScreen from "./screens/Unauthenticated/RegisterScreen";
-import Signup from "./screens/Unauthenticated/signup";
 import LinkAccounts from "./screens/Unauthenticated/linkAccounts";
 import Tutorial from "./screens/Unauthenticated/tutorial";
 
-import Search from "./screens/Authenticated/search";
 import Library from "./screens/Authenticated/library";
+import LibraryContent from "./screens/Authenticated/Library/LibraryContent";
+import Search from "./screens/Authenticated/search";
 import Browse from "./screens/Authenticated/browse";
 import Settings from "./screens/Authenticated/settings";
 import Artist from "./screens/Authenticated/artist/index";
 import Album from "./screens/Authenticated/album/index";
 import ViewAll from "./screens/Authenticated/viewAll/index";
 
-import Logo from "./components/Logo";
 import Menu from "./components/Drawer/Menu";
 import DrawerItem from "./components/Drawer/DrawerItem";
 
@@ -28,7 +26,6 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import { createSwitchNavigator, createAppContainer, } from 'react-navigation';
 import BottomTab from './components/bottomTab/index';
-import { HeaderBackButton } from 'react-navigation';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 
@@ -74,11 +71,13 @@ const LibraryNav = createStackNavigator(
     Artist: {screen: Artist},
     Album: {screen: Album},
     ViewAll: {screen: ViewAll},
+    LibraryContent: {screen: LibraryContent},
     Library: {screen: Library},
   },
   {
     initialRouteName: "Library",
-    headerMode: 'none'
+    headerMode: 'none',
+    lazy: false,
   }
 );
 
@@ -159,13 +158,6 @@ const AppStack = createBottomTabNavigator(
 
 const AuthStack = createStackNavigator(
   {
-    Signup: {
-      screen: RegisterScreen,
-      navigationOptions: ({navigation}) => ({
-        header: null,
-        headerTransparent: true,
-      }),
-    },
     Login: {
       screen: LoginScreen,
       navigationOptions: ({navigation}) => ({
@@ -179,13 +171,6 @@ const AuthStack = createStackNavigator(
         header: <Header style={{backgroundColor: "#121212", borderBottomWidth: 0, marginBottom:0, paddingBottom:0, paddingTop: hp('10%'),}} androidStatusBarColor="#222325" iosBarStyle="light-content" >
                     <Image source={require("./../assets/RevibeLogo.png")} style={{width:wp('50%'), height:hp('6%'),}}/>
                 </Header>
-      }),
-    },
-    Tutorial: {
-      screen: Tutorial,
-      navigationOptions: ({navigation}) => ({
-        header: null,
-        headerTransparent: true,
       }),
     },
     Tutorial: {

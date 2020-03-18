@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Image } from "react-native";
 import { Text,  Icon, ListItem as BaseListItem } from "native-base";
 import PropTypes from 'prop-types';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -22,6 +22,9 @@ class SongItem extends PureComponent {
     this.setArtist = this.setArtist.bind(this)
     this.getImage = this.getImage.bind(this)
     this.onClick = this.onClick.bind(this)
+    if(!this.props.song) {
+      console.log(this.props.song);
+    }
   }
 
   toggleOptionsMenu() {
@@ -58,9 +61,21 @@ class SongItem extends PureComponent {
     return require("./../../../assets/albumArtPlaceholder.png")
   }
 
+  displayPlatform() {
+    if(this.props.song.platform.toLowerCase() === "spotify") {
+      var platformIcon = <Icon type="FontAwesome5" name="spotify" style={[styles.logo, {color: "#1DB954"}]} />
+    }
+    else if(this.props.song.platform.toLowerCase() === "youtube") {
+      var platformIcon = <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red"}]} />
+    }
+    else {
+      var platformIcon = <Image source={require('./../../../assets/revibe_logo.png')} style={{height: hp("2"), width: hp("2")}} />
+    }
+    return platformIcon
+  }
+
   onClick() {
     var index = this.props.playlist.map(function(e) { return e.id; }).indexOf(this.props.song.id);
-    console.log(this.props.source);
     this.props.playSong(index, this.props.playlist, false, this.props.source)
   }
 
@@ -84,8 +99,17 @@ class SongItem extends PureComponent {
              <View>
                <Text style={[styles.mainText,{color:this.setColor()}]} numberOfLines={1}>{this.props.song.name}</Text>
              </View>
+             <View style={{flexDirection: "row"}}>
+               {this.props.displayLogo ?
+                 <View style={styles.logoContainer}>
+                 {this.displayPlatform()}
+                 </View>
+                :
+                  null
+               }
              <View>
                <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist()}</Text>
+               </View>
              </View>
            </View>
          </View>
@@ -106,12 +130,14 @@ SongItem.propTypes = {
   playlist: PropTypes.arrayOf(PropTypes.object),
   displayImage: PropTypes.bool,
   displayType: PropTypes.bool,
+  displayLogo: PropTypes.bool,
   source: PropTypes.string,
 };
 
 SongItem.defaultProps = {
   displayImage: true,
   displayType: false,
+  displayLogo: false,
 };
 
 

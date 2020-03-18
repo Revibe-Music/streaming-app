@@ -13,7 +13,11 @@ import {
 } from "native-base";
 import * as Animatable from 'react-native-animatable';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import { getColorFromURL } from 'rn-dominant-color';
+
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
+import LinearGradient from 'react-native-linear-gradient';
+
 import ImageLoad from 'react-native-image-placeholder';
 import { BarIndicator } from 'react-native-indicators';
 import { compact } from 'lodash';
@@ -40,6 +44,8 @@ class Album extends Component {
     this.state = {
       loading: false,
       following: false,
+      primaryColor: "#121212",
+      secondaryColor: "#121212",
       songs: this.props.navigation.state.params.songs.length > 0 ? this.props.navigation.state.params.songs : [],
     };
     this.getImage = this.getImage.bind(this)
@@ -55,6 +61,9 @@ class Album extends Component {
   }
 
   async componentDidMount() {
+
+    var colorRequest = getColorFromURL(this.album.images[1].url)
+
     if(this.state.songs.length < 1) {
       this.setState({ loading: true })
       var results = await this.platform.fetchAlbumSongs(this.album.id)
@@ -65,24 +74,33 @@ class Album extends Component {
           }
         }
       }
-      this.setState({ loading:false, songs: results })
+      var color = await colorRequest
+      this.setState({ loading:false, songs: results,primaryColor: color.primary, secondaryColor: color.secondary })
     }
+    else {
+      var color = await colorRequest
+      this.setState({ primaryColor: color.primary, secondaryColor: color.secondary})
+    }
+
   }
 
   setArtist() {
-    if(this.album.platform === "YouTube") {
-      if(this.props.navigation.state.params.songs.length > 0) {
-        return "Video • "+this.album.contributors[0].artist.name
-      }
-      else {
-        return "Channel • YouTube"
-      }
-    }
+
     if(this.album.contributors) {
+      if(this.album.platform === "YouTube") {
+        if(this.props.navigation.state.params.songs.length > 0) {
+          return "Video • "+this.album.name
+        }
+        else {
+          return "Channel • YouTube"
+        }
+      }
+      this.album.contributors = Object.keys(this.album.contributors).map(x => this.album.contributors[x])
       if(this.album.contributors.length > 0) {
         var contributors = Object.keys(this.album.contributors).map(x => this.album.contributors[x])
         var contributorString = compact(contributors.map(function(x) {if(x.type === "Artist") return x.artist.name})).join(', ')
-        return  `Album • ${contributorString}`
+        var albumType = this.album.type.charAt(0).toUpperCase() + this.album.type.slice(1)
+        return  `${albumType} • ${contributorString}`
       }
     }
     return  ""
@@ -100,11 +118,23 @@ class Album extends Component {
             index = x
           }
         }
-
       }
       return {uri: this.album.images[index].url}
     }
     return require("./../../../../assets/albumPlaceholder.png")
+  }
+
+  displayLogo() {
+    if(this.album.platform.toLowerCase() === "spotify") {
+      var platformIcon = <Icon type="FontAwesome5" name="spotify" style={[styles.logo, {color: "#1DB954"}]} />
+    }
+    else if(this.album.platform.toLowerCase() === "youtube") {
+      var platformIcon = <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red"}]} />
+    }
+    else {
+      var platformIcon = <Image source={require('./../../../../assets/revibe_logo.png')}/>
+    }
+    return platformIcon
   }
 
 
@@ -113,20 +143,30 @@ class Album extends Component {
       <View style={{ flex: 1 }}>
         <StatusBar barStyle="light-content" />
         <HeaderImageScrollView
-          maxHeight={hp("30")}
+          maxHeight={hp("40")}
           minHeight={hp("10")}
-          maxOverlayOpacity={0.6}
-          minOverlayOpacity={0.3}
+          maxOverlayOpacity={0.5}
+          minOverlayOpacity={0}
+          overlayColor="#121212"
           fadeOutForeground
           scrollViewBackgroundColor="#121212"
           renderHeader={() => (
+            <LinearGradient
+              style={{flex:1}}
+              locations={[0,0.4,0.65]}
+              colors={[this.state.primaryColor, this.state.secondaryColor, '#121212']}
+            >
+            <View style={{top: hp("10%")}}>
             <ImageLoad
               isShowActivity={false}
-              style={styles.image}
-              placeholderStyle={styles.image}
+              style={styles.albumImg}
+              placeholderStyle={styles.albumImg}
               source={this.getImage()}
               placeholderSource={require("./../../../../assets/albumArtPlaceholder.png")}
             />
+            </View>
+            </LinearGradient>
+
           )}
           renderFixedForeground={() => (
             <Animatable.View
@@ -139,19 +179,28 @@ class Album extends Component {
             </Animatable.View>
           )}
           renderForeground={() => (
+            <>
             <View style={styles.titleContainer}>
               <Text style={styles.imageTitle}>{this.album.name}</Text>
             </View>
+
+            </>
+
           )}
           renderTouchableFixedForeground={() => (
-            <View style={styles.backArrowContainer}>
+            <>
+            <View style={styles.headerContainer}>
               <Button
                 transparent
                 title=""
                 onPress={() => this.props.navigation.goBack()}>
-                <Icon name="ios-arrow-back" style={{color:"white", fontSize: 30}}/>
+                <Icon name="ios-arrow-back" style={{color:"white", fontSize: 30, textAlign: "left"}}/>
               </Button>
+              <View style={{padding: 10}}>
+              {this.displayLogo()}
+              </View>
             </View>
+            </>
           )}
         >
 
@@ -160,23 +209,23 @@ class Album extends Component {
             onHide={() => this.navTitleView.fadeInUp(200)}
             onDisplay={() => this.navTitleView.fadeOut(100)}
           >
-            <View style={styles.title}>
-              <Text style={styles.title}>{this.setArtist()}</Text>
-              <Text note style={{textAlign: "center"}}>{this.state.songs.length} {this.state.songs.length > 1 ? "Songs" : this.state.songs.length ===0  ? "Songs" : "Song"}</Text>
-            </View>
+          <View style={styles.title}>
+            <Text style={styles.title}>{this.setArtist()}</Text>
+            <Text note style={{textAlign: "center"}}>{this.state.songs.length} {this.state.songs.length > 1 ? "Songs" : this.state.songs.length ===0  ? "Songs" : "Song"}</Text>
+          </View>
 
+          <View style={styles.center}>
+            <Button
+            rounded
+            large
+            onPress={() => this.props.playSong(0, this.state.songs)}
+            style={styles.shuffleBtn}>
             <View style={styles.center}>
-              <Button
-              rounded
-              large
-              onPress={() => this.props.playSong(0, this.state.songs)}
-              style={styles.shuffleBtn}>
-              <View style={styles.center}>
-                <Text uppercase style={styles.shuffle}>Listen</Text>
-              </View>
-
-              </Button>
+              <Text uppercase style={styles.shuffle}>Listen</Text>
             </View>
+
+            </Button>
+          </View>
           </TriggeringView>
 
           <View style={styles.container}>
@@ -200,7 +249,7 @@ class Album extends Component {
                 </View>
               :
               <View style={styles.textContainer}>
-                <Text style={styles.noDataText}>There are no songs in this album.</Text>
+                <Text style={styles.noDataText}>No Songs.</Text>
               </View>
               }
               </>

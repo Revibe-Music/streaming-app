@@ -66,9 +66,7 @@ const reset = () => ({
 // Audio Controls
  const playSong = (index, playlist=null, inQueue=false, source=null) => {
   return async (dispatch, getState) => {
-
       source = !!source ? source : getState().audioState.source   //dont do anything for the time being
-
       if(getState().audioState.playlist.length > 0) {
         if(getState().audioState.time.current > 30) {
           var song = getState().audioState.playlist[getState().audioState.currentIndex]
@@ -98,15 +96,13 @@ const reset = () => ({
 
       dispatch(play(index, playlist, platform.name, inQueue, source));
 
-      // const timer = BackgroundTimer.setInterval(continuousTimeUpdate, 1000);
-
-      platform.play(playlist[index].uri)
       if(!Array.isArray(playlist[index].album.images)) {
         playlist[index].album.images = Object.keys(playlist[index].album.images).map(x => playlist[index].album.images[x])
       }
       var image = playlist[index].album.images.reduce(function(prev, curr) {
           return prev.height < curr.height ? prev : curr;
       });
+      platform.play(playlist[index])
 
       MusicControl.setNowPlaying({
         title: playlist[index].name,
@@ -170,7 +166,7 @@ const pauseSong = () => {
     }
     else {
       var index = getState().audioState.currentIndex -1 >= 0 ? getState().audioState.currentIndex -1 : 0 ; //going to need checks on curent index a d playlist index
-      dispatch(playSong(index,source=getState().audioState.source));
+      dispatch(playSong(index));
     }
 
   }
@@ -269,16 +265,11 @@ const updateSongTime = (currentTime) => {
         var index = getState().audioState.currentIndex
         dispatch(updateSongTime(currentTime));
         var image = playlist[index].album.images.length > 0 ? playlist[index].album.images[0].url : null
-
-        MusicControl.updatePlayback({
-          state: getState().audioState.isPlaying ? MusicControl.STATE_PLAY : MusicControl.STATE_PAUSE,
-          // title: playlist[index].name,
-          // artwork: image,               // URL or RN's image require()
-          // artist: playlist[index].contributors['0'].artist.name,
-          // album: playlist[index].platform !== "YouTube" ? playlist[index].album.name : "YouTube",
-          duration: !!playlist[index].duration ? playlist[index].duration : getState().audioState.duration, // (Seconds)
-          elapsedTime: currentTime
-        })
+        var playbackData = {
+          elapsedTime: currentTime,
+          // duration: !!playlist[index].duration ? playlist[index].duration : getState().audioState.duration, // (Seconds)
+        }
+        MusicControl.updatePlayback(playbackData)
       }
   }
 }

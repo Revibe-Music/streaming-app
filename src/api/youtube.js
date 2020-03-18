@@ -19,49 +19,53 @@ export default class YouTubeAPI extends BasePlatformAPI {
   }
 
   async _handleErrors(response) {
-    var errors = {}
-    if(response.status === 400) {
-      // bad request ish
+    if(response) {
+      var errors = {}
+      if(response.status === 400) {
+        // bad request ish
 
-    }
-    if(response.status === 401) {
-      // unauthorized ish
-      await this.refreshToken()
-    }
-    if(response.status === 403) {
-      await this.login(this.getToken())
-      // forbidden ish
-
-    }
-    if(response.status === 404) {
-      // not found ish
-
-    }
-    else if(response.status === 409) {
-      // conflict ish
-      var errorKeys = Object.keys(response.data)
-      for(var x=0; x<errorKeys.length; x++) {
-        errors[errorKeys[x]] = response.data[errorKeys[x]]
       }
-    }
-    else if(response.status === 417) {
-      var errorKeys = Object.keys(response.data)
-      for(var x=0; x<errorKeys.length; x++) {
-        errors[errorKeys[x]] = response.data[errorKeys[x]][0]
+      if(response.status === 401) {
+        // unauthorized ish
+        await this.refreshToken()
       }
-    }
-    else if(response.status === 500) {
-      // internal server error ish
+      if(response.status === 403) {
+        await this.login(this.getToken())
+        // forbidden ish
 
-    }
-    else if(response.status === 501) {
-      // not implemented error ish
+      }
+      if(response.status === 404) {
+        // not found ish
 
+      }
+      else if(response.status === 409) {
+        // conflict ish
+        var errorKeys = Object.keys(response.data)
+        for(var x=0; x<errorKeys.length; x++) {
+          errors[errorKeys[x]] = response.data[errorKeys[x]]
+        }
+      }
+      else if(response.status === 417) {
+        var errorKeys = Object.keys(response.data)
+        for(var x=0; x<errorKeys.length; x++) {
+          errors[errorKeys[x]] = response.data[errorKeys[x]][0]
+        }
+      }
+      else if(response.status === 500) {
+        // internal server error ish
+
+      }
+      else if(response.status === 501) {
+        // not implemented error ish
+
+      }
+      else if(response.status === 503) {
+        // Service unavailable error ish
+      }
+      return errors
     }
-    else if(response.status === 503) {
-      // Service unavailable error ish
-    }
-    return errors
+    return null
+
   }
 
   _parseContributors(contributors, itemId) {
@@ -81,7 +85,6 @@ export default class YouTubeAPI extends BasePlatformAPI {
 
   _parseSong(song) {
     // parse content returned from Revibe API
-    console.log(song);
     var formattedSong = {
       name: song['title'],
       id: song['song_id'],
@@ -220,14 +223,16 @@ export default class YouTubeAPI extends BasePlatformAPI {
   }
 
   _formatResponse(response) {
-    if(response.hasOwnProperty('data')) {
-      response = response.data
-    }
-    if(response.hasOwnProperty('results')) {
-      response = response.results
-    }
-    if(response.hasOwnProperty('items')) {
-      response = response.items
+    if(response.data) {
+      if(response.hasOwnProperty('data')) {
+        response = response.data
+      }
+      if(response.hasOwnProperty('results')) {
+        response = response.results
+      }
+      if(response.hasOwnProperty('items')) {
+        response = response.items
+      }
     }
     return response
   }
@@ -619,7 +624,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
     this.saveToLibrary(song)   // save to realm database
   }
 
-  async removeSongFromLibrary(song) {
+  async removeSongFromLibrary(id) {
     /**
     * Summary: Remove song from Revibe library.
     *
@@ -627,9 +632,9 @@ export default class YouTubeAPI extends BasePlatformAPI {
     *
     * @param {Object}   song    song to add to library
     */
-    var data = {song_id: song.id}
+    var data = {song_id: id}
     await this._request("music/library/songs/", "DELETE", data, true)
-    this.removeFromLibrary(song)   // save to realm database
+    this.removeFromLibrary(id)   // save to realm database
   }
 
   async addAlbumToLibrary(album) {

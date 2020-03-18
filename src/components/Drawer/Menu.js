@@ -3,6 +3,7 @@ import { DrawerItems } from 'react-navigation-drawer';
 import { ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Alert, Linking } from "react-native";
 import { Button, Icon } from "native-base";
 import { Block, Text, theme } from "galio-framework";
+import DefaultPreference from 'react-native-default-preference';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { connect } from 'react-redux';
 
@@ -14,6 +15,7 @@ import { logoutAllPlatforms } from './../../redux/platform/actions';
 import { resetAudio } from './../../redux/audio/actions';
 
 const { width } = Dimensions.get("screen");
+
 
 const smsLink = "sms:&body=Revibe%20Music%20is%20now%20available%21%20Stream%20Spotify%2C%20YouTube%2C%20and%20Revibe%27s%20catalog%20all%20in%20one%20place.%0A%0ATo%20sign%20up%3A%0A1.%20Install%20Apple%27s%20TestFlight%3A%20https%3A%2F%2Fapps.apple.com%2Fus%2Fapp%2Ftestflight%2Fid899247664%0A2.%20Click%20the%20link%20below%21%0Ahttps%3A%2F%2Ftestflight.apple.com%2Fjoin%2Fur5G7Fgq"
 
@@ -40,7 +42,16 @@ const _Drawer = props => (
             </Button>
             <Button style={{width: wp('40%'), height: hp('5%'), backgroundColor: "transparent",alignSelf: 'flex-start', justifyContent: "flex-start"}}
               block
-              onPress={() => Linking.openURL(smsLink).catch((err) => console.error('An error occurred', err))}
+              onPress={async() => {
+                var shareText = await DefaultPreference.get("share_text")
+                if(!shareText) {
+                  shareText = "sms:&body=Join%20Revibe!%0D%0A%0D%0ARevibe%20is%20the%20perfect%20way%20to%20listen%20to%20music%20because%20I%20said%20so!%0D%0A%0D%0AJoin%20today!%0D%0Ahttps://apps.apple.com/us/app/revibe-music/id1500839967?uid=94"
+                }
+                else {
+                  shareText = `sms:&body=${encodeURI(shareText)}`
+                }
+                Linking.openURL(shareText).catch((err) => console.error('An error occurred', err))
+              }}
             >
               <Icon type="Ionicons" name="md-share-alt" style={{color:"#7248BD", fontSize: hp('2.3%')}} />
               <Text style={{color: "#7248BD", fontSize: hp('2%')}}>Invite Friends</Text>

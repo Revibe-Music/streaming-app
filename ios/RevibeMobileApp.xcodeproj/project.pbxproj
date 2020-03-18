@@ -12,9 +12,9 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		2705A2CD234D0B02005F976E /* revibe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2705A2CC234D0B02005F976E /* revibe.swift */; };
 		2705A2F2234D144B005F976E /* libRealmReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2705A2F1234D1438005F976E /* libRealmReact.a */; };
 		2705A2FA234D1C03005F976E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2705A2F9234D1C03005F976E /* LaunchScreen.xib */; };
+		2796A18624217B7900449D7B /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2796A18524217B7900449D7B /* dummy.swift */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -53,6 +53,7 @@
 		00E356EE1AD99517003FC87E /* RevibeMobileAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RevibeMobileAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* RevibeMobileAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RevibeMobileAppTests.m; sourceTree = "<group>"; };
+		12B58E7D2E4F43FE98367E70 /* Roboto_medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Roboto_medium.ttf; path = "../node_modules/native-base/Fonts/Roboto_medium.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* RevibeMobileApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RevibeMobileApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = RevibeMobileApp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = RevibeMobileApp/AppDelegate.m; sourceTree = "<group>"; };
@@ -61,25 +62,43 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = RevibeMobileApp/main.m; sourceTree = "<group>"; };
 		180DE990BF9DA1794CB3593C /* Pods-RevibeMobileApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RevibeMobileApp.release.xcconfig"; path = "Target Support Files/Pods-RevibeMobileApp/Pods-RevibeMobileApp.release.xcconfig"; sourceTree = "<group>"; };
 		2488DB141739497073AFF1E5 /* Pods-RevibeMobileAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RevibeMobileAppTests.release.xcconfig"; path = "Target Support Files/Pods-RevibeMobileAppTests/Pods-RevibeMobileAppTests.release.xcconfig"; sourceTree = "<group>"; };
-		2705A2CB234D0B02005F976E /* RevibeMobileApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RevibeMobileApp-Bridging-Header.h"; sourceTree = "<group>"; };
-		2705A2CC234D0B02005F976E /* revibe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = revibe.swift; sourceTree = "<group>"; };
 		2705A2E8234D12DE005F976E /* libRealmJS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRealmJS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2705A2EB234D1438005F976E /* RealmReact.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RealmReact.xcodeproj; path = "../node_modules/realm/react-native/ios/RealmReact.xcodeproj"; sourceTree = "<group>"; };
 		2705A2F9234D1C03005F976E /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 		2745269E09405B7C1BCAC0ED /* libPods-RevibeMobileApp-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RevibeMobileApp-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2796A18524217B7900449D7B /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
+		2796A18824217C1700449D7B /* RevibeMobileApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RevibeMobileApp-Bridging-Header.h"; sourceTree = "<group>"; };
+		2B32DAEBA48E4D08808CD6FE /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/native-base/Fonts/Feather.ttf"; sourceTree = "<group>"; };
+		2BA5FF1C9B2744ECB8FDBA50 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/native-base/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* RevibeMobileApp-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RevibeMobileApp-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* RevibeMobileApp-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RevibeMobileApp-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		31ECE785562442F7804F8DF2 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/native-base/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
+		37B505D2A55442B1A1050E03 /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/native-base/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		3D8F45C5BBBAA410B71332BE /* Pods-RevibeMobileApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RevibeMobileApp.debug.xcconfig"; path = "Target Support Files/Pods-RevibeMobileApp/Pods-RevibeMobileApp.debug.xcconfig"; sourceTree = "<group>"; };
+		48333388291C4C1B9BC51012 /* Roboto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Roboto.ttf; path = "../node_modules/native-base/Fonts/Roboto.ttf"; sourceTree = "<group>"; };
+		4FA2579A201D4093B143ECFB /* rubicon-icon-font.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "rubicon-icon-font.ttf"; path = "../node_modules/native-base/Fonts/rubicon-icon-font.ttf"; sourceTree = "<group>"; };
+		5EC3461173474C38950DE7D3 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/native-base/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
+		69345C0B1E5E4C8E9B186FBC /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/native-base/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
 		6DAD85497D3F6CCCEBF05540 /* Pods-RevibeMobileApp-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RevibeMobileApp-tvOS.release.xcconfig"; path = "Target Support Files/Pods-RevibeMobileApp-tvOS/Pods-RevibeMobileApp-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		73E27964555A4F899640613A /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/native-base/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		7BFE7785ACD798D75F4E6EC4 /* libPods-RevibeMobileAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RevibeMobileAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C12D33E28EA4DE78889ED42 /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Regular.ttf; path = "../node_modules/native-base/Fonts/FontAwesome5_Regular.ttf"; sourceTree = "<group>"; };
+		8C21357069924046BBD69C1B /* AntDesign.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AntDesign.ttf; path = "../node_modules/native-base/Fonts/AntDesign.ttf"; sourceTree = "<group>"; };
 		920121292283F5115FA09C93 /* Pods-RevibeMobileApp-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RevibeMobileApp-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-RevibeMobileApp-tvOS/Pods-RevibeMobileApp-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		A040827BD10C1D4A7F96C5D4 /* Pods-RevibeMobileApp-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RevibeMobileApp-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-RevibeMobileApp-tvOSTests/Pods-RevibeMobileApp-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BB12F1FBCFD65F29F361E5E3 /* Pods-RevibeMobileApp-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RevibeMobileApp-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-RevibeMobileApp-tvOSTests/Pods-RevibeMobileApp-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		C5BEF83FF6574EF29171B822 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/native-base/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
+		CAA070AAC14F4F26B39524DB /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/native-base/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
+		D75B8DAB11A5495E9AC32660 /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../node_modules/native-base/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
 		DF55FDE5472A6E758A1F43CF /* libPods-RevibeMobileApp-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RevibeMobileApp-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		F08805C1E4554886A80190BD /* Fontisto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Fontisto.ttf; path = "../node_modules/native-base/Fonts/Fontisto.ttf"; sourceTree = "<group>"; };
+		F1B1943D6621456C8977AC9B /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/native-base/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		F1EFAD204CDBFFA1A82A9C7C /* libPods-RevibeMobileApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RevibeMobileApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F28C58B2CAE17079121E4450 /* Pods-RevibeMobileAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RevibeMobileAppTests.debug.xcconfig"; path = "Target Support Files/Pods-RevibeMobileAppTests/Pods-RevibeMobileAppTests.debug.xcconfig"; sourceTree = "<group>"; };
+		FF1207B49C354B6FA8B7BF67 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/native-base/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
+		FF44D077F6594ADFB5B4C312 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/native-base/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +155,32 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		03AA4AE68D6649ACBE463221 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8C21357069924046BBD69C1B /* AntDesign.ttf */,
+				C5BEF83FF6574EF29171B822 /* Entypo.ttf */,
+				F1B1943D6621456C8977AC9B /* EvilIcons.ttf */,
+				2B32DAEBA48E4D08808CD6FE /* Feather.ttf */,
+				CAA070AAC14F4F26B39524DB /* FontAwesome.ttf */,
+				5EC3461173474C38950DE7D3 /* FontAwesome5_Brands.ttf */,
+				8C12D33E28EA4DE78889ED42 /* FontAwesome5_Regular.ttf */,
+				D75B8DAB11A5495E9AC32660 /* FontAwesome5_Solid.ttf */,
+				F08805C1E4554886A80190BD /* Fontisto.ttf */,
+				37B505D2A55442B1A1050E03 /* Foundation.ttf */,
+				FF1207B49C354B6FA8B7BF67 /* Ionicons.ttf */,
+				69345C0B1E5E4C8E9B186FBC /* MaterialCommunityIcons.ttf */,
+				31ECE785562442F7804F8DF2 /* MaterialIcons.ttf */,
+				73E27964555A4F899640613A /* Octicons.ttf */,
+				12B58E7D2E4F43FE98367E70 /* Roboto_medium.ttf */,
+				48333388291C4C1B9BC51012 /* Roboto.ttf */,
+				4FA2579A201D4093B143ECFB /* rubicon-icon-font.ttf */,
+				2BA5FF1C9B2744ECB8FDBA50 /* SimpleLineIcons.ttf */,
+				FF44D077F6594ADFB5B4C312 /* Zocial.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* RevibeMobileApp */ = {
 			isa = PBXGroup;
 			children = (
@@ -146,8 +191,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				2705A2F9234D1C03005F976E /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				2705A2CC234D0B02005F976E /* revibe.swift */,
-				2705A2CB234D0B02005F976E /* RevibeMobileApp-Bridging-Header.h */,
+				2796A18524217B7900449D7B /* dummy.swift */,
+				2796A18824217C1700449D7B /* RevibeMobileApp-Bridging-Header.h */,
 			);
 			name = RevibeMobileApp;
 			sourceTree = "<group>";
@@ -199,6 +244,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				CDD6BAD8CA86B0C4CED9C154 /* Pods */,
 				27EE42EC240EF21E0015BB15 /* Recovered References */,
+				03AA4AE68D6649ACBE463221 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -641,8 +687,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2705A2CD234D0B02005F976E /* revibe.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				2796A18624217B7900449D7B /* dummy.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -744,7 +790,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 10;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 4PCYE757QH;
 				HEADER_SEARCH_PATHS = (
@@ -753,6 +799,7 @@
 				);
 				INFOPLIST_FILE = RevibeMobileApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -774,7 +821,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = 4PCYE757QH;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -782,6 +829,7 @@
 				);
 				INFOPLIST_FILE = RevibeMobileApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

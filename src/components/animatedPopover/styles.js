@@ -9,11 +9,11 @@ export default {
   },
   animationBackground: {
     backgroundColor: '#222222',
+    borderRadius: hp("2%"),
   },
   animationWrapper: {
-    height: wp("30%"),
-    width: wp("30%"),
-    borderRadius: hp("2%"),
+    height: wp("40"),
+    width: wp("40%"),
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-evenly'
@@ -21,8 +21,9 @@ export default {
 
   loadingText: {
     textAlign: "center",
-    fontSize: hp("3%"),
+    fontSize: hp("2%"),
     color: "white",
     fontWeight: "700",
+    marginBottom: hp("2%")
   }
 };

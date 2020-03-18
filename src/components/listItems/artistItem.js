@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Image } from "react-native";
 import { Text,  Icon, ListItem as BaseListItem } from "native-base";
 import PropTypes from 'prop-types';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -25,7 +25,6 @@ class ArtistItem extends PureComponent {
        contributorString = `Artist`
     }
     return contributorString
-
   }
 
   goToArtist() {
@@ -78,6 +77,19 @@ class ArtistItem extends PureComponent {
     return require("./../../../assets/userPlaceholder.png")
   }
 
+  displayPlatform() {
+    if(this.props.artist.platform.toLowerCase() === "spotify") {
+      var platformIcon = <Icon type="FontAwesome5" name="spotify" style={[styles.logo, {color: "#1DB954"}]} />
+    }
+    else if(this.props.artist.platform.toLowerCase() === "youtube") {
+      var platformIcon = <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red"}]} />
+    }
+    else {
+      var platformIcon = <Image source={require('./../../../assets/revibe_logo.png')} style={{height: hp("2"), width: hp("2")}} />
+    }
+    return platformIcon
+  }
+
   render() {
     return (
       <BaseListItem noBorder style={styles.listItem}>
@@ -95,8 +107,17 @@ class ArtistItem extends PureComponent {
              <View>
                <Text style={[styles.mainText,{color:"white"}]} numberOfLines={1}>{this.props.artist.name}</Text>
              </View>
+             <View style={{flexDirection: "row"}}>
+               {this.props.displayLogo ?
+                 <View style={styles.logoContainer}>
+                 {this.displayPlatform()}
+                 </View>
+                :
+                  null
+               }
              <View>
                <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist()}</Text>
+               </View>
              </View>
            </View>
            <View style={styles.arrowContainer}>
@@ -113,11 +134,13 @@ class ArtistItem extends PureComponent {
 ArtistItem.propTypes = {
   artist: PropTypes.object,
   displayType: PropTypes.bool,
+  displayLogo: PropTypes.bool,
   source: PropTypes.string,
 };
 
 ArtistItem.defaultProps = {
   displayType: false,
+  displayLogo: false,
 };
 
 

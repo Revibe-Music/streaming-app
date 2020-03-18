@@ -7,9 +7,12 @@ import NetInfo from "@react-native-community/netinfo";
 import BackgroundTimer from 'react-native-background-timer';
 
 import { AppContainer } from './src/router';
+
+import RevibeAPI from './src/api/Revibe';
 import { connection } from './src/redux/connection/actions';
 import { resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing,continuousTimeUpdate } from './src/redux/audio/actions';
 import { initializePlatforms, checkRevibeAccount, checkPlatformAuthentication } from './src/redux/platform/actions';
+
 
 
 class App extends React.Component {
@@ -27,9 +30,10 @@ class App extends React.Component {
 
   async componentDidMount() {
     await this.props.initializePlatforms();
-    NetInfo.addEventListener( state => this.props.connection(state.isConnected && state.isInternetReachable) )
+    var revibe = new RevibeAPI()
+    revibe.fetchEnvVariables()
 
-    BackgroundTimer.runBackgroundTimer(this.props.continuousTimeUpdate, 250)
+    NetInfo.addEventListener( state => this.props.connection(state.isConnected && state.isInternetReachable))
 
     MusicControl.enableBackgroundMode(true);
     MusicControl.handleAudioInterruptions(true);    // on iOS, pause playback during audio interruptions (incoming calls) and resume afterwards.
@@ -39,7 +43,6 @@ class App extends React.Component {
     MusicControl.enableControl('nextTrack', true)
     MusicControl.enableControl('previousTrack', true)
     MusicControl.enableControl('changePlaybackPosition', true)   // Changing track position on lockscreen
-
     MusicControl.on('play', () => {
       this.props.resumeSong();
     })
@@ -57,9 +60,23 @@ class App extends React.Component {
       this.props.setScrubbing(true)
       this.props.seek(position);
       this.props.setScrubbing(false)
-   })
+    })
     SplashScreen.hide();
   }
+
+  shouldComponentUpdate(nextProps) {
+    if(nextProps.isPlaying !== this.props.isPlaying) {
+      if(nextProps.isPlaying) {
+        BackgroundTimer.runBackgroundTimer(this.props.continuousTimeUpdate, 250)
+      }
+      else {
+        BackgroundTimer.stopBackgroundTimer()
+      }
+      return false
+    }
+    return true
+  }
+
 
   render() {
       if (!this.props.checkedLogin) {
@@ -81,6 +98,7 @@ function mapStateToProps(state) {
     checkedLogin: state.platformState.checkedLogin,
     hasLoggedIn: state.platformState.hasLoggedIn,
     platformsInitialized: state.platformState.platformsInitialized,
+    isPlaying: state.audioState.isPlaying,
   }
 };
 

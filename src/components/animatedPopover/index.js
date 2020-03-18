@@ -15,35 +15,41 @@ class AnimatedPopover extends Component {
   _renderAnimation() {
     if(this.props.type==="Save") {
       return (
+        <View style={styles.animationWrapper}>
         <LottieView
-        style={{height:'75%',width:'75%',display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight:"7.5%"}}
         source={require('./../../../assets/save.json')}
         autoPlay
         loop={false}
         speed={1.5}
         />
+        </View>
+
       )
     }
     else if(this.props.type==="Delete") {
       return (
+        <View style={styles.animationWrapper}>
         <LottieView
-          style={{height:'75%',width:'75%',display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight:"7.5%"}}
           source={require('./../../../assets/delete.json')}
           autoPlay
           loop={false}
-          speed={1.5}
+          speed={.8}
         />
+        </View>
       )
     }
     else if(this.props.type==="Queue") {
       return (
+        <View style={styles.animationWrapper}>
+        <View style={{height: "50%", width: "50%", justifyContent: 'center'}}>
         <LottieView
-          style={{height:'75%',width:'75%',display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', marginRight:"7.5%"}}
           source={require('./../../../assets/add.json')}
           autoPlay
           loop={false}
           speed={1.5}
         />
+        </View>
+        </View>
       )
     }
     else {
@@ -58,6 +64,13 @@ class AnimatedPopover extends Component {
   }
 
   render() {
+    if(this.props.type==="Loading" && this.props.show) {
+      return (
+        <View style={{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: 'transparent'}}>
+          {this._renderAnimation()}
+        </View>
+      )
+    }
     return (
       <Modal
         transparent={true}
@@ -66,7 +79,7 @@ class AnimatedPopover extends Component {
       >
         <View style={styles.container}>
         <View style={styles.animationWrapper}>
-          <View style={this.props.type==="Loading" ? null : styles.animationBackground}>
+          <View style={styles.animationBackground}>
             {this._renderAnimation()}
             <Text style={styles.loadingText}> {this.props.text} </Text>
             </View>

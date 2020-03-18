@@ -44,9 +44,8 @@ class Browse extends Component {
 
  async componentDidMount() {
      if (this.props.connected) {
-       // console.log(this.revibe);
        this.setState({loading: true})
-       var browseContent = await this.revibe.fetchBrowseContent()
+       var browseContent = await this.revibe.fetchAllBrowseContent()
        if(Array.isArray(browseContent)) {
          this.setState({content:browseContent, loading: false})
        }
@@ -86,6 +85,21 @@ class Browse extends Component {
    this.props.navigation.navigate(navigationOptions)
  }
 
+ goToViewAll(data, type, title, endpoint, platform=null) {
+   var navigationOptions = {
+     key: "ViewAll"+type,
+     routeName: "ViewAll",
+     params: {
+       data: data,
+       type: type,
+       title: title,
+       endpoint: endpoint,
+       platform: platform ? platform : "Revibe"
+     }
+   }
+   this.props.navigation.navigate(navigationOptions)
+ }
+
 
   renderContent() {
     if(this.state.content.length < 1) {
@@ -107,6 +121,7 @@ class Browse extends Component {
               <ArtistItem
                artist={content.results}
                displayType={true}
+               displayLogo={true}
                navigation={this.props.navigation}
               />
             </View>
@@ -116,11 +131,17 @@ class Browse extends Component {
         else if(content.results.length > 0) {
           return (
             <>
-            <View style={{marginTop: 20}}>
+            <View style={[styles.titleHeader, {paddingTop: 20}]}>
               <Text style={styles.title}>
                 {content.name}
               </Text>
+              <TouchableOpacity onPress={() => this.goToViewAll([], content.type, content.name, content.endpoint)}>
+                <Text style={styles.viewAll}>
+                  View All
+                </Text>
+              </TouchableOpacity>
             </View>
+
             <View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
                 <List
@@ -256,7 +277,7 @@ class Browse extends Component {
   render() {
       return (
         <>
-        <AnimatedPopover type="Loading" show={this.state.loading} />
+
         <ScrollView
         contentContainerStyle={{flexGrow: 1}}
         showsVerticalScrollIndicator={false}
@@ -267,11 +288,13 @@ class Browse extends Component {
             start={{x: 0.0, y: 0}} end={{x: 0.2, y: .2}}
             colors={['#7248BD', '#53328f', '#121212']}
           >
+          <AnimatedPopover type="Loading" show={this.state.loading} />
             <View style={[styles.container, {backgroundColor: "transparent",paddingTop: "10%"}]}>
               <View style={{flexDirection: 'row'}}>
                 <View style={{alignItems: "flex-start",width: "50%"}}>
                   <Text style={styles.pageTitle}> Browse </Text>
                 </View>
+
               <View style={{alignItems: "flex-end", width: "50%", }}>
                 <TouchableOpacity
                   style={styles.menuContainer}

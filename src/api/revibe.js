@@ -1,11 +1,12 @@
-import Sound from 'react-native-sound';
 import DefaultPreference from 'react-native-default-preference';
 import axios from "axios"
+var he = require('he');   // needed to decode html
 
 import { IP } from './../config'
 import BasePlatformAPI from './basePlatform'
 
-Sound.setCategory('Playback', false);
+import { Player, MediaStates } from '@react-native-community/audio-toolkit';
+// import TrackPlayer from './TrackPlayer'
 
 export default class RevibeAPI extends BasePlatformAPI {
 
@@ -245,6 +246,16 @@ export default class RevibeAPI extends BasePlatformAPI {
       }
     }
     return response
+  }
+
+  async makeRequest(endpoint, method, body, authenticated=false, handlePagination=false, pageSize=100, limit=null) {
+    /**
+    * Summary: expose this endpoint to make variable requests
+    *
+    *
+    */
+
+    return await this._request(endpoint, method, body, authenticated, handlePagination, pageSize, limit)
   }
 
   async register(firstName, lastName, username, email, password) {
@@ -580,7 +591,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     return songs
   }
 
-  async fetchBrowseContent() {
+  async fetchAllBrowseContent() {
     /**
     * Summary: Fetch data to display on browse page
     *
@@ -590,6 +601,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     response = response.data
     for(var x=0; x<response.length; x++) {
       const that = this
+      response[x].endpoint = `content/${response[x].endpoint}`
       if(response[x].type==="songs") {
         response[x].results = response[x].results.map(x => that._parseSong(x))
       }
@@ -731,7 +743,7 @@ export default class RevibeAPI extends BasePlatformAPI {
 
   /// Player Methods ///
 
-  play(uri) {
+  async play(song) {
     /**
     * Summary: play revibe song by uri (required implementation).
     *
@@ -739,17 +751,9 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @param {string}   uri    uri of song to play
     */
-
-    this.pause() // pause current song if one is playing
-    this.player = new Sound(`https://revibe-media.s3.amazonaws.com/media/audio/songs/${uri}/outputs/mp4/medium.mp4`, null, (error) => {
-      if (error) {
-        console.log('failed to load the song', error);
-        return;
-      }
-      else {
-        this.player.play()
-      }
-    });
+    this.pause()
+    this.player = new Player(`https://d2xlcqvevg3fv2.cloudfront.net/media/audio/songs/${song.uri}/outputs/mp4/medium.mp4`,{autoDestroy: false, continuesToPlayInBackground: true}).play();
+    // TrackPlayer.getInstance().play(song)
   }
 
   pause() {
@@ -762,6 +766,8 @@ export default class RevibeAPI extends BasePlatformAPI {
     if (this.player) {
       this.player.pause()
     }
+
+    // TrackPlayer.getInstance().pause()
   }
 
   resume() {
@@ -774,9 +780,11 @@ export default class RevibeAPI extends BasePlatformAPI {
     if (this.player) {
       this.player.play()
     }
+
+    // TrackPlayer.getInstance().resume()
   }
 
-  getPosition() {
+  async getPosition() {
     /**
     * Summary: return current position of song (required implementation).
     *
@@ -784,14 +792,17 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @return {number} decimal value representing seconds
     */
+    if (this.player) {
+      if(this.player.currentTime !== -1) {
+        return parseFloat(this.player.currentTime/1000)
+      }
+    }
+    return 0
 
-    this.player.getCurrentTime((seconds) => {
-      this.position = seconds
-    });
-    return parseFloat(this.position)
+    // return await TrackPlayer.getInstance().getPosition()
   }
 
-  getDuration() {
+  async getDuration() {
     /**
     * Summary: Get duration of song (required implementation).
     *
@@ -800,7 +811,15 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @return {number} decimal value representing seconds
     */
 
-    return parseFloat(this.player.getDuration())
+    if (this.player) {
+      if (this.player.duration !== -1) {
+        return parseFloat(this.player.duration)
+      }
+    }
+    return 0
+
+    // return await TrackPlayer.getInstance().getDuration()
+
   }
 
   seek(time) {
@@ -812,7 +831,11 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @param {number}   time    seconds value to seek to
     */
 
-    this.player.setCurrentTime(time);
+    if (this.player) {
+      this.player.seek(time*1000)
+    }
+
+    // TrackPlayer.getInstance().seek(time)
   }
 
   async recordStream(song, duration) {
@@ -830,6 +853,29 @@ export default class RevibeAPI extends BasePlatformAPI {
       is_saved: this.library.songIsSaved(song)
     }
     var request = await this._request("metrics/stream/", "POST", data, true)
+
+  }
+
+  async fetchEnvVariables() {
+    /**
+    * Summary: Send data associated with streaming to revibe server.
+    *
+    *
+    * @param {object}   song        song to record data about
+    * @param {number}   duration    show long song was listened to
+    */
+
+    var response = await this._request("administration/variables/", "GET", null, true)
+    responseVars = Object.keys(response.data)
+    var variables = {}
+    for(var x=0; x<responseVars.length; x++) {
+      if(await DefaultPreference.get(responseVars[x]) !== response.data[responseVars[x]]) {
+        if(response.data[responseVars[x]]) {
+          variables[responseVars[x]] = response.data[responseVars[x]]
+        }
+      }
+    }
+    DefaultPreference.setMultiple(variables)
 
   }
 

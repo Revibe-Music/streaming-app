@@ -4,6 +4,9 @@ import { uniqBy } from 'lodash'
 import DefaultPreference from 'react-native-default-preference';
 import { IP } from './../config'
 import BasePlatformAPI from './basePlatform'
+// import TrackPlayer from 'react-native-track-player';
+import TrackPlayer from './TrackPlayer'
+
 
 
 export default class SpotifyAPI extends BasePlatformAPI {
@@ -637,7 +640,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
 
   /// Player Methods ///
 
-  play(uri) {
+  async play(song) {
     /**
     * Summary: play revibe song by uri (required implementation).
     *
@@ -645,7 +648,8 @@ export default class SpotifyAPI extends BasePlatformAPI {
     *
     * @param {string}   uri    uri of song to play
     */
-    this._execute(Spotify.playURI, [uri, 0, 0])
+    this._execute(Spotify.playURI, [song.uri, 0, 0])
+    // TrackPlayer.getInstance().play(song)
   }
 
   pause() {

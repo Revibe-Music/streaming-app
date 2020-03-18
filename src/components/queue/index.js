@@ -4,9 +4,10 @@
 * public platform tabs (YouTube) will automatically render
 */
 import React, { Component } from "react";
-import { TouchableOpacity, View, Text,ScrollView } from 'react-native'
+import { TouchableOpacity, View, Text,ScrollView, Image } from 'react-native'
 import { Container,Content, Button, ListItem, Icon, Header, Left, Body, Right } from "native-base";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import ImageLoad from 'react-native-image-placeholder';
 import PropTypes from 'prop-types';
 import Modal from "react-native-modal";
@@ -55,12 +56,25 @@ class Queue extends Component {
      return require("./../../../assets/albumArtPlaceholder.png")
    }
 
+   displayPlatform(song) {
+     if(song.platform.toLowerCase() === "spotify") {
+       var platformIcon = <Icon type="FontAwesome5" name="spotify" style={[styles.logo, {color: "#1DB954"}]} />
+     }
+     else if(song.platform.toLowerCase() === "youtube") {
+       var platformIcon = <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red"}]} />
+     }
+     else {
+       var platformIcon = <Image source={require('./../../../assets/revibe_logo.png')} style={{height: hp("2"), width: hp("2")}} />
+     }
+     return platformIcon
+   }
+
    renderItem = ({ item, index, move, moveEnd, isActive }) => {
     return (
       <ListItem noBorder style={[styles.libraryItem,{backgroundColor: isActive ? "#202020" : "#121212"}]}>
         <TouchableOpacity
           activeOpacity={0.9}
-          style={{flex:.25, alignItems:"flex-start"}}
+          style={{width:wp("6%"),justifyContent: "flex-start"}}
           onPress={() => this.props.removeFromQueue(index)}
         >
         <Icon type="MaterialIcons" name="close" style={[styles.listIcon, {color: "red"}]} />
@@ -69,13 +83,20 @@ class Queue extends Component {
           <View>
             <Text style={[styles.songText,{color:"white"}]} numberOfLines={1}>{item.name}</Text>
           </View>
+          <View style={{flexDirection: "row"}}>
+            <View style={styles.logoContainer}>
+             {this.displayPlatform(item)}
+            </View>
+            <View>
+              <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist(item)}</Text>
+            </View>
+          </View>
           <View>
-            <Text numberOfLines={1} note style={[styles.artistText,{color:"grey"}]}>{this.props.searchResult ? "Song • " : ""}{item.contributors[0].artist.name}</Text>
           </View>
         </View>
         <TouchableOpacity
           activeOpacity={0.9}
-          style={{flex:.25, alignItems:"flex-end"}}
+          style={{flex:wp("6%"), alignItems:"center"}}
           onLongPress={() => {
               ReactNativeHapticFeedback.trigger("impactLight", {enableVibrateFallback: true,ignoreAndroidSystemSettings: false});
               move()
@@ -144,8 +165,13 @@ class Queue extends Component {
                    <View>
                      <Text style={styles.mainText} numberOfLines={1}>{song.name}</Text>
                    </View>
-                   <View>
-                     <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist(song)}</Text>
+                   <View style={{flexDirection: "row"}}>
+                     <View style={styles.logoContainer}>
+                      {this.displayPlatform(song)}
+                     </View>
+                     <View>
+                       <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist(song)}</Text>
+                     </View>
                    </View>
                  </View>
                </View>

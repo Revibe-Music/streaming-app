@@ -23,6 +23,8 @@ export default {
     margin: 0
   },
 
+
+
   // TABS
   tabs :{
     backgroundColor: "#7248BD",
@@ -215,6 +217,13 @@ export default {
     backgroundColor: "#121212"
   },
 
+  titleHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+
+
   title: {
     color: "white",
     fontWeight: "bold",
@@ -230,6 +239,13 @@ export default {
     fontSize: 12,
     textAlign: "center",
     letterSpacing: 1.1
+  },
+  viewAll: {
+    textAlign: "right",
+    padding: hp("1%"),
+    fontSize: hp("2"),
+    fontWeight: "bold",
+    color: "white"
   },
   scrollView: {
     alignItems: "center",
@@ -335,17 +351,17 @@ export default {
   },
   filterButtonLarge: {
     height: hp("5%"),
-    width: wp("40%"),
+    width: wp("15%"),
     borderRadius: hp(".8%"),
     backgroundColor: "#7248BD",
     justifyContent: "center",
     alignItems:"center",
   },
   filterTextLarge : {
-    fontSize: hp("2.2%"),
+    fontSize: hp("2%"),
     color: "white",
-    marginLeft: hp(".2%"),
-    marginRight: hp(".2%")
+    // marginLeft: hp(".2%"),
+    // marginRight: hp(".2%")
   },
   filterIconsLarge : {
     fontSize: hp("2.5%"),

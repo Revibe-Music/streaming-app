@@ -103,6 +103,14 @@ export default {
     color: "white"
   },
 
+  logoContainer: {
+    height: hp("2%"),
+    paddingRight: wp("2")
+  },
+  logo: {
+    fontSize: hp("2%"),
+  },
+
 
 
 }

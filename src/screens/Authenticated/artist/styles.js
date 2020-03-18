@@ -131,7 +131,6 @@ export default {
       alignSelf: 'center',
       resizeMode: 'contain',
       backgroundColor:"#121212",
-      top: hp("10%")
     },
     artistPlaceholderImg: {
       height: hp("20"),

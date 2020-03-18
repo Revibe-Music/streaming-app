@@ -19,6 +19,8 @@ class List extends Component {
 
   constructor(props) {
       super(props);
+
+      console.log(this.props.displayLogo);
       this.dataProvider = new DataProvider((r1, r2) => {
            return (r1.id !== r2.id);
       });
@@ -56,6 +58,7 @@ class List extends Component {
           source={this.props.source}
           displayImage={this.props.displayImage}
           displayType={this.props.displayType}
+          displayLogo={this.props.displayLogo}
          />
        )
      }
@@ -64,6 +67,7 @@ class List extends Component {
          <ArtistItem
           artist={data}
           displayType={this.props.displayType}
+          displayLogo={this.props.displayLogo}
           source={this.props.source}
           isLocal={this.props.isLocal}
           navigation={this.props.navigation}
@@ -75,6 +79,7 @@ class List extends Component {
          <AlbumItem
           album={data}
           displayType={this.props.displayType}
+          displayLogo={this.props.displayLogo}
           source={this.props.source}
           isLocal={this.props.isLocal}
           navigation={this.props.navigation}
@@ -133,6 +138,7 @@ List.propTypes = {
   type: PropTypes.oneOfType(["Songs","Artists","Albums"]),
   displayType: PropTypes.bool,
   displayImage: PropTypes.bool,
+  displayLogo: PropTypes.bool,
   allowRefresh: PropTypes.bool,
   isLocal: PropTypes.bool,
   source: PropTypes.string,
@@ -146,6 +152,7 @@ List.defaultProps = {
   isLocal: false,
   displayType: false,
   displayImage: true,
+  displayLogo: false,
   noDataText: "No Results."
 };
 

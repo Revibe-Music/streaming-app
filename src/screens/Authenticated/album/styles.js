@@ -11,16 +11,10 @@ export default {
       alignItems: "center",
       justifyContent: "space-between"
   },
-  image: {
-    height: hp("30"),
-    width: wp("100"),
-    alignSelf: 'stretch',
-    resizeMode: 'center',
-    backgroundColor: "#121212",
-  },
+
   title: {
     textAlign: "center",
-    fontSize: hp("2.5"),
+    fontSize: hp("2"),
     color: "white"
   },
   name: {
@@ -38,26 +32,11 @@ export default {
     fontSize: 16,
     textAlign: 'justify',
   },
-  keywords: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
-  },
-  keywordContainer: {
-    backgroundColor: '#999999',
-    borderRadius: 10,
-    margin: 10,
-    padding: 10,
-  },
-  keyword: {
-    fontSize: 16,
-    color: 'white',
-  },
+
   titleContainer: {
     flex: 1,
     alignSelf: 'stretch',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
   backArrowContainer: {
@@ -66,7 +45,7 @@ export default {
   imageTitle: {
     color: 'white',
     backgroundColor: 'transparent',
-    fontSize: hp("4"),
+    fontSize: hp("3"),
   },
   navTitleView: {
     height: hp("10"),
@@ -83,6 +62,7 @@ export default {
   sectionLarge: {
     height: 600,
   },
+
   shuffle: {
       fontSize: 15,
       letterSpacing: 1.2,
@@ -95,9 +75,17 @@ export default {
       width: wp("35%"),
       marginTop: hp("2"),
   },
+
+  headerContainer: {
+    marginTop: hp("3"),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+
   textContainer: {
-    paddingTop: hp("10%"),
-    flex: 1,
+    width: wp("90%"),
+    marginLeft: wp("5%"),
     justifyContent: "center",
     alignItems:"center",
   },
@@ -106,4 +94,32 @@ export default {
     color: "white",
     textAlign: "center",
   },
+
+  logoContainer: {
+    height: hp("3%"),
+  },
+  logo: {
+    fontSize: hp("4%"),
+  },
+
+  albumImg: {
+    height: hp("25"),
+    width: hp("25"),
+    alignSelf: 'center',
+    resizeMode: 'contain',
+    backgroundColor:"#121212",
+  },
+  albumPlaceholderImg: {
+    height: hp("20"),
+    width: hp("20"),
+    alignSelf: 'center',
+    resizeMode: 'contain',
+    backgroundColor:"#121212",
+    top: hp("10%")
+  },
+  loadingIndicator: {
+    marginTop: 100,
+  },
+
+
 };

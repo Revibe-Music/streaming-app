@@ -64,4 +64,12 @@ export default {
     fontSize: hp("2.5%"),
     color: "white"
   },
+
+  logoContainer: {
+    height: hp("2%"),
+    paddingRight: wp("2")
+  },
+  logo: {
+    fontSize: hp("2%"),
+  },
 }

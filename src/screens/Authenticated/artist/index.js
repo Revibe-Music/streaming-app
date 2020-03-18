@@ -252,6 +252,7 @@ class Artist extends Component {
               locations={[0,0.4,0.65]}
               colors={[this.state.primaryColor, this.state.secondaryColor, '#121212']}
             >
+            <View style={{top: hp("10%")}}>
             <ImageLoad
               isShowActivity={false}
               style={styles.artistImg}
@@ -259,6 +260,7 @@ class Artist extends Component {
               source={this.getArtistImage()}
               placeholderSource={require("./../../../../assets/userPlaceholder.png")}
             />
+            </View>
             </LinearGradient>
 
           )}
