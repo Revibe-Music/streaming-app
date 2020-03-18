@@ -31,8 +31,9 @@ class App extends React.Component {
   async componentDidMount() {
     await this.props.initializePlatforms();
     var revibe = new RevibeAPI()
-    revibe.fetchEnvVariables()
-
+    if(revibe.hasLoggedIn()) {
+      revibe.fetchEnvVariables()
+    }
     NetInfo.addEventListener( state => this.props.connection(state.isConnected && state.isInternetReachable))
 
     MusicControl.enableBackgroundMode(true);
