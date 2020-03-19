@@ -116,158 +116,6 @@ export default class BasePlatformAPI {
     return this.albums().filter(x => x.id === album.id).length > 0
   }
 
-  //////////////////////////////////////////////////////////////////////
-  ///////////// SAVE FUNCTIONS THAT SAVE OBJECTS TO REALM //////////////
-  //////////////////////////////////////////////////////////////////////
-  // saveSong(song, source) {
-  //   //  source can be "library" or name of playlist
-  //   var savedsong = source.addSong(song)
-  // }
-  //
-  // saveArtist(artist) {
-  //   //  save artist object and any child objects to realm
-  //   //  returns realm artist object
-  //   var artistObj
-  //   if(!this._artistExists(artist)) {
-  //     artist.platform = this.name
-  //     realm.write(() => {
-  //       artistObj = realm.create('Artist', artist);
-  //     })
-  //   }
-  //   else {
-  //     artistObj = realm.objects("Artist").filtered(`id = "${artist.id}"`)[0]
-  //   }
-  //   return artistObj
-  // }
-  //
-  // saveAlbum(album) {
-  //   //  save album object and any child objects to realm
-  //   //  returns realm album object
-  //   var albumObj
-  //   if(!this._albumExists(album)) {
-  //     var albumContributors = []
-  //     for(var x=0; x<album.contributors.length; x++) {
-  //       var artist = this.saveArtist(album.contributors[x].artist)
-  //       var type = album.contributors[x].type ? album.contributors[x].type : null
-  //       albumContributors.push(this.saveContributor(artist, type))
-  //     }
-  //     album.contributors = albumContributors
-  //     album.platform = this.name
-  //     realm.write(() => {
-  //       albumObj = realm.create('Album', album);
-  //     })
-  //   }
-  //   else {
-  //     albumObj = realm.objects("Album").filtered(`id = "${album.id}"`)[0]
-  //   }
-  //   return albumObj
-  // }
-  //
-  // saveContributor(artist, type) {
-  //   //  save contribution object and any child objects to realm
-  //   //  returns realm contribution object
-  //   var contributorObj
-  //   if(!this._artistExists(artist)) {
-  //     artist = this.saveArtist(artist)
-  //   }
-  //   realm.write(() => {
-  //     if(type !== null) {
-  //       contributorObj = realm.create('Contributor', {type: type, artist: artist} );
-  //     }
-  //     contributorObj = realm.create('Contributor', {artist: artist});
-  //   })
-  //   return contributorObj
-  //
-  // }
-  //
-  //
-  // //////////////////////////////////////////////////////////////////////
-  // ////////// REMOVE FUNCTIONS THAT REMOVE OBJECTS FROM REALM ///////////
-  // //////////////////////////////////////////////////////////////////////
-  //
-  // removeSong(song, source) {
-  //   // source can be of type realm Library or realm Playlist
-  //
-  //
-  //   var savedSong = realm.objects("SavedSong").filtered(`song.id = "${song.id}"`)[0]
-  //   var album = savedSong.song.album
-  //   if(realm.objects("SavedSong").filtered(`song.id = "${song.id}"`).length > 1) {
-  //     // dont delete song obj just saveSong from source
-  //     var savedSong = source.songs.filtered(`song.id = "${song.id}"`)[0]
-  //     realm.write(() => {
-  //       realm.delete(savedSong);
-  //     })
-  //   }
-  //   else {
-  //     // delete Contributors
-  //     for(var x=0; x<savedSong.contributors.length; x++) {
-  //       this.removeContributor(savedSong.contributors[x])
-  //     }
-  //     realm.write(() => {
-  //       realm.delete(savedSong.song);   // delete Song
-  //       realm.delete(savedSong);        // delete SavedSong
-  //     })
-  //   }
-  //   //  check whether album should be deleted from realm
-  //   if(realm.objects("Song").filtered(`album.id = "${album.id}"`).length < 2) {
-  //     this.removeAlbum(album)
-  //   }
-  // }
-  //
-  // removeAlbum(album) {
-  //   let albumObj = realm.objects("Album").filtered(`id = "${album.id}"`)
-  //   // remove contributors
-  //   for(var x=0; x<albumObj.contributors.length; x++) {
-  //     this.removeContributor(albumObj.contributors[x])
-  //   }
-  //   realm.write(() => {
-  //     realm.delete(albumObj.images);    // remove album images
-  //     realm.delete(albumObj);           // remove album obj
-  //   })
-  // }
-  //
-  // removeContributor(contributor) {
-  //   realm.write(() => {
-  //     //  check whether artists should be deleted from realm
-  //     if(realm.objects("Contributor").filtered(`artist.id = "${contributor.artists.id}"`).length < 2) {
-  //       this.removeArtist(contributor.artists)
-  //     }
-  //     realm.delete(contributor)
-  //   })
-  // }
-  //
-  // removeArtist(artist) {
-  //   realm.write(() => {
-  //     let artistObj = realm.objects("Artist").filtered(`id = "${artist.id}"`)
-  //     realm.delete(artistObj.images);
-  //     realm.delete(artistObj);
-  //   })
-  // }
-  //
-  // // Batch operations
-  // removeAllSongs() {
-  //   // not sure if SavedSong must also be deleted or if is already deleted
-  //   let songs = realm.objects('Song').filtered(`platform = "${this.name}"`);
-  //   for(var x=0; x<songs.length; x++) {
-  //     this.removeSong(songs[x])
-  //   }
-  // }
-  //
-  // removeAllArtist() {
-  //   // not sure if this is neccessary because removeAllSongs will handle deleting artists
-  //   let artists = realm.objects('Artist').filtered(`platform = "${this.name}"`);
-  //   for(var x=0; x<artists.length; x++) {
-  //     this.removeArtist(artists[x])
-  //   }
-  // }
-  //
-  // removeAllAlbums() {
-  //   // not sure if this is neccessary because removeAllSongs will handle deleting albums
-  //   let albums = realm.objects('Albums').filtered(`platform = "${this.name}"`);
-  //   for(var x=0; x<albums.length; x++) {
-  //     this.removeAlbums(albums[x])
-  //   }
-  // }
 
   //////////////////////////////////////////////////////////////////////
   //////////////////////// LIBRARY OPERATIONS  /////////////////////////
@@ -364,10 +212,33 @@ export default class BasePlatformAPI {
     // Implement
   }
 
+  //////////////////////////////////////////////////////////////////////
+  ////////////////////////// SONG OPERATIONS  //////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
+  updateLastListenTime(song) {
+    const songs = realm.objects('Song').filtered(`id = "${song.id}"`)
+    realm.write(() => {
+      if(songs.length > 0) {
+        var songObj = realm.objects('Song').filtered(`id = "${song.id}"`)[0]
+      }
+      else {
+        var songObj = realm.create('Song', song, true)
+      }
+      songObj.lastListenTime = new Date()
+    })
+  }
+
+  getRecentlyPlayed() {
+    var recentlyPlayedSongs = realm.objects('Song').filtered(`lastListenTime != null`).sorted('lastListenTime', "ASC")
+    return this.cloneArray(recentlyPlayedSongs.slice(0,50))
+  }
+
 
   //////////////////////////////////////////////////////////////////////
   /////////////////////////////// UTILS  ///////////////////////////////
   //////////////////////////////////////////////////////////////////////
+
 
   displayUnimplementedError(methodName) {
     console.warn(`WARNING: method '${methodName}' has not been implemented for ${this.name}.`)

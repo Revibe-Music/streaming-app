@@ -81,6 +81,7 @@ class ViewAll extends Component {
           isLocal={false}
           allowRefresh={false}
           noDataText="No Results"
+          displayLogo={this.props.navigation.state.params.displayLogo}
           navigation={this.props.navigation}
         />
         <OptionsMenu navigation={this.props.navigation} />

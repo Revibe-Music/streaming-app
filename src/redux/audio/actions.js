@@ -1,6 +1,8 @@
 import MusicControl from 'react-native-music-control';
 import BackgroundTimer from 'react-native-background-timer';
 import { getPlatform } from './../../api/utils';
+import RevibeAPI from './../../api/revibe';
+
 
 const play = (index, playlist, activePlatform, inQueue, source) => {
   return {
@@ -68,9 +70,9 @@ const reset = () => ({
   return async (dispatch, getState) => {
       source = !!source ? source : getState().audioState.source   //dont do anything for the time being
       if(getState().audioState.playlist.length > 0) {
-        if(getState().audioState.time.current > 30) {
+        if(getState().audioState.time.current > 2) {
           var song = getState().audioState.playlist[getState().audioState.currentIndex]
-          var revibe = getPlatform("Revibe")
+          var revibe = new RevibeAPI()
           revibe.recordStream(song, getState().audioState.time.current)
         }
       }

@@ -2,7 +2,7 @@ import Realm from 'realm'
 
 import Image from './v1/models/Image'
 import Contributor from './v1/models/Contributor'
-import Song from './v1/models/Song'
+import SongV1 from './v1/models/Song'
 import Album from './v1/models/Album'
 import Artist from './v1/models/Artist'
 import Library from './v1/models/Library'
@@ -10,11 +10,14 @@ import Token from './v1/models/Token'
 import Playlist from './v1/models/Playlist'
 import SavedSong from './v1/models/SavedSong'
 
+import SongV2 from './v2/models/Song'
+
+
 const schemas = [
   {
     schema: [
       Token,
-      Song,
+      SongV1,
       Album,
       Artist,
       Library,
@@ -24,6 +27,20 @@ const schemas = [
       Image
     ],
     schemaVersion: 1,
+  },
+  {
+    schema: [
+      Token,
+      SongV2,
+      Album,
+      Artist,
+      Library,
+      Playlist,
+      SavedSong,
+      Contributor,
+      Image
+    ],
+    schemaVersion: 2,
   },
 ]
 
@@ -42,7 +59,7 @@ if (nextSchemaVersion !== -1) {
 
 const realm = new Realm(schemas[schemas.length-1])
 
-// 
+//
 // realm.write(() => {
 //   // let revibeToken = realm.objects('Token').filtered('platform = "Revibe"')["0"]
 //   // if(revibeToken) realm.delete(revibeToken)

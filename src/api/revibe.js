@@ -4,6 +4,7 @@ var he = require('he');   // needed to decode html
 
 import { IP } from './../config'
 import BasePlatformAPI from './basePlatform'
+import Song from './../realm/v2/models/Song'
 
 import { Player, MediaStates } from '@react-native-community/audio-toolkit';
 // import TrackPlayer from './TrackPlayer'
@@ -838,7 +839,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     // TrackPlayer.getInstance().seek(time)
   }
 
-  async recordStream(song, duration) {
+  recordStream(song, duration) {
     /**
     * Summary: Send data associated with streaming to revibe server.
     *
@@ -852,8 +853,8 @@ export default class RevibeAPI extends BasePlatformAPI {
       is_downloaded: false,
       is_saved: this.library.songIsSaved(song)
     }
-    var request = await this._request("metrics/stream/", "POST", data, true)
-
+    this.updateLastListenTime(song)
+    // var request = await this._request("metrics/stream/", "POST", data, true)
   }
 
   async fetchEnvVariables() {
