@@ -1,6 +1,6 @@
-import RevibeAPI from './Revibe';
-import SpotifyAPI from './Spotify';
-import YouTubeAPI from './Youtube';
+import RevibeAPI from './revibe';
+import SpotifyAPI from './spotify';
+import YouTubeAPI from './youtube';
 
 export function getPlatform(platformName) {
   if(platformName === "Revibe") {

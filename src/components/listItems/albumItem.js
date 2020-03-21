@@ -5,8 +5,10 @@ import PropTypes from 'prop-types';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ImageLoad from 'react-native-image-placeholder';
 import { compact } from 'lodash';
+import { connect } from 'react-redux';
 
 import { getPlatform } from './../../api/utils';
+import { goToAlbum } from './../../redux/navigation/actions';
 import styles from "./styles";
 
 class AlbumItem extends PureComponent {
@@ -17,7 +19,6 @@ class AlbumItem extends PureComponent {
       showOptions: false
     }
     this.setArtist = this.setArtist.bind(this)
-    this.goToAlbum = this.goToAlbum.bind(this)
   }
 
   setArtist() {
@@ -27,28 +28,6 @@ class AlbumItem extends PureComponent {
        contributorString = `Album • ${contributorString}`
     }
     return contributorString
-  }
-
-  goToAlbum() {
-    var songs = this.props.songs
-    var album = this.props.album.platform === "YouTube" ? this.props.album.contributors[0].artist : this.props.album
-    if(this.props.isLocal) {
-      songs = getPlatform(this.props.album.platform).getSavedAlbumSongs(this.props.album.id)
-      var key = album.name+"Local"
-    }
-    else {
-      var key = album.name+"Remote"
-    }
-    var navigationOptions = {
-      key: key,
-      routeName: "Album",
-      params: {
-        album: album,
-        songs: songs,
-        source: this.props.source+"-Album"
-      }
-    }
-    this.props.navigation.navigate(navigationOptions)
   }
 
   getImage() {
@@ -78,7 +57,7 @@ class AlbumItem extends PureComponent {
   render() {
     return (
       <BaseListItem noBorder style={styles.listItem}>
-        <TouchableOpacity onPress={this.goToAlbum}>
+        <TouchableOpacity onPress={() => this.props.goToAlbum(this.props.album, this.props.isLocal)}>
           <View style={{flexDirection: "row"}}>
             <ImageLoad
                 isShowActivity={false}
@@ -131,4 +110,9 @@ AlbumItem.defaultProps = {
 };
 
 
-export default AlbumItem
+
+const mapDispatchToProps = dispatch => ({
+    goToAlbum: (album,songs,isLocal) => dispatch(goToAlbum(album,songs,isLocal)),
+});
+
+export default connect(null,mapDispatchToProps)(AlbumItem)

@@ -19,13 +19,12 @@ import { connect } from 'react-redux';
 import Logo from './../../components/Logo';
 import Wallpaper from './../../components/Wallpaper';
 import ButtonSubmit from './../../components/ButtonSubmit';
-import SignupSection from './../../components/SignupSection';
 import UserInput from './../../components/UserInput';
-import ForgotPassword from "./ForgotPassword";
+import ForgotPassword from "./forgotPassword";
 import AccountSync from "./../../components/accountSync/index";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
-import RevibeAPI from './../../api/Revibe'
-import YouTubeAPI from './../../api/Youtube'
+import RevibeAPI from './../../api/revibe'
+import YouTubeAPI from './../../api/youtube'
 
 import Tutorial from './tutorial'
 

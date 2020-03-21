@@ -11,6 +11,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import ImageLoad from 'react-native-image-placeholder';
 import PropTypes from 'prop-types';
 import Modal from "react-native-modal";
+import { BlurView } from "@react-native-community/blur";
 import { connect } from 'react-redux';
 import { compact } from 'lodash';
 
@@ -119,7 +120,11 @@ class Queue extends Component {
         supportedOrientations={["portrait"]}
         style={{margin: 0, padding: 0}}
       >
-        <View style={styles.container} >
+      <BlurView
+        style={styles.container}
+        blurType="dark"
+        blurAmount={30}
+      >
           <View style={styles.closeButtonContainer} >
             <Button style={styles.closeButton} transparent onPress={() => this.props.onClose()}>
               <Icon transparent={false} name="md-close" style={styles.closeButtonIcon}/>
@@ -180,7 +185,7 @@ class Queue extends Component {
           ))}
           </>
         </Content >
-      </View>
+      </BlurView>
     </Modal>
     );
   }

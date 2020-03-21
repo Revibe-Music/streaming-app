@@ -210,6 +210,8 @@ PODS:
   - React-jsinspector (0.61.2)
   - react-native-background-timer (2.1.1):
     - React
+  - react-native-blur (0.8.0):
+    - React
   - react-native-cookies (2.0.3):
     - React
   - react-native-music-control (0.10.7):
@@ -315,6 +317,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-background-timer (from `../node_modules/react-native-background-timer`)
+  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - "react-native-cookies (from `../node_modules/@react-native-community/cookies/ios`)"
   - react-native-music-control (from `../node_modules/react-native-music-control`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -396,6 +399,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-background-timer:
     :path: "../node_modules/react-native-background-timer"
+  react-native-blur:
+    :path: "../node_modules/@react-native-community/blur"
   react-native-cookies:
     :path: "../node_modules/@react-native-community/cookies/ios"
   react-native-music-control:
@@ -484,6 +489,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 8909917ff7d8f21a57e443a866fd8d4560e50c65
   React-jsinspector: 111d7d342b07a904c400592e02a2b958f1098b60
   react-native-background-timer: 0d34748e53a972507c66963490c775321a88f6f2
+  react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-cookies: a16310bb64240b95dd9531de2b19c267f76fc320
   react-native-music-control: 74b1f7d03b781aa38557d706ca4650ff1c96095a
   react-native-netinfo: 892a5130be97ff8bb69c523739c424a2ffc296d1

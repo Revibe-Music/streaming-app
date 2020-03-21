@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { View, Image } from "react-native";
-import { Container, Content, Header, Body, Right ,Text, Input, Icon, Left, Tabs, Tab, } from "native-base";
+import { Content, Header, Body, Right ,Text, Input, Icon, Left, Tabs, Tab, } from "native-base";
 import { BarIndicator } from 'react-native-indicators';
-import {default as SearchBar} from 'react-native-search-box';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { connect } from 'react-redux';
 
 import List from "./../../components/lists/List";
+import SearchBar from "./../../components/searchBar/index";
 import OptionsMenu from "./../../components/OptionsMenu/index";
+import Container from "./../../components/containers/container";
 import AnimatedPopover from './../../components/animatedPopover/index';
 import SearchTab from './../../components/tabs/SearchTab';
 import { playSong } from './../../redux/audio/actions';
@@ -50,37 +51,12 @@ class Search extends Component {
     const activePlatformNames = Object.keys(this.props.platforms);
 
     return (
-      <>
-      <Header style={styles.libraryHeader} androidStatusBarColor="#222325" iosBarStyle="light-content">
-        <Left>
-        <Text style={styles.pageTitle}> Search </Text>
-        </Left>
-        <Body>
-        </Body>
-        <Right></Right>
-      </Header>
-      <Container style={styles.container}>
+      <Container title="Search" scrollable={false}>
         <SearchBar
-          blurOnSubmit
           onSearch={(text) => this.setState({query: text, didSearch:true})}
           onCancel={() => this.setState({query: "", didSearch:false})}
-          backgroundColor="#121212"
-          placeholderTextColor="white"
-          titleCancelColor="#7248BD"
-          tintColorSearch="black"
-          tintColorDelete="#7248BD"
-          autoCapitalize="none"
-          inputHeight={hp("6%")}
-          inputBorderRadius={hp("1%")}
-          inputStyle={styles.searchText}
-          iconSearch={<Icon name="search" type="EvilIcons" style={styles.searchText}/>}
-          searchIconExpandedMargin={wp("2%")}
-          searchIconCollapsedMargin={wp("16%")}
-          placeholderCollapsedMargin={wp("9%")}
-          placeholderExpandedMargin={wp("10%")}
-          style={styles.searchText}
+          spanScreen={true}
         />
-
         {this.state.didSearch ?
           <Tabs
             tabBarPosition="top"
@@ -111,7 +87,6 @@ class Search extends Component {
         }
         <OptionsMenu navigation={this.props.navigation} />
       </Container>
-      </>
     );
   }
 }

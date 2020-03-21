@@ -4,12 +4,13 @@ import { Container, Content, Button, Text, Icon, ListItem } from "native-base";
 import PropTypes from 'prop-types';
 import Modal from "react-native-modal";
 import ImageLoad from 'react-native-image-placeholder';
+import { BlurView } from "@react-native-community/blur";
 import { connect } from 'react-redux';
 import { compact } from 'lodash';
 import AnimatedPopover from './../animatedPopover/index';
 import { getPlatform } from './../../api/utils';
 import { addToQueue } from './../../redux/audio/actions';
-import { selectSong } from './../../redux/navigation/actions'
+import { selectSong, goToAlbum, goToArtist } from './../../redux/navigation/actions'
 
 import styles from "./styles";
 
@@ -115,15 +116,7 @@ class OptionsMenu extends PureComponent {
    goToArtist(artist=null) {
      if(artist) {
        this.closeOptionsMenu()
-       this.props.navigation.navigate(
-         {
-           key: artist.name,
-           routeName: "Artist",
-           params:{
-             artist: artist,
-           }
-         }
-       )
+       this.props.goToArtist(artist)
        this.setState({displayArtists: false})
      }
      else if(Object.keys(this.props.song.contributors).length > 1) {
@@ -131,31 +124,14 @@ class OptionsMenu extends PureComponent {
      }
      else {
        this.closeOptionsMenu()
-       this.props.navigation.navigate(
-         {
-           key: "Artist",
-           routeName: "Artist",
-           params:{
-             artist: this.props.song.contributors[0].artist,
-           }
-         }
-       )
+       this.props.goToArtist(this.props.song.contributors[0].artist)
        this.setState({displayArtists: false})
      }
    }
 
   goToAlbum() {
     this.closeOptionsMenu()
-    var album = this.props.song.platform === "YouTube" ? this.props.song.contributors[0].artist : this.props.song.album
-    this.props.navigation.navigate(
-      {
-        key: album.name,
-        routeName: "Album",
-        params: {
-          album: album,
-          songs: [],
-        }
-      })
+    this.props.goToAlbum(this.props.song.album)
   }
 
   getImage() {
@@ -177,6 +153,7 @@ class OptionsMenu extends PureComponent {
       return null
     }
     return (
+
     <Modal
       animationType="slide"
       transparent
@@ -185,21 +162,20 @@ class OptionsMenu extends PureComponent {
       supportedOrientations={["portrait"]}
       style={{margin: 0, padding: 0}}
     >
-        <View style={styles.optionContainer} >
+      <BlurView
+        style={styles.optionContainer}
+        blurType="dark"
+        blurAmount={20}
+      >
         <AnimatedPopover type="Save" show={this.state.saving} text="Saving..."/>
         <AnimatedPopover type="Delete" show={this.state.deleting} text="Deleting..." />
         <AnimatedPopover type="Queue" show={this.state.addingToQueue} text="Queuing..." />
-        <TouchableOpacity
-          style={this.props.displayImage ? styles.ellipsisContainer : [styles.ellipsisContainerImageAdjusted,styles.ellipsisContainer]}
-          onPress={this.toggleOptionsMenu}
-         >
-         <Icon type="FontAwesome" name="ellipsis-v" style={styles.ellipsis} />
-        </TouchableOpacity>
-          <Button style={styles.closeButton} transparent onPress={() => this.closeOptionsMenu()}>
-            <Icon transparent={false} name="md-close" style={styles.closeButtonIcon}/>
-          </Button>
-
-
+          <TouchableOpacity
+            style={styles.closeButtonContainer}
+            onPress={() => this.closeOptionsMenu()}
+           >
+           <Icon transparent={false} name="md-close" style={styles.closeButtonIcon}/>
+          </TouchableOpacity>
           <View>
           {this.state.displayArtists ?
             null
@@ -249,34 +225,34 @@ class OptionsMenu extends PureComponent {
                 <Text style={styles.actionItemText}> Add to queue</Text>
               </TouchableOpacity>
               </ListItem>
+              <ListItem style={{borderBottomWidth:0}}>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => this.goToArtist()}
+                style={{flexDirection: 'row'}}
+              >
+                {this.props.song.platform !== "YouTube" ?
+                  <Icon style={styles.actionItemIcon} type="FontAwesome" name="user" />
+                :
+                  <Icon style={styles.actionItemIcon} type="MaterialCommunityIcons" name="youtube-tv" />
+                }
+                <Text style={styles.actionItemText}> {this.props.song.platform === "YouTube" ? "Go to channel" : "Go to artist"}</Text>
+              </TouchableOpacity>
+              </ListItem>
               {this.props.song.platform !== "YouTube" ?
                 <ListItem style={{borderBottomWidth:0}}>
                 <TouchableOpacity
                   activeOpacity={0.9}
-                  onPress={() => this.goToArtist()}
+                  onPress={() => this.goToAlbum()}
                   style={{flexDirection: 'row'}}
                 >
-                  <Icon style={styles.actionItemIcon} type="FontAwesome" name="user" />
-                  <Text style={styles.actionItemText}> Go to artist</Text>
+                  <Icon style={styles.actionItemIcon} type="FontAwesome5" name="compact-disc" />
+                  <Text style={styles.actionItemText}> Go to album</Text>
                 </TouchableOpacity>
                 </ListItem>
               :
                 null
               }
-              <ListItem style={{borderBottomWidth:0}}>
-              <TouchableOpacity
-                activeOpacity={0.9}
-                onPress={() => this.goToAlbum()}
-                style={{flexDirection: 'row'}}
-              >
-              {this.props.song.platform !== "YouTube" ?
-                <Icon style={styles.actionItemIcon} type="FontAwesome5" name="compact-disc" />
-              :
-                <Icon style={styles.actionItemIcon} type="MaterialCommunityIcons" name="youtube-tv" />
-              }
-                <Text style={styles.actionItemText}> {this.props.song.platform === "YouTube" ? "Go to channel" : "Go to album"}</Text>
-              </TouchableOpacity>
-              </ListItem>
               </ScrollView >
             </>
           }
@@ -300,7 +276,7 @@ class OptionsMenu extends PureComponent {
           :
             null
           }
-        </View>
+          </BlurView>
       </Modal>
     )
   }
@@ -315,6 +291,8 @@ function mapStateToProps(state) {
 const mapDispatchToProps = dispatch => ({
     addToQueue: (object, platform) => dispatch(addToQueue(object, platform)),
     selectSong: (song) => dispatch(selectSong(song)),
+    goToArtist: (artist) => dispatch(goToArtist(artist)),
+    goToAlbum: (album) => dispatch(goToAlbum(album)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(OptionsMenu)

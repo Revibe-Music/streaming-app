@@ -19,7 +19,7 @@ import Wallpaper from './../../components/Wallpaper';
 import ButtonSubmit from './../../components/ButtonSubmit';
 import UserInput from './../../components/UserInput';
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
-import RevibeAPI from './../../api/Revibe'
+import RevibeAPI from './../../api/revibe'
 
 
 

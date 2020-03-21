@@ -4,8 +4,10 @@ import { Text,  Icon, ListItem as BaseListItem } from "native-base";
 import PropTypes from 'prop-types';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ImageLoad from 'react-native-image-placeholder';
+import { connect } from 'react-redux';
 
 import { getPlatform } from './../../api/utils';
+import { goToArtist } from './../../redux/navigation/actions';
 import styles from "./styles";
 
 class ArtistItem extends PureComponent {
@@ -16,7 +18,6 @@ class ArtistItem extends PureComponent {
       showOptions: false
     }
     this.setArtist = this.setArtist.bind(this)
-    this.goToArtist = this.goToArtist.bind(this)
   }
 
   setArtist() {
@@ -27,44 +28,6 @@ class ArtistItem extends PureComponent {
     return contributorString
   }
 
-  goToArtist() {
-    if(this.props.isLocal) {
-      var songs = getPlatform(this.props.artist.platform).getSavedArtistSongs(this.props.artist.id)
-      var navigationOptions = {
-        key: "Album",
-        routeName: "Album",
-        params: {
-          album: this.props.artist,
-          songs: songs,
-          source: this.props.source + "-Artist"
-        }
-      }
-    }
-    else {
-      if(this.props.artist.platform === "YouTube") {
-        var navigationOptions = {
-          key: "Album",
-          routeName: "Album",
-          params: {
-            album: this.props.artist,
-            songs: [],
-            source: this.props.source + "-Artist"
-          }
-        }
-      }
-      else {
-        var navigationOptions = {
-          key: "Artist",
-          routeName: "Artist",
-          params: {
-            artist: this.props.artist,
-            source: this.props.source + "-Artist"
-          }
-        }
-      }
-    }
-    this.props.navigation.navigate(navigationOptions)
-  }
 
   getImage() {
     this.props.artist.images = Object.keys(this.props.artist.images).map(x => this.props.artist.images[x])
@@ -93,7 +56,7 @@ class ArtistItem extends PureComponent {
   render() {
     return (
       <BaseListItem noBorder style={styles.listItem}>
-        <TouchableOpacity onPress={this.goToArtist}>
+        <TouchableOpacity onPress={() => this.props.goToArtist(this.props.artist, this.props.isLocal)}>
           <View style={{flexDirection: "row"}}>
             <ImageLoad
                 isShowActivity={false}
@@ -143,5 +106,8 @@ ArtistItem.defaultProps = {
   displayLogo: false,
 };
 
+const mapDispatchToProps = dispatch => ({
+    goToArtist: (artist,isLocal) => dispatch(goToArtist(artist,isLocal)),
+});
 
-export default ArtistItem
+export default connect(null,mapDispatchToProps)(ArtistItem)

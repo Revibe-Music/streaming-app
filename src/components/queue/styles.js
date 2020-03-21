@@ -8,8 +8,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 export default {
 
   container: {
-    backgroundColor: "#121212",
-    opacity: .98,
+    backgroundColor: "transparent",
     width: "100%",
     height: "100%"
   },

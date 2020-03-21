@@ -5,6 +5,7 @@ var he = require('he');   // needed to decode html
 import { IP } from './../config'
 import BasePlatformAPI from './basePlatform'
 import Song from './../realm/v2/models/Song'
+import realm from './../realm/realm'
 
 import { Player, MediaStates } from '@react-native-community/audio-toolkit';
 // import TrackPlayer from './TrackPlayer'
@@ -739,6 +740,18 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @param {Object}   album    album object
     */
     await this._request("music/library/albums/", "DELETE", album, true)
+  }
+
+  async createPlaylist(name) {
+    /**
+    * Summary: Remove all songs from album to Revibe library. (Still need to implement)
+    *
+    * @param {Object}   album    album object
+    */
+    var response = await this._request("music/playlist/", "POST", {name: name}, true)
+    realm.write(() => {
+      realm.create("Playlist", {name: name, id: String(response.data.id)})
+    })
   }
 
 

@@ -9,23 +9,21 @@ export default {
 
 
   optionContainer: {
-    backgroundColor: "#121212",
-    opacity: .95,
+    backgroundColor: "transparent",
     width: "100%",
     height: "100%"
   },
   closeButtonContainer: {
     height: hp("5%"),
-    width: wp("7%"),
-    flex:1,
+    width: wp("20%"),
     justifyContent: "center",
     alignItems:"center",
-    marginTop: hp("4%"),
-    marginLeft: wp("3%"),
+    marginTop: hp("5%"),
   },
 
   closeButton: {
-    fontSize: hp("3")
+    fontSize: hp("3"),
+
   },
   closeButtonIcon: {
     color: "white",

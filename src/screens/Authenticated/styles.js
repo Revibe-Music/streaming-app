@@ -427,4 +427,10 @@ export default {
     fontSize: hp("3%"),
     color: "white"
   },
+
+mainText: {
+    fontWeight: "bold",
+    fontSize: hp("2%"),
+    textAlign: "left",
+  },
 };

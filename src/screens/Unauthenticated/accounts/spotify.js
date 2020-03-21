@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import styles from "./../styles";
 import AnimatedPopover from './../../../components/animatedPopover/index';
-import SpotifyAPI from './../../../api/Spotify';
+import SpotifyAPI from './../../../api/spotify';
 import { updatePlatformData,initializePlatforms } from './../../../redux/platform/actions'
 
 

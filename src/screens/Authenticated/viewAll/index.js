@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Container, View, Button, Text, Icon, Header, Left, Body, Right } from "native-base";
+import {View, Button, Text, Icon, Header, Left, Body, Right } from "native-base";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
+import Container from "../../../components/containers/container";
 import List from "../../../components/lists/List";
 import AnimatedPopover from "../../../components/animatedPopover/index";
 
@@ -26,12 +27,7 @@ class ViewAll extends Component {
      }
      this.type = this.props.navigation.state.params.type
      this.type = this.type.charAt(0).toUpperCase() + this.type.slice(1,this.type.length)
-     if(this.props.navigation.state.params.title) {
-       this.title = this.props.navigation.state.params.title
-     }
-     else {
-       this.title = null
-     }
+      this.title = this.props.navigation.state.params.title ? this.props.navigation.state.params.title : null
    }
 
    async componentDidMount() {
@@ -58,23 +54,13 @@ class ViewAll extends Component {
   render() {
     return (
       <>
-      <Header style={styles.libraryHeader} androidStatusBarColor="#222325" iosBarStyle="light-content">
-        <View style={{flexDirection: "row", alignItems: "center", width: wp("100%")}}>
-          <View style={{flexDirection: "row", justifyContent: "flex-start", width: wp("20%")}}>
-            <Button
-              transparent
-              onPress={() => this.props.navigation.goBack()}>
-              <Icon name="ios-arrow-back" style={{color:"white", left: 10}}/>
-            </Button>
-          </View>
-          <View style={{flexDirection: "row", justifyContent: "center", width: wp("60%")}}>
-            <Text style={[styles.pageTitle]}>{this.title ? this.title : this.type}</Text>
-            </View>
-        </View>
-      </Header>
-
-      <Container style={styles.container}>
+      <Container
+        title={this.title ? this.title : this.type}
+        showBackButton={true}
+        scrollable={false}
+      >
         <AnimatedPopover type="Loading" show={this.state.loading} />
+        <View style={{flex: 1, minHeight: 1}}>
         <List
           data={this.state.data}
           type={this.type}
@@ -84,6 +70,7 @@ class ViewAll extends Component {
           displayLogo={this.props.navigation.state.params.displayLogo}
           navigation={this.props.navigation}
         />
+        </View>
         <OptionsMenu navigation={this.props.navigation} />
       </Container>
       </>

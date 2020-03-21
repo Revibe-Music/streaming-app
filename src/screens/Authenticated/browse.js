@@ -1,14 +1,17 @@
 import React, { Component } from "react";
-import { Container, Content, Card, Text, List, Header, Left, Body, Right,Icon,Footer, FooterTab } from "native-base";
-import { ScrollView, View, Image, TouchableOpacity } from "react-native";
+import { Container, Content, Text, List, Icon } from "native-base";
+import { ScrollView, View, TouchableOpacity } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import styles from "./styles";
 
 import AnimatedPopover from './../../components/animatedPopover/index';
-import ArtistItem from "./../../components/listItems/ArtistItem";
-import RevibeAPI from './../../api/Revibe'
+import ArtistItem from "./../../components/listItems/artistItem";
+import AlbumCard from "./../../components/cards/albumCard";
+import ArtistCard from "./../../components/cards/artistCard";
+import RevibeAPI from './../../api/revibe'
 import { connect } from 'react-redux';
-import { compact } from 'lodash';
+
+import {goToViewAll} from "./../../redux/navigation/actions";
 
 
 const shuffle = (array) => {
@@ -25,10 +28,6 @@ const shuffle = (array) => {
 
 
 class Browse extends Component {
-
-  static navigationOptions = {
-    header: null
-  };
 
   constructor(props) {
    super(props);
@@ -58,54 +57,10 @@ class Browse extends Component {
      }
  }
 
- goToAlbum(album, songs=[]) {
-   var key = album.name+"Remote"
-   var navigationOptions = {
-     key: key,
-     routeName: "Album",
-     params: {
-       album: album,
-       songs: songs,
-       source: "Browse"
-     }
-   }
-
-   this.props.navigation.navigate(navigationOptions)
- }
-
- goToArtist(artist) {
-   var key = artist.name+"Remote"
-   var navigationOptions = {
-     key: key,
-     routeName: "Artist",
-     params:{
-       artist: artist,
-     }
-   }
-   this.props.navigation.navigate(navigationOptions)
- }
-
- goToViewAll(data, type, title, endpoint, platform=null) {
-   var navigationOptions = {
-     key: "ViewAll"+type,
-     routeName: "ViewAll",
-     params: {
-       data: data,
-       type: type,
-       title: title,
-       endpoint: endpoint,
-       platform: platform ? platform : "Revibe"
-     }
-   }
-   this.props.navigation.navigate(navigationOptions)
- }
-
-
   renderContent() {
     if(this.state.content.length < 1) {
       return null
     }
-
     return (
       <>
       {this.state.content.map(content => {
@@ -135,7 +90,7 @@ class Browse extends Component {
               <Text style={styles.title}>
                 {content.name}
               </Text>
-              <TouchableOpacity onPress={() => this.goToViewAll([], content.type, content.name, content.endpoint)}>
+              <TouchableOpacity onPress={() => this.props.goToViewAll([], content.type, content.name, content.endpoint)}>
                 <Text style={styles.viewAll}>
                   View All
                 </Text>
@@ -177,96 +132,30 @@ class Browse extends Component {
     return require("./../../../assets/albumPlaceholder.png")
   }
 
-  setArtist(item) {
-    var contributors = Object.keys(item.contributors).map(x => item.contributors[x])
-    var contributorString = compact(contributors.map(function(x) {if(x.type === "Artist") return x.artist.name})).join(', ')
-    return contributorString
-  }
-
   renderRow(item, type) {
-    if(type === "songs") {
+    if(type === "songs" || type==="albums") {
       if(item.hasOwnProperty("icon")) {
         var image = require("./../../../assets/albumPlaceholder.png")
       }
       else {
-        var image = this.getImage(item.album.images)
+        if(item.hasOwnProperty("album")) {
+          var image = this.getImage(item.album.images)
+          var album = item.album
+          var songs = [item]
+        }
+        else {
+          var image = this.getImage(item.images)
+          var album = item
+          var songs = []
+        }
       }
       return (
-        <TouchableOpacity
-        style={{borderBottomWidth:0}}
-        onPress={() => this.goToAlbum(item.album,[item])}
-        delayPressIn={0} useForeground >
-          <Card style={styles.card} noShadow={true}>
-            <Image source={image} style={styles.cardImg} />
-            <Body style={styles.cardItem}>
-              <View style={styles.radioCardName}>
-                <View style={{ flex: 0.5}}>
-                  <Text numberOfLines={1} style={styles.text}>
-                    {item.name}
-                  </Text>
-                </View>
-                <View style={{ flex: 0.5}}>
-                  <Text numberOfLines={1} note>
-                    {this.setArtist(item)}
-                  </Text>
-                </View>
-              </View>
-            </Body>
-          </Card>
-        </TouchableOpacity>
-      )
-    }
-    else if(type==="albums") {
-      if(item.hasOwnProperty("icon")) {
-        var image = require("./../../../assets/albumPlaceholder.png")
-      }
-      else {
-        var image = this.getImage(item.images)
-      }
-      return (
-        <TouchableOpacity
-        onPress={() => this.goToAlbum(item)}
-        delayPressIn={0} useForeground >
-          <Card style={styles.card} noShadow={false}>
-            <Image source={image} style={styles.cardImg} />
-            <Body style={styles.cardItem}>
-              <View style={styles.radioCardName}>
-                <View style={{ flex: 0.5}}>
-                  <Text numberOfLines={1} style={styles.text}>
-                    {item.name}
-                  </Text>
-                </View>
-                <View style={{ flex: 0.5}}>
-                  <Text numberOfLines={1} note>
-                    {this.setArtist(item)}
-                  </Text>
-                </View>
-              </View>
-            </Body>
-          </Card>
-        </TouchableOpacity>
+        <AlbumCard album={album} songs={songs} image={image} />
       )
     }
     else if(type==="artists") {
       return(
-        <TouchableOpacity
-        onPress={() => this.goToArtist(item)}
-        delayPressIn={0} useForeground >
-          <Card style={styles.card} noShadow={true}>
-            <Image source={this.getImage(item.images)} style={styles.artistCardImg} />
-            <Body style={styles.cardItem}>
-              <View style={styles.radioCardName}>
-                <View style={{ flex: 0.5}}>
-                  <Text numberOfLines={1} style={styles.text}>
-                    {item.name}
-                  </Text>
-                </View>
-                <View style={{ flex: 0.5}}>
-                </View>
-              </View>
-            </Body>
-          </Card>
-        </TouchableOpacity>
+        <ArtistCard artist={item} image={this.getImage(item.images)} />
       )
     }
     else if(type === "container") {
@@ -323,7 +212,7 @@ function mapStateToProps(state) {
 };
 
 const mapDispatchToProps = dispatch => ({
+    goToViewAll: (data, type, title, endpoint, platform) => dispatch(goToViewAll(data, type, title, endpoint, platform)),
 });
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(Browse)

@@ -1,7 +1,7 @@
 import realm from './../../realm';
 import SavedSong from './SavedSong';
 
-export default class Playlist {
+export default class Playlist extends Realm.Object {
 
   static schema = {
     name: "Playlist",

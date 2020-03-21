@@ -5,17 +5,19 @@
 */
 import React, { Component } from "react";
 import { TouchableOpacity, View, Text } from 'react-native'
-import { Container, Tabs, Tab, Icon, Header, Left, Body, Right, Button, ListItem } from "native-base";
+import { Container as BaseContainer, Tabs, Tab, Icon, Header, Left, Body, Right, Button, ListItem } from "native-base";
 import { CheckBox } from 'react-native-elements'
 
 import { connect } from 'react-redux';
 import styles from "../styles";
-import {default as SearchBar} from 'react-native-search-box';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import Modal from "react-native-modal";
 import { uniqBy } from 'lodash'
 
 import { shuffleSongs } from '../../../redux/audio/actions'
+import RevibeAPI from '../../../api/revibe'
+import Container from "../../../components/containers/container";
+import SearchBar from "../../../components/searchBar/index";
 import List from "../../../components/lists/List";
 import FilterModal from "../../../components/modals/filterModal";
 import OptionsMenu from "../../../components/OptionsMenu/index";
@@ -24,10 +26,6 @@ import realm from '../../../realm/realm';
 
 
 class LibraryContent extends Component {
-
-  static navigationOptions = {
-    header: null
-  };
 
   constructor(props) {
      super(props);
@@ -110,7 +108,6 @@ class LibraryContent extends Component {
       var libraries = realm.objects('Library')
     }
     for(var x=0; x<libraries.length; x++) {
-      const platform = libraries[x].platform
       libraries[x].addListener(this.getContent)
     }
   }
@@ -186,55 +183,22 @@ class LibraryContent extends Component {
     }
   }
 
-
   render() {
     return (
       <>
-      <Header style={styles.libraryHeader} androidStatusBarColor="#222325" iosBarStyle="light-content">
-        <View style={{flexDirection: "row", alignItems: "center", width: wp("100%")}}>
-          <View style={{flexDirection: "row", justifyContent: "flex-start", width: wp("20%")}}>
-            <Button
-              transparent
-              onPress={() => this.props.navigation.goBack()}>
-              <Icon name="ios-arrow-back" style={{color:"white", fontSize: 30}}/>
-            </Button>
-          </View>
-          <View style={{flexDirection: "row", justifyContent: "center", width: wp("60%")}}>
-            <Text style={[styles.pageTitle, {fontSize: hp("2.5%")}]}>{this.contentType}</Text>
-            </View>
-        </View>
-      </Header>
-
-      <View style={styles.container}>
+      <Container showBackButton={true} title={this.contentType} scrollable={false}>
       <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-evenly"}}>
-      <View style={{width: this.state.searching ? wp("90%") : wp("80%")}}>
-        <SearchBar
-          defaultValue=""
-          placeholder={`Search ${this.contentType}`}
-          blurOnSubmit={false}
-          onFocus={() => this.setState({searching: true})}
-          onDelete={() => this.setFilterText("") }
-          onChangeText={this.setFilterText}
-          onCancel={() => {
-            this.setState({searching: false})
-            this.setFilterText("")
-          }}
-          backgroundColor="#121212"
-          placeholderTextColor="white"
-          titleCancelColor="#7248BD"
-          tintColorSearch="black"
-          tintColorDelete="#7248BD"
-          autoCapitalize="none"
-          inputHeight={hp("5%")}
-          inputBorderRadius={hp("1%")}
-          inputStyle={styles.searchText}
-          iconSearch={<Icon name="search" type="EvilIcons" style={styles.searchText}/>}
-          searchIconExpandedMargin={wp("2%")}
-          searchIconCollapsedMargin={wp("25%")}
-          placeholderCollapsedMargin={wp("18%")}
-          placeholderExpandedMargin={wp("10%")}
-          style={styles.searchText}
-        />
+        <View style={{width: this.state.searching ? wp("90%") : wp("80%")}}>
+          <SearchBar
+            placeholder={`Search ${this.contentType}`}
+            onFocus={() => this.setState({searching: true})}
+            onDelete={() => this.setFilterText("") }
+            onChangeText={this.setFilterText}
+            onCancel={() => {
+              this.setState({searching: false})
+              this.setFilterText("")
+            }}
+          />
         </View>
         {!this.state.searching ?
           <Button
@@ -248,7 +212,7 @@ class LibraryContent extends Component {
         }
         </View>
 
-        <Container style={{backgroundColor: "#121212", paddingTop: hp("2%")}}>
+        <BaseContainer style={{backgroundColor: "#121212", paddingTop: hp("2%")}}>
           <List
             data={this.state.content}
             type={this.contentType}
@@ -257,14 +221,14 @@ class LibraryContent extends Component {
             isLocal={true}
             allowRefresh={!this.state.filtering}
             onRefresh={() => console.log("Refreshing!")}
-            noDataText={this.state.filtering ? "No Results." : "Your Library is empty."}
+            noDataText={this.state.filtering ? "No Results." : "Uh oh its empty."}
             source="Library"
             navigation={this.props.navigation}
           />
-        </Container>
+        </BaseContainer>
 
       <OptionsMenu navigation={this.props.navigation} />
-      </View>
+      </Container>
 
       <FilterModal
         isVisible={this.state.showFilterModal}
@@ -272,7 +236,6 @@ class LibraryContent extends Component {
         onSortByChange={(method) => this.setState({sortBy: method})}
         onPlatformChange={(platforms) => this.setState({availablePlatforms: platforms})}
       />
-
       </>
     );
   }

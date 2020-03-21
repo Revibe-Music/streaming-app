@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import { RecyclerListView, DataProvider, LayoutProvider,BaseScrollView } from "recyclerlistview";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-import SongItem from "./../listItems/SongItem";
-import AlbumItem from "./../listItems/AlbumItem";
-import ArtistItem from "./../listItems/ArtistItem";
+import SongItem from "./../listItems/songItem";
+import AlbumItem from "./../listItems/albumItem";
+import ArtistItem from "./../listItems/artistItem";
+import PlaylistItem from "./../listItems/playlistItem";
 import styles from "./styles";
 
 
@@ -82,6 +83,14 @@ class List extends Component {
           displayLogo={this.props.displayLogo}
           source={this.props.source}
           isLocal={this.props.isLocal}
+          navigation={this.props.navigation}
+         />
+       )
+     }
+     if(this.props.type === "Playlists") {
+       return (
+         <PlaylistItem
+          playlist={data}
           navigation={this.props.navigation}
          />
        )

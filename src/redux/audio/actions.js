@@ -70,7 +70,7 @@ const reset = () => ({
   return async (dispatch, getState) => {
       source = !!source ? source : getState().audioState.source   //dont do anything for the time being
       if(getState().audioState.playlist.length > 0) {
-        if(getState().audioState.time.current > 2) {
+        if(getState().audioState.time.current > 30) {
           var song = getState().audioState.playlist[getState().audioState.currentIndex]
           var revibe = new RevibeAPI()
           revibe.recordStream(song, getState().audioState.time.current)

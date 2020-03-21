@@ -4,9 +4,9 @@ import { Container, Content,Tab, } from "native-base";
 import PropTypes from 'prop-types';
 
 import AnimatedPopover from "./../animatedPopover/index";
-import SongItem from "./../listItems/SongItem";
-import AlbumItem from "./../listItems/AlbumItem";
-import ArtistItem from "./../listItems/ArtistItem";
+import SongItem from "./../listItems/songItem";
+import AlbumItem from "./../listItems/albumItem";
+import ArtistItem from "./../listItems/artistItem";
 import ViewAllItem from "./../listItems/ViewAllItem";
 import styles from "./styles";
 

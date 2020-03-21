@@ -54,6 +54,11 @@ export default class BasePlatformAPI {
     return realm.objects('Library').filtered(`platform = "${this.name}"`)["0"]
   }
 
+  get playlists() {
+    //  return songs from specific platform library
+    return realm.objects('Playlist')
+  }
+
   get artists() {
     //  return artist from specific platform
     return realm.objects('Library').filtered(`platform = "${this.name}"`)["0"].allArtists
@@ -79,6 +84,15 @@ export default class BasePlatformAPI {
 
   getSavedAlbumSongs(id) {
     return this.cloneArray(realm.objects("Song").filtered(`album.id = "${id}"`));
+  }
+
+  getSavedPlaylistSongs(name) {
+    var playlist = JSON.parse(JSON.stringify(realm.objects("Playlist").filtered(`name = "${name}"`)[0]))
+    if(Object.keys(playlist.songs).length > 0) {
+      var songs = JSON.parse(JSON.stringify(playlist.songs)).map(x => x.song)
+      return this.cloneArray(songs);
+    }
+    return []
   }
 
 

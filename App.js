@@ -6,10 +6,11 @@ import MusicControl from 'react-native-music-control';
 import NetInfo from "@react-native-community/netinfo";
 import BackgroundTimer from 'react-native-background-timer';
 
-import { AppContainer } from './src/router';
+import { RootNavigator } from './src/navigation/rootNavigation';
 
-import RevibeAPI from './src/api/Revibe';
+import RevibeAPI from './src/api/revibe';
 import { connection } from './src/redux/connection/actions';
+import { setTopLevelNavigator } from './src/redux/navigation/actions';
 import { resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing,continuousTimeUpdate } from './src/redux/audio/actions';
 import { initializePlatforms, checkRevibeAccount, checkPlatformAuthentication } from './src/redux/platform/actions';
 
@@ -84,10 +85,10 @@ class App extends React.Component {
          return null;
       }
       else {
-        const Layout = AppContainer(this.props.hasLoggedIn);
+        const Layout = RootNavigator(this.props.hasLoggedIn);
         return (
           <View style={{width: "100%", height:"100%"}}>
-              <Layout />
+              <Layout ref={navigatorRef => setTopLevelNavigator(navigatorRef)}/>
           </View>
         );
       }

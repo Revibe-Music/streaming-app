@@ -6,9 +6,9 @@ import { connect } from 'react-redux';
 import CookieManager from 'react-native-cookies';
 
 import AnimatedPopover from './../animatedPopover/index';
-import SpotifyAPI from './../../api/Spotify';
+import SpotifyAPI from './../../api/spotify';
 import { updatePlatformData, removePlatformData,initializePlatforms } from './../../redux/platform/actions'
-import styles from ".//styles";
+import styles from "./styles";
 
 
 
