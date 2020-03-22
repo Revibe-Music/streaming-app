@@ -98,12 +98,14 @@ ArtistItem.propTypes = {
   artist: PropTypes.object,
   displayType: PropTypes.bool,
   displayLogo: PropTypes.bool,
+  isLocal: PropTypes.bool,
   source: PropTypes.string,
 };
 
 ArtistItem.defaultProps = {
   displayType: false,
   displayLogo: false,
+  isLocal: false
 };
 
 const mapDispatchToProps = dispatch => ({

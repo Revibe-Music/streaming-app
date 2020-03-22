@@ -65,7 +65,7 @@ PlaylistItem.propTypes = {
 };
 
 const mapDispatchToProps = dispatch => ({
-    goToPlaylist: (playlist) => dispatch(goToArtist(playlist)),
+    goToPlaylist: (playlist) => dispatch(goToPlaylist(playlist)),
 });
 
 export default connect(null,mapDispatchToProps)(PlaylistItem)

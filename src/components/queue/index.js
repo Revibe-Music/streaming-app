@@ -1,8 +1,3 @@
-/*
-* All accounts that require authentication will be tested to ensure
-* the user has signed in before rendering the account tabs and all
-* public platform tabs (YouTube) will automatically render
-*/
 import React, { Component } from "react";
 import { TouchableOpacity, View, Text,ScrollView, Image } from 'react-native'
 import { Container,Content, Button, ListItem, Icon, Header, Left, Body, Right } from "native-base";

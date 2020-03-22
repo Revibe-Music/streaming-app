@@ -57,7 +57,7 @@ class AlbumItem extends PureComponent {
   render() {
     return (
       <BaseListItem noBorder style={styles.listItem}>
-        <TouchableOpacity onPress={() => this.props.goToAlbum(this.props.album, this.props.isLocal)}>
+        <TouchableOpacity onPress={() => this.props.goToAlbum(this.props.album, [], this.props.isLocal)}>
           <View style={{flexDirection: "row"}}>
             <ImageLoad
                 isShowActivity={false}

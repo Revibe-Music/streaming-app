@@ -1,27 +1,18 @@
-/*
-* All accounts that require authentication will be tested to ensure
-* the user has signed in before rendering the account tabs and all
-* public platform tabs (YouTube) will automatically render
-*/
 import React, { Component } from "react";
-import { TouchableOpacity, View, Text, ScrollView } from 'react-native'
-import { Content, Tabs, Tab, Icon, Header, Left, Body, Right, Button, ListItem } from "native-base";
-import { CheckBox } from 'react-native-elements'
+import { TouchableOpacity, View, Text } from 'react-native'
+import { Icon, Button, ListItem } from "native-base";
 import { connect } from 'react-redux';
-import styles from "./styles";
-import {default as SearchBar} from 'react-native-search-box';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import Modal from "react-native-modal";
-import { shuffleSongs, playSong } from './../../redux/audio/actions'
-import { goToViewAll } from './../../redux/navigation/actions'
+
 import List from "./../../components/lists/List";
 import Container from "./../../components/containers/container";
 import OptionsMenu from "./../../components/OptionsMenu/index";
 import SongItem from "./../../components/listItems/songItem";
-
 import RevibeAPI from "./../../api/revibe";
-
-
+import { shuffleSongs, playSong } from './../../redux/audio/actions'
+import { goToViewAll } from './../../redux/navigation/actions'
+import styles from "./styles";
 import realm from './../../realm/realm';
 
 
