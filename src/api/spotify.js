@@ -343,7 +343,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
     */
 
     var playlists = await this._execute(Spotify.getMyPlaylists, [], true, true, 50)
-    for(var x=0; x<songs.length; x++) {
+    for(var x=0; x<playlists.length; x++) {
       playlists[x] = this._parsePlaylist(playlists[x])
     }
     return playlists

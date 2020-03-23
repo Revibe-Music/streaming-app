@@ -102,12 +102,11 @@ class Library extends Component {
           <Button
 	          bordered
 	          light
-            disabled
+            onPress={() => this.goToPlaylistPage()}
             style={{width: wp("40"), height: hp("15"), justifyContent: "center", alignItems: "center", flexDirection: "column", borderColor: "#7248BD"}} >
-            <Icon type="Feather" name="music" style={{opacity: .2,fontSize: hp("8%"), color: "white"}} />
-            <Text style={{opacity: .2,fontSize: hp("2%"), color: "white"}}>Playlists</Text>
+            <Icon type="Feather" name="music" style={{fontSize: hp("8%"), color: "white"}} />
+            <Text style={{fontSize: hp("2%"), color: "white"}}>Playlists</Text>
           </Button>
-          <Text style={{textAlign: "center", top:hp("7"), fontWeight: "bold",right: wp("7"), color: "#7248BD", fontSize: hp("3"), position: "absolute", width: wp("40")}}> COMING SOON</Text>
         </View>
         {this.state.recentlyPlayedSongs.length > 0 ?
           <>

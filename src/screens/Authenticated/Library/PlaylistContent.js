@@ -4,7 +4,7 @@
 * public platform tabs (YouTube) will automatically render
 */
 import React, { Component } from "react";
-import { TouchableOpacity, View, Text } from 'react-native'
+import { TouchableOpacity, View, Text, ScrollView } from 'react-native'
 import {  Button, ListItem , Icon} from "native-base";
 import { CheckBox } from 'react-native-elements'
 import Modal from "react-native-modal";
@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 
 import { shuffleSongs } from '../../../redux/audio/actions'
 import RevibeAPI from '../../../api/revibe'
+import SpotifyAPI from '../../../api/spotify'
 import Container from "../../../components/containers/container";
 import SearchBar from "../../../components/searchBar/index";
 import List from "../../../components/lists/List";
@@ -39,10 +40,13 @@ class LibraryContent extends Component {
        availablePlatforms: Object.keys(this.props.platforms),
        content: [],
        updating: false,
-       creatingPlaylist: false
+       creatingPlaylist: false,
+       showPlaylistNameDialog: false,
+       availablePlaylists: []
      }
 
      this.revibe = new RevibeAPI()
+     this.spotify = new SpotifyAPI()
 
      this._sort = this._sort.bind(this)
      this._format = this._format.bind(this)
@@ -51,7 +55,7 @@ class LibraryContent extends Component {
      this.getContent = this.getContent.bind(this)
      this.updateContent = this.updateContent.bind(this)
      this.setFilterText = this.setFilterText.bind(this)
-     this.createPlaylist = this.createPlaylist.bind(this)
+     this.createNewPlaylist = this.createNewPlaylist.bind(this)
   }
 
   async componentDidMount(){
@@ -109,7 +113,7 @@ class LibraryContent extends Component {
 
   getContent(libraries, changes) {
     if(changes) {
-      console.log(changes);
+      // console.log(changes);
       if(!this.state.updating) {
         // because events fire mutliple times for the same event must only allow to update once
         this.setState({updating: true})
@@ -135,10 +139,17 @@ class LibraryContent extends Component {
     }
   }
 
-  createPlaylist(name) {
+  createNewPlaylist(name) {
     this.setState({creatingPlaylist: false})
     this.revibe.createPlaylist(name)
-    this.forceUpdate()
+    this.setState({creatingPlaylist: false, showPlaylistNameDialog: false})
+    // this.forceUpdate()
+  }
+
+  async createPlaylistWithBase() {
+    var playlists = await this.spotify.fetchAllPlaylists()
+    this.setState({availablePlaylists: playlists})
+    // this.setState({creatingPlaylist: false, showPlaylistNameDialog: false})
   }
 
 
@@ -178,7 +189,7 @@ class LibraryContent extends Component {
                   <Icon type="MaterialCommunityIcons" name="plus" style={{fontSize: hp("4"), color: "white"}} />
                 </View>
                 <View style={styles.textContainer}>
-                   <Text style={[styles.mainText,{color:"white", marginLeft: wp("3")}]} numberOfLines={1}>Create New Playlist</Text>
+                   <Text style={[styles.mainText,{color:"white", marginLeft: wp("3")}]} numberOfLines={1}>Create Playlist</Text>
                  </View>
                </View>
             </TouchableOpacity>
@@ -198,6 +209,70 @@ class LibraryContent extends Component {
       <OptionsMenu navigation={this.props.navigation} />
       </Container>
 
+      <Modal
+        isVisible={this.state.creatingPlaylist}
+        hasBackdrop={false}
+        deviceWidth={wp("100")}
+        style={{justifyContent: 'flex-end',margin: 0, padding: 0}}
+        >
+
+        <DialogInput
+          isDialogVisible={this.state.showPlaylistNameDialog}
+          title="Name this playlist"
+          hintInput ="Playlist name"
+          submitText="Create"
+          submitInput={ (inputText) => {this.createNewPlaylist(inputText)} }
+          closeDialog={ () => {this.setState({showPlaylistNameDialog: false,})}}>
+        </DialogInput>
+
+        <View style={{backgroundColor: '#202020', height: "70%", width: "100%", borderRadius: 25}}>
+          <View style={{marginTop: hp("3%"), justifyContent: "center",alignItems: "center"}}>
+            {this.state.availablePlaylists.length < 1 ?
+              <>
+              <Text style={{marginBottom: hp("10%"), textAlign: "center",fontSize: hp("3.5%"),color: "white",}}>Let's Get Started</Text>
+              <Button
+                style={{width: wp('45%'),height: hp('5%'),backgroundColor: "#7248BD",justifyContent: "center",alignItems:"center"}}
+                onPress={async () => {
+                  this.setState({showPlaylistNameDialog: true})
+                }}
+              >
+                <Text style={{fontSize: hp("2%"),color: 'white',textAlign: "center",paddingLeft: 0,paddingRight: 0,}}> Start New Playlist</Text>
+              </Button>
+              <Text style={{marginTop: hp("8%"),marginBottom: hp("8%"), textAlign: "center",fontSize: hp("2%"),color: "white",}}>━━━━━━━ OR ━━━━━━━</Text>
+              <Button
+                style={{width: wp('45%'),height: hp('5%'),backgroundColor: "green",justifyContent: "center",alignItems:"center"}}
+                onPress={() => this.createPlaylistWithBase()}
+              >
+                <Text style={{fontSize: hp("2%"),color: 'white',textAlign: "center",paddingLeft: 0,paddingRight: 0,}}> Import From Spotify</Text>
+              </Button>
+              </>
+            :
+              <>
+              <Text style={{marginBottom: hp("5%"), textAlign: "center",fontSize: hp("3.5%"),color: "white",}}>Select A Playlist</Text>
+              <ScrollView showsVerticalScrollIndicator={false}>
+              {this.state.availablePlaylists.map(playlist => (
+                <ListItem noBorder style={styles.listItem}>
+                  <TouchableOpacity onPress={() => this.setState({creatingPlaylist: true})}>
+                    <View style={styles.textContainer}>
+                       <Text style={[styles.mainText,{color:"white", marginLeft: wp("3")}]} numberOfLines={1}>{playlist.name}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </ListItem>
+              ))}
+              </ScrollView>
+              </>
+            }
+
+            </View>
+          <Button style={{marginLeft: 0,width: wp('80%'),height: hp('5%'),backgroundColor: "transparent",alignSelf: 'center',position: "absolute",bottom: hp("3%"),}}
+          block
+          onPress={() => this.setState({creatingPlaylist: false}) }
+          >
+            <Text style={{fontSize: hp("2.5%"),color: "white",}}>Close</Text>
+          </Button>
+        </View>
+      </Modal>
+
       <FilterModal
         isVisible={this.state.showFilterModal}
         onClose={() => this.setState({showFilterModal: false})}
@@ -205,14 +280,7 @@ class LibraryContent extends Component {
         onPlatformChange={(platforms) => this.setState({availablePlatforms: platforms})}
       />
 
-      <DialogInput isDialogVisible={this.state.isDialogVisible}
-        isDialogVisible={this.state.creatingPlaylist}
-        title="Name this playlist"
-        hintInput ="Playlist name"
-        submitText="Create"
-        submitInput={ (inputText) => {this.createPlaylist(inputText)} }
-        closeDialog={ () => {this.setState({creatingPlaylist: false})}}>
-      </DialogInput>
+
 
       </>
     );
