@@ -328,9 +328,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
     }
 
     songs = await this._fetchArtistImages(songs)
-    for(var x=0; x<songs.length; x++) {
-      this.saveToLibrary(songs[x])   // save to realm database
-    }
+    this.library.batchAddSongs(songs)
 
     return songs
   }
@@ -467,6 +465,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
     var response = await this._execute(Spotify.getArtists, [ids], true)
+    response = response.artists
     var artists = []
     for(var x=0; x<response.length; x++) {
       artists.push(this._parseArtist(response[x]))
@@ -558,8 +557,9 @@ export default class SpotifyAPI extends BasePlatformAPI {
         artists = []
         var offset = 0
         while(offset < allArtistIds.length) {
-          artists = artists.concat(await this.fetchArtists(allArtistIds.slice(offset, offset+50)))
-          offset += 50
+          var artistsFromIds = await this.fetchArtists(allArtistIds.slice(offset, offset+50))
+          artists = artists.concat(artistsFromIds)
+          offset = offset + 50
         }
       }
       else {
@@ -640,7 +640,7 @@ export default class SpotifyAPI extends BasePlatformAPI {
 
   /// Player Methods ///
 
-  async play(song) {
+  play(song) {
     /**
     * Summary: play revibe song by uri (required implementation).
     *

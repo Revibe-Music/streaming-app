@@ -1,15 +1,18 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {StyleSheet, ImageBackground, Dimensions} from 'react-native';
+import {StyleSheet, ImageBackground, Dimensions, StatusBar} from 'react-native';
 
 import bgSrc from '../../assets/wallpaper.png';
 
 export default class Wallpaper extends Component {
   render() {
     return (
+      <>
+      <StatusBar barStyle="light-content" />
       <ImageBackground style={styles.picture} source={bgSrc}>
         {this.props.children}
       </ImageBackground>
+      </>
     );
   }
 }

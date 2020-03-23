@@ -1,8 +1,3 @@
-/*
-* All accounts that require authentication will be tested to ensure
-* the user has signed in before rendering the account tabs and all
-* public platform tabs (YouTube) will automatically render
-*/
 import React, { Component } from "react";
 import { TouchableOpacity, View, Text } from 'react-native'
 import { Container as BaseContainer, Tabs, Tab, Icon, Header, Left, Body, Right, Button, ListItem } from "native-base";
@@ -226,12 +221,11 @@ class LibraryContent extends Component {
             navigation={this.props.navigation}
           />
         </BaseContainer>
-
-      <OptionsMenu navigation={this.props.navigation} />
       </Container>
 
       <FilterModal
         isVisible={this.state.showFilterModal}
+        allowSort={this.contentType==="Songs"}
         onClose={() => this.setState({showFilterModal: false})}
         onSortByChange={(method) => this.setState({sortBy: method})}
         onPlatformChange={(platforms) => this.setState({availablePlatforms: platforms})}

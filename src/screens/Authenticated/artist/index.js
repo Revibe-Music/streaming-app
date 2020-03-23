@@ -8,7 +8,6 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { connect } from 'react-redux';
 
 import ParalaxContainer from "../../../components/containers/paralaxContainer";
-import OptionsMenu from "../../../components/OptionsMenu/index";
 import SongItem from "../../../components/listItems/songItem";
 import AlbumCard from "../../../components/cards/albumCard";
 import AlbumItem from "../../../components/listItems/albumItem";
@@ -277,7 +276,6 @@ class Artist extends Component {
           }
         </View>
       </ParalaxContainer>
-      <OptionsMenu navigation={this.props.navigation}/>
       </>
     );
   }

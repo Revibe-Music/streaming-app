@@ -100,13 +100,14 @@ class Library extends Component {
             <Text style={{fontSize: hp("2%"), color: "white"}} >Albums</Text>
           </Button>
           <Button
-            bordered
-            light
-            onPress={() => this.goToPlaylistPage()}
+	          bordered
+	          light
+            disabled
             style={{width: wp("40"), height: hp("15"), justifyContent: "center", alignItems: "center", flexDirection: "column", borderColor: "#7248BD"}} >
-            <Icon type="Feather" name="music" style={{fontSize: hp("8%"), color: "white"}} />
-            <Text style={{fontSize: hp("2%"), color: "white"}} >Playlists</Text>
+            <Icon type="Feather" name="music" style={{opacity: .2,fontSize: hp("8%"), color: "white"}} />
+            <Text style={{opacity: .2,fontSize: hp("2%"), color: "white"}}>Playlists</Text>
           </Button>
+          <Text style={{textAlign: "center", top:hp("7"), fontWeight: "bold",right: wp("7"), color: "#7248BD", fontSize: hp("3"), position: "absolute", width: wp("40")}}> COMING SOON</Text>
         </View>
         {this.state.recentlyPlayedSongs.length > 0 ?
           <>
@@ -121,7 +122,7 @@ class Library extends Component {
             </TouchableOpacity>
           </View>
           <View style={{marginBottom: hp("5%")}}>
-            {this.state.recentlyPlayedSongs.slice(0,5).map(song => {
+            {this.state.recentlyPlayedSongs.slice(0,10).map(song => {
               return (
                 <SongItem
                  song={song}

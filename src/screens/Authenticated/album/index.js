@@ -6,7 +6,6 @@ import { compact } from 'lodash';
 import { connect } from 'react-redux';
 
 import ParalaxContainer from "../../../components/containers/paralaxContainer";
-import OptionsMenu from "../../../components/OptionsMenu/index";
 import SongItem from "../../../components/listItems/songItem";
 
 import { playSong } from './../../../redux/audio/actions'
@@ -131,7 +130,6 @@ class Album extends Component {
           }
         </View>
       </ParalaxContainer>
-      <OptionsMenu navigation={this.props.navigation}/>
       </>
     );
   }

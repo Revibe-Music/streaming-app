@@ -11,6 +11,7 @@ import * as Animatable from 'react-native-animatable';
 import { getColorFromURL } from 'rn-dominant-color';
 
 import { connect } from 'react-redux';
+import OptionsMenu from "./../OptionsMenu/index";
 import { goBack } from './../../redux/navigation/actions';
 
 
@@ -26,8 +27,15 @@ export class ParalaxContainer extends Component {
   }
 
   async componentDidMount() {
-    var color = await getColorFromURL(this.props.image.uri)
-    this.setState({ primaryColor: color.primary, secondaryColor: color.secondary})
+    if(this.props.image.hasOwnProperty("uri")) {
+      try {
+        var color = await getColorFromURL(this.props.image.uri)
+        this.setState({ primaryColor: color.primary, secondaryColor: color.secondary})
+      }
+      catch(error) {
+        console.log(error);
+      }
+    }
   }
 
   displayLogo() {
@@ -45,6 +53,7 @@ export class ParalaxContainer extends Component {
 
   render() {
     return (
+      <>
       <View style={{ flex: 1 }}>
       <StatusBar barStyle="light-content" />
       <HeaderImageScrollView
@@ -136,6 +145,8 @@ export class ParalaxContainer extends Component {
         {this.props.children}
       </HeaderImageScrollView>
       </View>
+      <OptionsMenu />
+      </>
     );
   }
 }

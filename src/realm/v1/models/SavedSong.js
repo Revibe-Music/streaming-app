@@ -39,12 +39,15 @@ export default class SavedSong {
     return song
   }
 
-  create(song) {
+  prepare(song) {
     var formattedSong = this._validate(song)
-    var savedSong = {song: formattedSong, dateSaved: song.dateSaved}
+    return {song: formattedSong, dateSaved: song.dateSaved}
+  }
+
+  create(song) {
     var newObject = {}
     realm.write(() => {
-      newObject.object = realm.create('SavedSong', savedSong, true);
+      newObject.object = realm.create('SavedSong', this.prepare(song), true);
     })
     return newObject.object
   }

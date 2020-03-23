@@ -88,6 +88,17 @@ export default class Library extends Realm.Object {
     })
   }
 
+  batchAddSongs(songs) {
+    realm.write(() => {
+      for(var x=0; x<songs.length; x++) {
+        var savedSongs = new SavedSong()
+        var preparedSong = savedSongs.prepare(songs[x])
+        var newSavedSong = realm.create('SavedSong', preparedSong, true);
+        this.songs.push(newSavedSong)
+      }
+    })
+  }
+
   removeSong(id) {
     //must be SavedSong object
     var savedSong = this.songs.filtered(`song.id = "${id}"`)["0"]
@@ -96,10 +107,46 @@ export default class Library extends Realm.Object {
 
   deleteAllSongs() {
     // delete Contributors
-    while(this.songs.length > 0) {
-      // const song = realm.objects("SavedSong").filtered(`id = "${this.songs[0].id}"`)[0]
-      this.songs[0].delete()
+    const songs = realm.objects("Song").filtered(`platform = "${this.platform}"`)
+    const artists = realm.objects("Artist").filtered(`platform = "${this.platform}"`)
+    const albums = realm.objects("Album").filtered(`platform = "${this.platform}"`)
+
+    var contributors = songs.map(song => JSON.parse(JSON.stringify(song.contributors.slice())))
+    contributors = contributors.concat(albums.map(album => JSON.parse(JSON.stringify(album.contributors.slice()))))
+
+    var images = artists.map(artist => JSON.parse(JSON.stringify(artist.images.slice())))
+    images = images.concat(albums.map(album => JSON.parse(JSON.stringify(album.images.slice()))))
+
+    var allImages = []
+    for(var x=0; x<images.length; x++) {
+      for(var y=0; y<images[x].length; y++) {
+        allImages.push(images[x][y])
+      }
     }
+
+    var allContributors = []
+    for(var x=0; x<contributors.length; x++) {
+      for(var y=0; y<contributors[x].length; y++) {
+        allContributors.push(contributors[x][y])
+      }
+    }
+
+    realm.write(() => {
+      for(var x=0; x<allImages.length; x++) {
+        let image = realm.objects("Image").filtered(`url = "${allImages[x].url}"`)[0]
+        if(image) {
+          realm.delete(image);
+        }
+      }
+      for(var x=0; x<allContributors.length; x++) {
+        let contributor = realm.objects("Contributor").filtered(`id = "${allContributors[x].id}"`)[0]
+        realm.delete(contributor);
+      }
+      realm.delete(songs);
+      realm.delete(albums);
+      realm.delete(artists);
+      realm.delete(this.songs);
+    })
   }
 
   delete() {

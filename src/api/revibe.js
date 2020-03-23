@@ -8,7 +8,6 @@ import Song from './../realm/v2/models/Song'
 import realm from './../realm/realm'
 
 import { Player, MediaStates } from '@react-native-community/audio-toolkit';
-// import TrackPlayer from './TrackPlayer'
 
 export default class RevibeAPI extends BasePlatformAPI {
 
@@ -492,8 +491,8 @@ export default class RevibeAPI extends BasePlatformAPI {
       var dateSaved = songs[x].date_saved
       songs[x] = this._parseSong(songs[x].song)
       songs[x].dateSaved = dateSaved
-      this.saveToLibrary(songs[x])   // save to realm database
     }
+    this.library.batchAddSongs(songs)
     return songs
   }
 
@@ -765,9 +764,12 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @param {string}   uri    uri of song to play
     */
-    this.pause()
-    this.player = new Player(`https://d2xlcqvevg3fv2.cloudfront.net/media/audio/songs/${song.uri}/outputs/mp4/medium.mp4`,{autoDestroy: false, continuesToPlayInBackground: true}).play();
-    // TrackPlayer.getInstance().play(song)
+
+    if(this.player) {
+      this.player.stop()
+    }
+
+    this.player = new Player(`https://d2xlcqvevg3fv2.cloudfront.net/media/audio/songs/${song.uri}/outputs/mp4/medium.mp4`,{autoDestroy: true, continuesToPlayInBackground: true}).play();
   }
 
   pause() {
@@ -852,7 +854,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     // TrackPlayer.getInstance().seek(time)
   }
 
-  recordStream(song, duration) {
+  async recordStream(song, duration) {
     /**
     * Summary: Send data associated with streaming to revibe server.
     *
@@ -863,11 +865,12 @@ export default class RevibeAPI extends BasePlatformAPI {
     var data = {
       song_id: song.id,
       stream_duration: duration.toFixed(2),
+      platform: song.platform,
       is_downloaded: false,
       is_saved: this.library.songIsSaved(song)
     }
     this.updateLastListenTime(song)
-    // var request = await this._request("metrics/stream/", "POST", data, true)
+    var request = await this._request("metrics/stream/", "POST", data, true)
   }
 
   async fetchEnvVariables() {
@@ -890,7 +893,6 @@ export default class RevibeAPI extends BasePlatformAPI {
       }
     }
     DefaultPreference.setMultiple(variables)
-
   }
 
 }

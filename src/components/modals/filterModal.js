@@ -80,48 +80,52 @@ class FilterModal extends Component {
               </View>
             ))}
             </View>
-            <View style={{width: wp("40%"), marginTop: hp("4%")}}>
-              <Text style={styles.filterHeaderText}>Sort By</Text>
-              <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
-                <TouchableOpacity onPress={() => this.selectSortBy("dateSaved")}>
-                  <View style={{flexDirection: "row"}}>
-                    <CheckBox
-                      checked={this.state.sortBy==="dateSaved"}
-                      onPress={() => this.selectSortBy("dateSaved")}
-                      checkedIcon='dot-circle-o'
-                      uncheckedIcon='circle-o'
-                      checkedColor="#7248BD"
-                      style={styles.filterCheckbox}
-                    />
-                    <View style={styles.textContainer}>
-                     <View>
-                       <Text style={styles.filterOptionText}>Date Saved</Text>
+            {this.props.allowSort ?
+              <View style={{width: wp("40%"), marginTop: hp("4%")}}>
+                <Text style={styles.filterHeaderText}>Sort By</Text>
+                <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
+                  <TouchableOpacity onPress={() => this.selectSortBy("dateSaved")}>
+                    <View style={{flexDirection: "row"}}>
+                      <CheckBox
+                        checked={this.state.sortBy==="dateSaved"}
+                        onPress={() => this.selectSortBy("dateSaved")}
+                        checkedIcon='dot-circle-o'
+                        uncheckedIcon='circle-o'
+                        checkedColor="#7248BD"
+                        style={styles.filterCheckbox}
+                      />
+                      <View style={styles.textContainer}>
+                       <View>
+                         <Text style={styles.filterOptionText}>Date Saved</Text>
+                       </View>
                      </View>
-                   </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
-                <TouchableOpacity onPress={() => this.selectSortBy("alphabetically")}>
-                  <View style={{flexDirection: "row"}}>
-                    <CheckBox
-                      checked={this.state.sortBy==="alphabetically"}
-                      onPress={() => this.selectSortBy("alphabetically")}
-                      checkedIcon='dot-circle-o'
-                      uncheckedIcon='circle-o'
-                      checkedColor="#7248BD"
-                      style={styles.filterCheckbox}
-                    />
-                    <View style={styles.textContainer}>
-                     <View>
-                       <Text style={styles.filterOptionText}>A-Z</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
+                  <TouchableOpacity onPress={() => this.selectSortBy("alphabetically")}>
+                    <View style={{flexDirection: "row"}}>
+                      <CheckBox
+                        checked={this.state.sortBy==="alphabetically"}
+                        onPress={() => this.selectSortBy("alphabetically")}
+                        checkedIcon='dot-circle-o'
+                        uncheckedIcon='circle-o'
+                        checkedColor="#7248BD"
+                        style={styles.filterCheckbox}
+                      />
+                      <View style={styles.textContainer}>
+                       <View>
+                         <Text style={styles.filterOptionText}>A-Z</Text>
+                       </View>
                      </View>
-                   </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              </View>
-            </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                </View>
+            :
+              null
+            }
+          </View>
           <Button style={styles.filterCancelButton}
           block
           onPress={() => this.props.onClose() }
@@ -137,6 +141,7 @@ class FilterModal extends Component {
 
 FilterModal.propTypes = {
   isVisible: PropTypes.bool,
+  allowSort: PropTypes.bool,
   onClose: PropTypes.func,
   onSortByChange: PropTypes.func,
   onPlatformChange: PropTypes.func,
@@ -144,6 +149,7 @@ FilterModal.propTypes = {
 
 FilterModal.defaultProps = {
   isVisible: false,
+  allowSort: true,
   onClose: () => console.log("Must pass function to onClose props."),
   onSortByChange: () => console.log("Must pass function to onSortByChange props."),
   onPlatformChange: () => console.log("Must pass function to onPlatformChange props."),

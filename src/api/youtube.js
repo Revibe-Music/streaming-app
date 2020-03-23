@@ -387,10 +387,8 @@ export default class YouTubeAPI extends BasePlatformAPI {
       var dateSaved = songs[x].date_saved
       songs[x] = this._parseSong(songs[x].song)
       songs[x].dateSaved = dateSaved
-      this.saveToLibrary(songs[x])   // save to realm database
     }
-    return songs
-
+    this.library.batchAddSongs(songs)
     return songs
   }
 
@@ -712,7 +710,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
     // var duration = await player.duration()
   }
 
-  seek(player, time) {
+  seek(time) {
     /**
     * Summary: Set position of song (required implementation).
     *

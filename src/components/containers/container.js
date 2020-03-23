@@ -6,12 +6,15 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import LinearGradient from 'react-native-linear-gradient';
 import { connect } from 'react-redux';
 import { goBack } from './../../redux/navigation/actions';
+import OptionsMenu from "./../OptionsMenu/index";
+
 
 
 export class Container extends Component {
 
   render() {
     return (
+      <>
       <View style={styles.container}>
       <StatusBar barStyle="light-content" />
         <View style={styles.libraryHeader}>
@@ -54,6 +57,8 @@ export class Container extends Component {
         </BaseContainer>
       }
       </View>
+      <OptionsMenu />
+      </>
     );
   }
 }

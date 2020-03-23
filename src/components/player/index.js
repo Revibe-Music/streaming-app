@@ -62,10 +62,16 @@ class Player extends Component {
       // from navigation
       if(this.props.hasAudio) {
         if(prevProps.playlist.length > 0) {
-          if(prevProps.playlist[prevProps.currentIndex].id !== this.props.playlist[this.props.currentIndex].id) {
-            var color = await getColorFromURL(this.props.playlist[this.props.currentIndex].album.images[1].url)
-            this.setState({primaryColor: color.primary, secondaryColor: color.secondary})
+          try{
+            if(prevProps.playlist[prevProps.currentIndex].album.images[1].url !== this.props.playlist[this.props.currentIndex].album.images[1].url) {
+              var color = await getColorFromURL(this.props.playlist[this.props.currentIndex].album.images[1].url)
+              this.setState({primaryColor: color.primary, secondaryColor: color.secondary})
+            }
           }
+          catch(error) {
+            console.log("ERROR:",error);
+          }
+
         }
         else if(this.props.playlist.length > 0) {
           var color = await getColorFromURL(this.props.playlist[this.props.currentIndex].album.images[1].url)
