@@ -16,15 +16,32 @@ export default {
     resizeMode: 'contain',
     backgroundColor: "transparent",
   },
+
+  multiImageContainer: {
+    height: hp("7"),
+    width: hp("7"),
+    flexDirection: "column",
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  multiImage: {
+    height: hp("3.5"),
+    width: hp("3.5"),
+    alignSelf: 'center',
+    resizeMode: 'contain',
+    backgroundColor:"#121212",
+  },
   textContainer: {
     marginLeft: wp("3%"),
     justifyContent: "center",
     flexDirection:"column",
     paddingLeft:0,
+    marginRight:wp("5%"),
     fontWeight: "bold",
     textAlign: "left",
     alignItems:"flex-start",
-    width: wp("65%")
+    width: wp("60%")
   },
   footerTextContainer: {
     paddingLeft:0,
@@ -64,6 +81,10 @@ export default {
     fontSize: hp("2.5%"),
     color: "white"
   },
+  arrow: {
+    fontSize: hp("3%"),
+    color: "white"
+  },
 
   logoContainer: {
     height: hp("2%"),
@@ -71,5 +92,11 @@ export default {
   },
   logo: {
     fontSize: hp("2%"),
+  },
+  editCheckbox: {
+    marginTop: 0,
+    marginLeft: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
   },
 }

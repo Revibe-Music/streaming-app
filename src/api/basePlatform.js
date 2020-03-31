@@ -61,12 +61,12 @@ export default class BasePlatformAPI {
 
   get artists() {
     //  return artist from specific platform
-    return realm.objects('Library').filtered(`platform = "${this.name}"`)["0"].allArtists
+    return this.library.allArtists
   }
 
   get albums() {
     //  return artist from specific platform
-    return realm.objects('Library').filtered(`platform = "${this.name}"`)["0"].allAlbums
+    return this.library.allAlbums
   }
 
   getPlaylist(playlistName) {
@@ -75,24 +75,21 @@ export default class BasePlatformAPI {
   }
 
   getSavedArtistAlbums(id) {
-    return this.cloneArray(realm.objects("Album").filtered(`contributors.artist.id = "${id}"`));
+    return this.cloneArray(this.library.allAlbums.filtered(`contributors.artist.id = "${id}"`));
   }
 
   getSavedArtistSongs(id) {
-    return this.cloneArray(realm.objects("Song").filtered(`contributors.artist.id = "${id}"`));
+    return this.cloneArray(this.library.songs.filtered(`song.contributors.artist.id = "${id}"`).map(x => x.song));
   }
 
   getSavedAlbumSongs(id) {
-    return this.cloneArray(realm.objects("Song").filtered(`album.id = "${id}"`));
+    // return this.cloneArray(realm.objects("Song").filtered(`album.id = "${id}"`));
+    return this.cloneArray(this.library.songs.filtered(`song.album.id = "${id}"`).map(x => x.song));
   }
 
-  getSavedPlaylistSongs(name) {
-    var playlist = JSON.parse(JSON.stringify(realm.objects("Playlist").filtered(`name = "${name}"`)[0]))
-    if(Object.keys(playlist.songs).length > 0) {
-      var songs = JSON.parse(JSON.stringify(playlist.songs)).map(x => x.song)
-      return this.cloneArray(songs);
-    }
-    return []
+  getSavedPlaylistSongs(id) {
+    var playlist = realm.objects("Playlist").filtered(`id = "${id}"`)[0]
+    return JSON.parse(JSON.stringify(playlist.allSongs.map(x => x.song)))
   }
 
 
@@ -208,14 +205,14 @@ export default class BasePlatformAPI {
   //////////////////////// PLAYLIST OPERATIONS  ////////////////////////
   //////////////////////////////////////////////////////////////////////
 
-  saveToPlaylist(song, playlistName) {
-    var playlist = realm.objects('Playlist').filtered(`name = "${playlistName}"`)["0"]
-    this.saveSong(song, playlist)
+  saveToPlaylist(song, playlistId) {
+    var playlist = realm.objects('Playlist').filtered(`id = "${playlistId}"`)["0"]
+    playlist.addSong(song)
   }
 
-  removeFromPlaylist(song, playlistName) {
-    var playlist = realm.objects('Playlist').filtered(`name = "${playlistName}"`)["0"]
-    this.removeSong(song, playlist)
+  removeFromPlaylist(songId, playlistId) {
+    var playlist = realm.objects('Playlist').filtered(`id = "${playlistId}"`)["0"]
+    playlist.removeSong(songId)
   }
 
   refreshPlaylist(playlist) {

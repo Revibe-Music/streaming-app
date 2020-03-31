@@ -11,11 +11,11 @@ export default {
   optionContainer: {
     backgroundColor: "transparent",
     width: "100%",
-    height: "100%"
+    height: "100%",
   },
   closeButtonContainer: {
     height: hp("5%"),
-    width: wp("20%"),
+    width: wp("15%"),
     justifyContent: "center",
     alignItems:"center",
     marginTop: hp("5%"),
@@ -32,7 +32,7 @@ export default {
   detailsContainer: {
     marginRight:"auto",
     marginLeft:"auto",
-    marginTop: 25,
+    marginTop: hp("1%"),
     width: wp("80%"),
     flex: 1,
     alignItems: "center",
@@ -59,6 +59,20 @@ export default {
     fontSize: hp("2%"),
     marginBottom: hp("2%"),
   },
+  topItemIcon: {
+    textAlign:"center",
+    color: "white",
+    fontWeight: "bold",
+    fontSize: hp("2.5%"),
+  },
+  topItemText: {
+    textAlign:"center",
+    color: "white",
+    fontWeight: "bold",
+    fontSize: hp("1.5%"),
+    marginTop: hp("2%"),
+  },
+
   actionItemIcon: {
     textAlign:"left",
     color: "white",
@@ -76,14 +90,19 @@ export default {
   },
 
   selectArtistContainer: {
-    marginTop:hp("10"),
     flex: 1
   },
   selectArtistScrollview: {
     marginTop:hp("5"),
-    height:hp("50"),
-    justifyContent: 'flex-end',
+    height:hp("75"),
+    justifyContent: 'flex-start',
     alignItems: 'flex-end',
+  },
+  selectPlaylistScrollview: {
+    marginTop:hp("5"),
+    height:hp("75"),
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
   },
 
   selectArtistText: {
@@ -105,6 +124,55 @@ export default {
   selectArtistCancelText: {
     fontSize: hp("3%"),
     color: "white",
+  },
+
+  cancelButtonContainer: {
+    marginLeft: 0,
+    width: wp('100%'),
+    height: hp('8%'),
+    backgroundColor: "transparent",
+    alignitems: 'center',
+    justifyContent: 'center',
+    position: "absolute",
+    bottom: 0,
+  },
+  filterCancelButton: {
+    marginLeft: 0,
+    width: wp('100%'),
+    height: hp('5%'),
+    backgroundColor: "transparent",
+    alignSelf: 'center',
+    position: "absolute",
+    bottom: hp("3%"),
+    // marginTop:hp("5%"),
+  },
+  filterCancelText: {
+    fontSize: hp("2.5%"),
+    color: "white",
+  },
+  headerContainer: {
+    marginTop: hp("4"),
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center"
+  },
+  logo: {
+    fontSize: hp("4%"),
+    padding: 10
+  },
+
+  libraryHeader: {
+    backgroundColor: "transparent",
+    borderBottomWidth: 0,
+    justifyContent: 'flex-start',
+    margin: 0,
+    paddingTop: hp("4.5")
+  },
+  pageTitle: {
+    fontSize: hp("3.5%"),
+    color: "white",
+    fontWeight: "bold",
+    paddingLeft: wp("2%"),
   },
 
 }

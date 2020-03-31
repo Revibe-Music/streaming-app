@@ -25,6 +25,7 @@ class Album extends Component {
     };
     this.getImage = this.getImage.bind(this)
     this.setArtist = this.setArtist.bind(this)
+    this.displayNumSongs = this.displayNumSongs.bind(this)
 
     this.platform = getPlatform(this.props.navigation.state.params.album.platform)
     this.album = this.props.navigation.state.params.album
@@ -90,6 +91,13 @@ class Album extends Component {
     return require("./../../../../assets/albumPlaceholder.png")
   }
 
+  displayNumSongs() {
+    if(this.state.songs.length === 1){
+      return `${this.state.songs.length} Song`
+    }
+    return `${this.state.songs.length} Songs`
+  }
+
   render() {
     return (
       <>
@@ -97,10 +105,10 @@ class Album extends Component {
         platform={this.album.platform}
         title={this.album.name}
         text={this.setArtist()}
-        note={`${this.state.songs.length} ${this.state.songs.length > 1 ? "Songs" : this.state.songs.length ===0  ? "Songs" : "Song"}`}
+        note={this.album.type !== "song" ? this.displayNumSongs() : null}
         showButton={true}
         onButtonPress={() => this.props.playSong(0, this.state.songs)}
-        image={this.getImage()}
+        images={this.getImage()}
       >
         <View style={styles.container}>
           {this.state.loading  ?

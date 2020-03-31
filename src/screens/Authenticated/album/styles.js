@@ -85,6 +85,7 @@ export default {
 
   textContainer: {
     width: wp("90%"),
+    marginTop: wp("15%"),
     marginLeft: wp("5%"),
     justifyContent: "center",
     alignItems:"center",

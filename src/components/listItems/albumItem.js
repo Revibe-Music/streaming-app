@@ -7,6 +7,7 @@ import ImageLoad from 'react-native-image-placeholder';
 import { compact } from 'lodash';
 import { connect } from 'react-redux';
 
+import FastImage from "./../images/fastImage";
 import { getPlatform } from './../../api/utils';
 import { goToAlbum } from './../../redux/navigation/actions';
 import styles from "./styles";
@@ -59,12 +60,10 @@ class AlbumItem extends PureComponent {
       <BaseListItem noBorder style={styles.listItem}>
         <TouchableOpacity onPress={() => this.props.goToAlbum(this.props.album, [], this.props.isLocal)}>
           <View style={{flexDirection: "row"}}>
-            <ImageLoad
-                isShowActivity={false}
-                style={styles.image} // rounded or na?
-                placeholderStyle={styles.image}
-                source={this.getImage()}
-                placeholderSource={require("./../../../assets/albumPlaceholder.png")}
+            <FastImage
+              style={styles.image} // rounded or na?
+              source={this.getImage()}
+              placeholder={require("./../../../assets/albumPlaceholder.png")}
             />
             <View style={styles.textContainer}>
              <View>
@@ -80,11 +79,11 @@ class AlbumItem extends PureComponent {
                }
              <View>
                <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist()}</Text>
-               </View>
+             </View>
              </View>
            </View>
            <View style={styles.arrowContainer}>
-            <Icon type="FontAwesome" name="angle-right" style={styles.ellipsis} />
+            <Icon type="Entypo" name={this.props.iconName} style={styles.arrow} />
            </View>
          </View>
         </TouchableOpacity>
@@ -100,6 +99,7 @@ AlbumItem.propTypes = {
   isLocal: PropTypes.bool,
   source: PropTypes.string,
   displayLogo: PropTypes.bool,
+  iconName: PropTypes.string,
 };
 
 AlbumItem.defaultProps = {
@@ -107,6 +107,7 @@ AlbumItem.defaultProps = {
   displayType: false,
   isLocal: false,
   displayLogo: false,
+  iconName: "chevron-small-right",
 };
 
 

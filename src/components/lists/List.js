@@ -21,9 +21,8 @@ class List extends Component {
   constructor(props) {
       super(props);
 
-      console.log(this.props.displayLogo);
       this.dataProvider = new DataProvider((r1, r2) => {
-           return (r1.id !== r2.id);
+           return (r1.id !== r2.id && r1.name !== r2.name);
       });
 
       this._layoutProvider = new LayoutProvider(
@@ -56,10 +55,10 @@ class List extends Component {
          <SongItem
           song={data}
           playlist={this.props.data}
-          source={this.props.source}
           displayImage={this.props.displayImage}
           displayType={this.props.displayType}
           displayLogo={this.props.displayLogo}
+          {...this.props}
          />
        )
      }
@@ -69,9 +68,8 @@ class List extends Component {
           artist={data}
           displayType={this.props.displayType}
           displayLogo={this.props.displayLogo}
-          source={this.props.source}
           isLocal={this.props.isLocal}
-          navigation={this.props.navigation}
+          {...this.props}
          />
        )
      }
@@ -81,19 +79,13 @@ class List extends Component {
           album={data}
           displayType={this.props.displayType}
           displayLogo={this.props.displayLogo}
-          source={this.props.source}
           isLocal={this.props.isLocal}
-          navigation={this.props.navigation}
+          {...this.props}
          />
        )
      }
      if(this.props.type === "Playlists") {
-       return (
-         <PlaylistItem
-          playlist={data}
-          navigation={this.props.navigation}
-         />
-       )
+       return <PlaylistItem playlist={data} {...this.props}/>
      }
    }
 
@@ -129,6 +121,7 @@ class List extends Component {
           optimizeForInsertDeleteAnimations={true}
           extendedState={this.state}
           scrollViewProps={scrollViewProps}
+          {...this.props}
         />
       )
     }

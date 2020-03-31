@@ -4,6 +4,7 @@ import ImageLoad from 'react-native-image-placeholder';
 import { RecyclerListView, DataProvider, LayoutProvider, BaseItemAnimator } from "recyclerlistview";
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
+import FastImage from "./../images/fastImage";
 import { nextSong, prevSong  } from './../../redux/audio/actions';
 import { connect } from 'react-redux';
 import styles from "./styles";
@@ -41,13 +42,11 @@ class AlbumArt extends PureComponent {
   render() {
     return (
       <View style={styles.albumArtContainer}>
-          <ImageLoad
-              isShowActivity={false}
-              style={styles.albumArt}
-              placeholderStyle={styles.albumArtPlaceholder}
-              source={this.getImage()}
-              placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
-          />
+        <FastImage
+          style={styles.albumArt} // rounded or na?
+          source={this.getImage()}
+          placeholder={require("./../../../assets/albumArtPlaceholder.png")}
+        />
       </View>
     )
   }

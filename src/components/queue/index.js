@@ -10,6 +10,7 @@ import { BlurView } from "@react-native-community/blur";
 import { connect } from 'react-redux';
 import { compact } from 'lodash';
 
+import FastImage from "./../images/fastImage";
 import List from "./../../components/lists/List";
 import DraggableList from "./../../components/lists/DraggableList";
 import { updateQueue,removeFromQueue } from './../../redux/audio/actions'
@@ -29,7 +30,7 @@ class Queue extends Component {
   constructor(props) {
      super(props);
      this.state = {
-       allowScroll: true
+       allowScroll: true,
      }
 
      this.setArtist = this.setArtist.bind(this)
@@ -67,7 +68,7 @@ class Queue extends Component {
 
    renderItem = ({ item, index, move, moveEnd, isActive }) => {
     return (
-      <ListItem noBorder style={[styles.libraryItem,{backgroundColor: isActive ? "#202020" : "#121212"}]}>
+      <ListItem noBorder style={[styles.libraryItem,{backgroundColor: isActive ? "#202020" : "transparent"}]}>
         <TouchableOpacity
           activeOpacity={0.9}
           style={{width:wp("6%"),justifyContent: "flex-start"}}
@@ -118,7 +119,7 @@ class Queue extends Component {
       <BlurView
         style={styles.container}
         blurType="dark"
-        blurAmount={30}
+        blurAmount={40}
       >
           <View style={styles.closeButtonContainer} >
             <Button style={styles.closeButton} transparent onPress={() => this.props.onClose()}>
@@ -150,17 +151,15 @@ class Queue extends Component {
           <View style={{alignItems: "flex-start",width: "50%"}}>
             <Text style={styles.title}> Up Next: </Text>
           </View>
-          {this.props.playlist.slice(this.props.currentIndex+1,50).map(song => (
+          {this.props.playlist.slice(this.props.currentIndex+1,this.props.currentIndex+50).map(song => (
             <ListItem noBorder style={styles.listItem}>
               <TouchableOpacity disabled={true}>
                 <View style={{flexDirection: "row"}}>
-                    <ImageLoad
-                        isShowActivity={false}
-                        style={styles.image} // rounded or na?
-                        placeholderStyle={styles.image}
-                        source={this.getImage(song)}
-                        placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
-                    />
+                  <FastImage
+                    style={[styles.image, {marginLeft: hp("2%")}]}
+                    source={this.getImage(song)}
+                    placeholder={require("./../../../assets/albumArtPlaceholder.png")}
+                  />
                   <View style={styles.textContainer}>
                    <View>
                      <Text style={styles.mainText} numberOfLines={1}>{song.name}</Text>

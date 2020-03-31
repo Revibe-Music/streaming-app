@@ -180,6 +180,13 @@ const addToQueue = (song) => {
  }
 }
 
+// adds song to begining of queue
+const addToPlayNext = (song) => {
+ return (dispatch, getState) => {
+   dispatch(editQueue([song].concat(getState().audioState.queue)));
+ }
+}
+
 const removeFromQueue = (index) => {
  return (dispatch, getState) => {
    var newQueue = getState().audioState.queue
@@ -289,4 +296,4 @@ const resetAudio = () => {
    }
 }
 
-export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, removeFromQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt, continuousTimeUpdate,resetAudio }
+export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, addToPlayNext, removeFromQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt, continuousTimeUpdate,resetAudio }

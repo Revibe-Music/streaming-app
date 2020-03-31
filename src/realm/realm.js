@@ -11,6 +11,7 @@ import Playlist from './v1/models/Playlist'
 import SavedSong from './v1/models/SavedSong'
 
 import SongV2 from './v2/models/Song'
+import PlaylistV3 from './v3/models/Playlist'
 
 
 const schemas = [
@@ -41,6 +42,20 @@ const schemas = [
       Image
     ],
     schemaVersion: 2,
+  },
+  {
+    schema: [
+      Token,
+      SongV2,
+      Album,
+      Artist,
+      Library,
+      PlaylistV3,
+      SavedSong,
+      Contributor,
+      Image
+    ],
+    schemaVersion: 3,
   },
 ]
 

@@ -24,7 +24,6 @@ export default class Song extends SongV1 {
   }
 
   updateLastListenTime() {
-    console.log("YEEE");
     realm.write(() => {
       this.lastListenTime = new Date()
     })

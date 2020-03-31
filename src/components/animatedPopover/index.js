@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { View, Modal, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import PropTypes from 'prop-types';
+import Modal from 'react-native-modal';
 import LottieView from 'lottie-react-native';
 import { BarIndicator } from 'react-native-indicators';
 import styles from "./styles";
@@ -46,7 +47,21 @@ class AnimatedPopover extends Component {
           source={require('./../../../assets/add.json')}
           autoPlay
           loop={false}
-          speed={1.5}
+          speed={1.1}
+        />
+        </View>
+        </View>
+      )
+    }
+    else if(this.props.type==="PlayNext") {
+      return (
+        <View style={styles.animationWrapper}>
+        <View style={{height: "50%", width: "50%", justifyContent: 'center'}}>
+        <LottieView
+          source={require('./../../../assets/play_next.json')}
+          autoPlay
+          loop={false}
+          speed={10}
         />
         </View>
         </View>
@@ -64,24 +79,28 @@ class AnimatedPopover extends Component {
   }
 
   render() {
-    if(this.props.type==="Loading" && this.props.show) {
-      return (
-        <View style={{width: "100%", height: "100%", justifyContent: "center", alignItems: "center", backgroundColor: 'transparent'}}>
-          {this._renderAnimation()}
-        </View>
-      )
-    }
+    // if(this.props.type==="Loading" && this.props.show) {
+    //   return (
+    //       <View style={styles.animationWrapper1}>
+    //         {this._renderAnimation()}
+    //         <Text style={styles.text}> {this.props.text} </Text>
+    //         </View>
+    //
+    //
+    //   )
+    // }
     return (
       <Modal
-        transparent={true}
-        animationType={'none'}
-        visible={this.props.show}
+        hasBackdrop={false}
+        animationIn="fadeInUp"
+        animationOut="fadeOutDown"
+        isVisible={this.props.show}
       >
         <View style={styles.container}>
         <View style={styles.animationWrapper}>
-          <View style={styles.animationBackground}>
+          <View style={this.props.type!=="Loading" ? styles.animationBackground : null}>
             {this._renderAnimation()}
-            <Text style={styles.loadingText}> {this.props.text} </Text>
+            <Text style={styles.text}> {this.props.text} </Text>
             </View>
           </View>
         </View>

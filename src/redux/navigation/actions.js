@@ -13,13 +13,18 @@ const setAlbum = album => ({
     type: 'SET_ALBUM',
     album: album
 });
+const setPlaylist = playlist => ({
+    type: 'SET_PLAYLIST',
+    playlist: playlist
+});
 const setCurrentTab = tab => ({
-    type: 'SET_TAB',
+    type: 'SET_CURRENT_TAB',
     tab: tab
 });
-const setCurrentPage = page => ({
-    type: 'SET_PAGE',
-    page: page
+const setCurrentPage = (page, key) => ({
+    type: 'SET_CURRENT_PAGE',
+    page: page,
+    key: key,
 });
 
 
@@ -28,17 +33,43 @@ export function setTopLevelNavigator(navigatorRef) {
 }
 
 function getCurrentTab(nav){
-    if(Array.isArray(nav.routes)&&nav.routes.length>0){
-        return getCurrentTab(nav.routes[nav.index])
+  if(Array.isArray(nav.routes) && nav.routes.length>0){
+    if(nav.routeName === "Browse" || nav.routeName === "Search" || nav.routeName === "Library" ) {
+      return {tab: nav.routeName, page: nav.routes[nav.index].routeName, key: nav.routes[nav.index].key}
     }
-    else {
-        return nav.routeName
-    }
+    return getCurrentTab(nav.routes[nav.index])
+  }
 }
 
 export function selectSong(song) {
   return async (dispatch) => {
     dispatch(setSong(song))
+    dispatch(setPage())
+  }
+}
+
+export function goToContentPage(type) {
+  return async (dispatch) => {
+    var options = {
+      key: "LibraryContent",
+      routeName: "LibraryContent",
+      params: {
+        contentType: type,
+      }
+    }
+    await navigator.dispatch(NavigationActions.navigate(options));
+    dispatch(setPage())
+  }
+}
+
+export function goToPlaylistPage() {
+  return async (dispatch) => {
+    var options = {
+      key: "PlaylistContent",
+      routeName: "PlaylistContent",
+    }
+    await navigator.dispatch(NavigationActions.navigate(options));
+    dispatch(setPage())
   }
 }
 
@@ -46,34 +77,32 @@ export function goToAlbum(album, songs=[],isLocal=false) {
   return async (dispatch) => {
     var options = {
      routeName: "Album",
-     key: isLocal ? `Album:${album.id}:local` : `Album:${album.id}:remote`,
+     key: isLocal ? `Album:${album.id}:local` : songs.length > 0 ? `Album:${album.id}:${songs.length}:remote` : `Album:${album.id}:remote`,
      params: {
        album: album,
        songs: isLocal ? getPlatform(album.platform).getSavedAlbumSongs(album.id) : songs
      }
     }
-
-    navigator.dispatch(NavigationActions.navigate(options));
     dispatch(setAlbum(album))
-    dispatch(setPage(getCurrentTab(navigator.state.nav)))
-    dispatch(setPage("Album"))
+    await navigator.dispatch(NavigationActions.navigate(options));
+    dispatch(setPage())
   }
 }
 
 export function goToPlaylist(playlist) {
   return async (dispatch) => {
-    songs = getPlatform("Revibe").getSavedPlaylistSongs(playlist.name)
+    songs = getPlatform("Revibe").getSavedPlaylistSongs(playlist.id)
     var options = {
       routeName: "Playlist",
       key: `Playlist:${playlist.id}`,
       params: {
-        playlist: this.props.playlist,
+        playlist: playlist,
         songs: songs,
       }
     }
-    navigator.dispatch(NavigationActions.navigate(options));
-    dispatch(setPage(getCurrentTab(navigator.state.nav)))
-    dispatch(setPage("Album"))
+    dispatch(setPlaylist(playlist))
+    await navigator.dispatch(NavigationActions.navigate(options));
+    dispatch(setPage())
   }
 }
 
@@ -99,10 +128,9 @@ export function goToArtist(artist, isLocal=false) {
       options.params = {artist: artist}
     }
 
-    navigator.dispatch(NavigationActions.navigate(options));
     dispatch(setArtist(artist))
-    dispatch(setPage(getCurrentTab(navigator.state.nav)))
-    dispatch(setPage("Artist"))
+    await navigator.dispatch(NavigationActions.navigate(options));
+    dispatch(setPage())
   }
 }
 
@@ -121,18 +149,17 @@ export function goToViewAll(data, type, title="", endpoint="",platform="Revibe",
       }
     }
     navigator.dispatch(NavigationActions.navigate(options));
-    dispatch(setPage(getCurrentTab(navigator.state.nav)))
-    dispatch(setPage("ViewAll"))
+    dispatch(setPage())
   }
 }
 
 export function goBack() {
   return async (dispatch, getState) => {
-
-    navigator.dispatch(NavigationActions.back());
-    dispatch(setPage(getCurrentTab(navigator.state.nav)))
-    dispatch(setPage("ViewAll"))
-    console.log(getCurrentTab(navigator.state.nav));
+    if(getCurrentTab(navigator.state.nav) === "Playlist") {
+      dispatch(setPlaylist(null))
+    }
+    await navigator.dispatch(NavigationActions.back());
+    dispatch(setPage())
   }
 }
 
@@ -145,6 +172,8 @@ export function setTab(tab) {
 
 export function setPage(page) {
   return async (dispatch) => {
-    dispatch(setCurrentPage(page))
+    var nav = getCurrentTab(navigator.state.nav)
+    dispatch(setCurrentPage(nav.page, nav.key))
+    dispatch(setCurrentTab(nav.tab))
   }
 }

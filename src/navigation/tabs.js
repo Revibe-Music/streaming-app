@@ -38,7 +38,7 @@ export const AuthenticatedTabs = createBottomTabNavigator(
       },
     },
     {
-      initialRouteName: "Library",
+      initialRouteName: "Browse",
       order: ["Browse", "Search", "Library"],
       swipeEnabled: false,
       lazy: false,

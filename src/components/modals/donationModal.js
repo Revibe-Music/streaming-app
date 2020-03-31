@@ -14,15 +14,17 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import Modal from "react-native-modal";
 
 
-class FilterModal extends Component {
+class DonationModal extends Component {
 
   constructor(props) {
      super(props);
 
+     var venmoUrl = `venmo://paycharge?txn=pay&recipients=${artist.venmo_username}&amount=${amount}&note="Supporting local artists through Revibe"`
+     var cashAppUrl = ` cash.me/$${artist.cashApp_username}/${amount}`
      this.state = {
+       // platforms: ["Revibe", "YouTube", "Spotify"],
        platforms: Object.keys(this.props.platforms),
-       displayKeys: {"dateSaved": "Date Saved", "alphabetically": "A-Z", "dateCreated": "Date Created"},
-       sortBy: this.props.sortOptions[0]
+       sortBy: "dateSaved"
      }
 
      this.selectPlatform = this.selectPlatform.bind(this)
@@ -47,15 +49,6 @@ class FilterModal extends Component {
 
 
   render() {
-    var height = 20
-    if(this.props.displayPlatforms) {
-      height += 30
-    }
-    if(this.props.allowSort) {
-      height += 15
-    }
-
-    height = height + "%"
     return (
       <Modal
         isVisible={this.props.isVisible}
@@ -63,18 +56,41 @@ class FilterModal extends Component {
         deviceWidth={wp("100")}
         style={{justifyContent: 'flex-end',margin: 0, padding: 0}}
         >
-        <View style={{backgroundColor: '#202020', height: height, width: "100%", borderRadius: 25}}>
+        <View style={{backgroundColor: '#202020', height: "65%", width: "100%", borderRadius: 25}}>
           <View style={{flexDirection: "column", marginLeft: wp("3%")}}>
-          {this.props.displayPlatforms ?
-            <View style={{width: wp("40%"), marginTop: hp("3%")}}>
-              <Text style={styles.filterHeaderText}>Platforms</Text>
-              {Object.keys(this.props.platforms).map(platform => (
+          <View style={{width: wp("40%"), marginTop: hp("3%")}}>
+            <Text style={styles.filterHeaderText}>Platforms</Text>
+            {Object.keys(this.props.platforms).map(platform => (
+              <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
+                <TouchableOpacity onPress={() => this.selectPlatform(platform)}>
+                  <View style={{flexDirection: "row"}}>
+                    <CheckBox
+                      checked={this.state.platforms.filter(x => x===platform).length > 0}
+                      onPress={() => this.selectPlatform(platform)}
+                      checkedIcon='dot-circle-o'
+                      uncheckedIcon='circle-o'
+                      checkedColor="#7248BD"
+                      style={styles.filterCheckbox}
+                    />
+                    <View style={styles.textContainer}>
+                     <View>
+                       <Text style={styles.filterOptionText}>{platform}</Text>
+                     </View>
+                   </View>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            ))}
+            </View>
+            {this.props.allowSort ?
+              <View style={{width: wp("40%"), marginTop: hp("4%")}}>
+                <Text style={styles.filterHeaderText}>Sort By</Text>
                 <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
-                  <TouchableOpacity onPress={() => this.selectPlatform(platform)}>
+                  <TouchableOpacity onPress={() => this.selectSortBy("dateSaved")}>
                     <View style={{flexDirection: "row"}}>
                       <CheckBox
-                        checked={this.state.platforms.filter(x => x===platform).length > 0}
-                        onPress={() => this.selectPlatform(platform)}
+                        checked={this.state.sortBy==="dateSaved"}
+                        onPress={() => this.selectSortBy("dateSaved")}
                         checkedIcon='dot-circle-o'
                         uncheckedIcon='circle-o'
                         checkedColor="#7248BD"
@@ -82,41 +98,31 @@ class FilterModal extends Component {
                       />
                       <View style={styles.textContainer}>
                        <View>
-                         <Text style={styles.filterOptionText}>{platform}</Text>
+                         <Text style={styles.filterOptionText}>Date Saved</Text>
                        </View>
                      </View>
                     </View>
                   </TouchableOpacity>
                 </View>
-              ))}
-              </View>
-            :
-              null
-            }
-            {this.props.allowSort ?
-              <View style={{width: wp("40%"), marginTop: hp("4%")}}>
-                <Text style={styles.filterHeaderText}>Sort By</Text>
-                {this.props.sortOptions.map(option => (
-                  <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
-                    <TouchableOpacity onPress={() => this.selectSortBy(option)}>
-                      <View style={{flexDirection: "row"}}>
-                        <CheckBox
-                          checked={this.state.sortBy===option}
-                          onPress={() => this.selectSortBy(option)}
-                          checkedIcon='dot-circle-o'
-                          uncheckedIcon='circle-o'
-                          checkedColor="#7248BD"
-                          style={styles.filterCheckbox}
-                        />
-                        <View style={styles.textContainer}>
-                         <View>
-                           <Text style={styles.filterOptionText}>{this.state.displayKeys[option]}</Text>
-                         </View>
+                <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
+                  <TouchableOpacity onPress={() => this.selectSortBy("alphabetically")}>
+                    <View style={{flexDirection: "row"}}>
+                      <CheckBox
+                        checked={this.state.sortBy==="alphabetically"}
+                        onPress={() => this.selectSortBy("alphabetically")}
+                        checkedIcon='dot-circle-o'
+                        uncheckedIcon='circle-o'
+                        checkedColor="#7248BD"
+                        style={styles.filterCheckbox}
+                      />
+                      <View style={styles.textContainer}>
+                       <View>
+                         <Text style={styles.filterOptionText}>A-Z</Text>
                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                ))}
+                     </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
                 </View>
             :
               null
@@ -135,21 +141,17 @@ class FilterModal extends Component {
 }
 
 
-FilterModal.propTypes = {
+DonationModal.propTypes = {
   isVisible: PropTypes.bool,
   allowSort: PropTypes.bool,
-  displayPlatforms: PropTypes.bool,
   onClose: PropTypes.func,
-  sortOptions: PropTypes.array,
   onSortByChange: PropTypes.func,
   onPlatformChange: PropTypes.func,
 };
 
-FilterModal.defaultProps = {
+DonationModal.defaultProps = {
   isVisible: false,
   allowSort: true,
-  displayPlatforms: true,
-  sortOptions: ["dateSaved", "alphabetically"],
   onClose: () => console.log("Must pass function to onClose props."),
   onSortByChange: () => console.log("Must pass function to onSortByChange props."),
   onPlatformChange: () => console.log("Must pass function to onPlatformChange props."),
@@ -161,4 +163,4 @@ function mapStateToProps(state) {
   }
 };
 
-export default connect(mapStateToProps)(FilterModal)
+export default connect(mapStateToProps)(DonationModal)

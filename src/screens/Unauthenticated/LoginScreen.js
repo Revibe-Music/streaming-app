@@ -85,6 +85,7 @@ class LoginScreen extends Component {
       for(var x=0; x<platformNames.length; x++) {
         platformsFetching.push(this.props.platforms[platformNames[x]].fetchLibrarySongs())
       }
+      platformsFetching.push(this.revibe.fetchAllPlaylistsSongs())
       await Promise.all(platformsFetching)
       this.setState({syncing:false})
       this.props.navigation.navigate("Authenticated")

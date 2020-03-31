@@ -11,7 +11,7 @@ import OptionsMenu from "./../../components/OptionsMenu/index";
 import SongItem from "./../../components/listItems/songItem";
 import RevibeAPI from "./../../api/revibe";
 import { shuffleSongs, playSong } from './../../redux/audio/actions'
-import { goToViewAll } from './../../redux/navigation/actions'
+import { goToViewAll, goToContentPage, goToPlaylistPage } from './../../redux/navigation/actions'
 import styles from "./styles";
 import realm from './../../realm/realm';
 
@@ -28,8 +28,6 @@ class Library extends Component {
        filterText: "",
        recentlyPlayedSongs: this.revibe.getRecentlyPlayed()
      }
-
-     this.goToContentPage = this.goToContentPage.bind(this)
      this.getRecentlyPlayed = this.getRecentlyPlayed.bind(this)
   }
 
@@ -43,37 +41,15 @@ class Library extends Component {
     this.setState({recentlyPlayedSongs: recentlyPlayedSongs})
   }
 
-  goToContentPage(type) {
-    this.props.navigation.navigate(
-      {
-        key: "LibraryContent",
-        routeName: "LibraryContent",
-        params: {
-          contentType: type,
-        }
-      }
-    )
-  }
-
-  goToPlaylistPage() {
-    this.props.navigation.navigate(
-      {
-        key: "PlaylistContent",
-        routeName: "PlaylistContent",
-      }
-    )
-  }
-
   render() {
 
     return (
-      <>
       <Container title="Library" scrollable={true}>
         <View style={{flexDirection: "row", justifyContent: "space-evenly"}}>
           <Button
             bordered
             light
-            onPress={() => this.goToContentPage("Songs")}
+            onPress={() => this.props.goToContentPage("Songs")}
             style={{width: wp("40"), height: hp("15"), justifyContent: "center", alignItems: "center", flexDirection: "column", borderColor: "#7248BD"}}
           >
             <Icon type="MaterialCommunityIcons" name="music-circle-outline" style={{fontSize: hp("8%"), color: "white"}} />
@@ -82,7 +58,7 @@ class Library extends Component {
           <Button
             bordered
             light
-            onPress={() => this.goToContentPage("Artists")}
+            onPress={() => this.props.goToContentPage("Artists")}
             style={{width: wp("40"), height: hp("15"), justifyContent: "center", alignItems: "center", flexDirection: "column", borderColor: "#7248BD"}}
           >
             <Icon type="Entypo" name="modern-mic" style={{fontSize: hp("8%"), color: "white"}} />
@@ -93,7 +69,7 @@ class Library extends Component {
           <Button
             bordered
             light
-            onPress={() => this.goToContentPage("Albums")}
+            onPress={() => this.props.goToContentPage("Albums")}
             style={{width: wp("40"), height: hp("15"), justifyContent: "center", alignItems: "center", flexDirection: "column", borderColor: "#7248BD"}}
           >
             <Icon type="FontAwesome5" name="compact-disc" style={{fontSize: hp("7%"), color: "white", paddingBottom: hp("1")}} />
@@ -102,7 +78,7 @@ class Library extends Component {
           <Button
 	          bordered
 	          light
-            onPress={() => this.goToPlaylistPage()}
+            onPress={() => this.props.goToPlaylistPage()}
             style={{width: wp("40"), height: hp("15"), justifyContent: "center", alignItems: "center", flexDirection: "column", borderColor: "#7248BD"}} >
             <Icon type="Feather" name="music" style={{fontSize: hp("8%"), color: "white"}} />
             <Text style={{fontSize: hp("2%"), color: "white"}}>Playlists</Text>
@@ -139,8 +115,6 @@ class Library extends Component {
           null
         }
       </Container>
-      <OptionsMenu navigation={this.props.navigation} />
-      </>
     );
   }
 }
@@ -156,6 +130,8 @@ const mapDispatchToProps = dispatch => ({
     shuffleSongs: () => dispatch(shuffleSongs()),
     playSong: (index, playlist) => dispatch(playSong(index, playlist)),
     goToViewAll: (data, type, title, endpoint, platform, displayLogo) => dispatch(goToViewAll(data, type, title, endpoint, platform,displayLogo)),
+    goToContentPage: (type) => dispatch(goToContentPage(type)),
+    goToPlaylistPage: () => dispatch(goToPlaylistPage()),
 });
 
 

@@ -46,7 +46,6 @@ export default {
     alignSelf: 'center',
     position: "absolute",
     bottom: hp("3%"),
-    // marginTop:hp("5%"),
   },
   filterCancelText: {
     fontSize: hp("2.5%"),

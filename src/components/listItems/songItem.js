@@ -7,6 +7,7 @@ import ImageLoad from 'react-native-image-placeholder';
 import { connect } from 'react-redux';
 import { compact } from 'lodash';
 
+import FastImage from "./../images/fastImage";
 import OptionsMenu from "./../OptionsMenu/index";
 import { playSong } from './../../redux/audio/actions'
 import { selectSong } from './../../redux/navigation/actions'
@@ -85,12 +86,10 @@ class SongItem extends PureComponent {
         <TouchableOpacity onPress={this.onClick}>
           <View style={{flexDirection: "row"}}>
             {this.props.displayImage ?
-              <ImageLoad
-                  isShowActivity={false}
-                  style={styles.image} // rounded or na?
-                  placeholderStyle={styles.image}
-                  source={this.getImage()}
-                  placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
+              <FastImage
+                style={styles.image} // rounded or na?
+                source={this.getImage()}
+                placeholder={require("./../../../assets/albumPlaceholder.png")}
               />
             :
             null
@@ -118,7 +117,7 @@ class SongItem extends PureComponent {
           style={this.props.displayImage ? styles.ellipsisContainer : [styles.ellipsisContainerImageAdjusted,styles.ellipsisContainer]}
           onPress={this.toggleOptionsMenu}
          >
-         <Icon type="FontAwesome" name="ellipsis-v" style={styles.ellipsis} />
+         <Icon type="Feather" name="more-horizontal" style={styles.ellipsis} />
         </TouchableOpacity>
       </BaseListItem>
     )

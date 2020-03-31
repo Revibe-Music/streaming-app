@@ -44,9 +44,10 @@ export default class Song extends Realm.Object {
   }
 
   delete() {
-    if(realm.objects("Song").filtered(`album.id = "${this.album.id}"`).length < 2) {
-      const album = realm.objects("Album").filtered(`id = "${this.album.id}"`)[0]
-      album.delete()
+    this.album.linkingObjectsCount()
+    if(this.album.linkingObjectsCount() < 2) {
+      // const album = realm.objects("Album").filtered(`id = "${this.album.id}"`)[0]
+      this.album.delete()
     }
 
     // delete Contributors

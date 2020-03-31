@@ -6,6 +6,7 @@ import styles from "./styles";
 
 import AnimatedPopover from './../../components/animatedPopover/index';
 import ArtistItem from "./../../components/listItems/artistItem";
+import SongCard from "./../../components/cards/songCard";
 import AlbumCard from "./../../components/cards/albumCard";
 import ArtistCard from "./../../components/cards/artistCard";
 import RevibeAPI from './../../api/revibe'
@@ -133,25 +134,13 @@ class Browse extends Component {
   }
 
   renderRow(item, type) {
-    if(type === "songs" || type==="albums") {
-      if(item.hasOwnProperty("icon")) {
-        var image = require("./../../../assets/albumPlaceholder.png")
-      }
-      else {
-        if(item.hasOwnProperty("album")) {
-          var image = this.getImage(item.album.images)
-          var album = item.album
-          var songs = [item]
-        }
-        else {
-          var image = this.getImage(item.images)
-          var album = item
-          var songs = []
-        }
-      }
-      return (
-        <AlbumCard album={album} songs={songs} image={image} />
-      )
+    if(type === "songs") {
+      var image = item.hasOwnProperty("icon") ? require("./../../../assets/albumPlaceholder.png") : this.getImage(item.album.images)
+      return <SongCard song={item} image={image} />
+    }
+    else if(type==="albums") {
+      var image = item.hasOwnProperty("icon") ? require("./../../../assets/albumPlaceholder.png") : this.getImage(item.images)
+      return <AlbumCard album={item} image={image} />
     }
     else if(type==="artists") {
       return(

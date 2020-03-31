@@ -69,7 +69,7 @@ export default {
   },
 
   image: {
-    marginLeft: hp("2%"),
+    // marginLeft: hp("2%"),
     width: hp("7%"),
     height: hp("7%"),
     resizeMode: 'contain',

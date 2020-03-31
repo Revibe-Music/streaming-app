@@ -87,7 +87,6 @@ export default class SpotifyAPI extends BasePlatformAPI {
     var formattedPlaylist = {
       name: playlist['name'].replace(/"/g, "'"),
       id: playlist['id'],
-      images: []  // need to get these
     }
     return formattedPlaylist
   }
@@ -361,8 +360,9 @@ export default class SpotifyAPI extends BasePlatformAPI {
     */
 
     var songs = await this._execute(Spotify.getPlaylistTracks, [id], true, true, 50)
+    // console.log(songs);
     for(var x=0; x<songs.length; x++) {
-      songs[x] = this._parseSong(songs[x])
+      songs[x] = this._parseSong(songs[x].track)
     }
     songs = await this._fetchArtistImages(songs)
     return songs

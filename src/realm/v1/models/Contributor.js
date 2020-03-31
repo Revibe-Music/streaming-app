@@ -24,7 +24,7 @@ export default class Contributor {
   }
 
   delete() {
-    if(realm.objects("Contributor").filtered(`artist.id = "${this.artist.id}"`).length < 2) {
+    if(this.artist.linkingObjectsCount() < 2) {
       // only one Contributor object refers to this artist object so delete the artist object
       var artist = realm.objects("Artist").filtered(`id = "${this.artist.id}"`)[0]
       artist.delete()

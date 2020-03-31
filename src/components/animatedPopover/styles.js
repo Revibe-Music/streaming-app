@@ -19,7 +19,7 @@ export default {
     justifyContent: 'space-evenly'
   },
 
-  loadingText: {
+  text: {
     textAlign: "center",
     fontSize: hp("2%"),
     color: "white",

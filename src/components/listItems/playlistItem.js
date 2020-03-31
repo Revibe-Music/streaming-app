@@ -2,12 +2,15 @@ import React, { PureComponent } from 'react';
 import { View, TouchableOpacity, Image } from "react-native";
 import { Text,  Icon, ListItem as BaseListItem } from "native-base";
 import PropTypes from 'prop-types';
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import ImageLoad from 'react-native-image-placeholder';
+import { CheckBox } from 'react-native-elements'
 import { connect } from 'react-redux';
+import { uniqBy } from 'lodash'
 
-import { getPlatform } from './../../api/utils';
 import { goToPlaylist } from './../../redux/navigation/actions';
+import PlaylistImage from "./../images/playlistImage";
+import FastImage from "./../images/fastImage";
 import RevibeAPI from './../../api/revibe';
 import styles from "./styles";
 
@@ -15,43 +18,109 @@ class PlaylistItem extends PureComponent {
 
   constructor(props) {
     super(props);
-
     this.revibe = new RevibeAPI()
+    var playlist = this.revibe.playlists.filtered(`id = "${this.props.playlist.id}"`)["0"]
+    this.state = {
+      updating: true,
+      playlist: playlist,
+      images: playlist.smallImage
+    }
+    this.update = this.update.bind(this)
+    this.onPress = this.onPress.bind(this)
+    this.displayPlatforms = this.displayPlatforms.bind(this)
+  }
+
+  componentDidMount() {
+    this.state.playlist.addListener(this.update)
+    setTimeout(() => this.setState({updating: false}), 1000)
+  }
+
+  componentWillUnmount() {
+    this.state.playlist.removeListener(this.update)
+  }
+
+  update(playlist, changes) {
+    if(changes.changedProperties.filter(x => x==="songs").length > 0) {
+      if(!this.state.updating) {
+        this.setState({updating: true})
+        this.setState({images: this.state.playlist.smallImage})
+        this.setState({updating: false})
+      }
+    }
   }
 
 
-  getImage() {
-    // this.props.album.images = Object.keys(this.props.album.images).map(x => this.props.album.images[x])
-    // if(this.props.album.images.length > 0) {
-    //   var image = this.props.album.images.reduce(function(prev, curr) {
-    //       return prev.height < curr.height ? prev : curr;
-    //   });
-    //   return {uri: image.url}
-    // }
-    return require("./../../../assets/albumPlaceholder.png")
+  displayPlatforms() {
+    var playlist = this.revibe.playlists.filtered(`id = "${this.props.playlist.id}"`)["0"]
+    var songs = JSON.parse(JSON.stringify(playlist.allSongs.map(x => x.song)))
+    var platforms = songs.map(x => x.platform)
+    platforms = uniqBy(platforms)
+    platforms.sort()
+    return (
+      <View style={{flexDirection: "row"}}>
+          {platforms.map(platform => {
+            if(platform.toLowerCase() === "spotify") {
+              return <Icon type="FontAwesome5" name="spotify" style={[styles.logo, {color: "#1DB954", paddingRight: wp("2%")}]} />
+            }
+            else if(platform.toLowerCase() === "youtube") {
+              return <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red", paddingRight: wp("2%")}]} />
+            }
+            else {
+              return <Image source={require('./../../../assets/revibe_logo.png')} style={{height: hp("2"), width: hp("2"), marginRight: wp("2%")}} />
+            }
+          })}
+      </View>
+    )
+  }
+
+  onPress(args) {
+    if(this.props.onPress) {
+      this.props.onPress(this.props.playlist)
+    }
+    else {
+      this.props.goToPlaylist(this.props.playlist)
+    }
   }
 
 
   render() {
+    var playlist = this.revibe.playlists.filtered(`id = "${this.props.playlist.id}"`)["0"]
+    var images = playlist.smallImage
     return (
       <BaseListItem noBorder style={styles.listItem}>
-        <TouchableOpacity onPress={this.goToPlaylist}>
+        <TouchableOpacity onPress={this.onPress}>
           <View style={{flexDirection: "row"}}>
-            <ImageLoad
-                isShowActivity={false}
+            {images.length ?
+              <PlaylistImage images={images} height={hp("7")} width={hp("7")}/>
+              :
+              <FastImage
                 style={styles.image} // rounded or na?
-                placeholderStyle={styles.image}
-                source={this.getImage()}
-                placeholderSource={require("./../../../assets/albumPlaceholder.png")}
-            />
+                source={images}
+                placeholder={require("./../../../assets/albumArtPlaceholder.png")}
+              />
+            }
             <View style={styles.textContainer}>
              <View>
                <Text style={[styles.mainText,{color:"white"}]} numberOfLines={1}>{this.props.playlist.name}</Text>
              </View>
+              {this.displayPlatforms()}
            </View>
-           <View style={styles.arrowContainer}>
-            <Icon type="FontAwesome" name="angle-right" style={styles.ellipsis} />
-           </View>
+           {!this.props.editting ?
+             <View style={styles.arrowContainer}>
+              <Icon type="Entypo" name={this.props.iconName} style={styles.arrow} />
+             </View>
+            :
+            <CheckBox
+              checked={this.props.edittedPlaylists.filter(x => x.id === this.props.playlist.id).length > 0}
+              onPress={this.onPress}
+              checkedIcon='dot-circle-o'
+              uncheckedIcon='circle-o'
+              checkedColor="#7248BD"
+              size={hp("2")}
+              center
+              containerStyle={styles.editCheckbox}
+            />
+           }
          </View>
         </TouchableOpacity>
       </BaseListItem>
@@ -61,7 +130,15 @@ class PlaylistItem extends PureComponent {
 
 PlaylistItem.propTypes = {
   playlist: PropTypes.object,
-  source: PropTypes.string,
+  iconName: PropTypes.string,
+  displayIcon: PropTypes.bool,
+  onPress: PropTypes.func,
+  editting: PropTypes.bool
+};
+
+PlaylistItem.defaultProps = {
+  editting: false,
+  iconName: "chevron-small-right",
 };
 
 const mapDispatchToProps = dispatch => ({

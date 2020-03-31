@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 
 import { getPlatform } from './../../api/utils';
 import { goToArtist } from './../../redux/navigation/actions';
+import FastImage from "./../images/fastImage";
 import styles from "./styles";
 
 class ArtistItem extends PureComponent {
@@ -58,14 +59,11 @@ class ArtistItem extends PureComponent {
       <BaseListItem noBorder style={styles.listItem}>
         <TouchableOpacity onPress={() => this.props.goToArtist(this.props.artist, this.props.isLocal)}>
           <View style={{flexDirection: "row"}}>
-            <ImageLoad
-                isShowActivity={false}
-                style={styles.image} // rounded or na?
-                placeholderStyle={styles.image}
-                borderRadius={hp("3.5%")}
-                source={this.getImage()}
-                placeholderSource={require("./../../../assets/userPlaceholder.png")}
-            />
+          <FastImage
+            style={[styles.image, {borderRadius: hp("3.5%")}]} // rounded or na?
+            source={this.getImage()}
+            placeholderSource={require("./../../../assets/userPlaceholder.png")}
+          />
             <View style={styles.textContainer}>
              <View>
                <Text style={[styles.mainText,{color:"white"}]} numberOfLines={1}>{this.props.artist.name}</Text>
@@ -84,7 +82,7 @@ class ArtistItem extends PureComponent {
              </View>
            </View>
            <View style={styles.arrowContainer}>
-            <Icon type="FontAwesome" name="angle-right" style={styles.ellipsis} />
+            <Icon type="Entypo" name={this.props.iconName} style={styles.arrow} />
            </View>
          </View>
 
@@ -100,12 +98,14 @@ ArtistItem.propTypes = {
   displayLogo: PropTypes.bool,
   isLocal: PropTypes.bool,
   source: PropTypes.string,
+  iconName: PropTypes.string,
 };
 
 ArtistItem.defaultProps = {
   displayType: false,
   displayLogo: false,
-  isLocal: false
+  isLocal: false,
+  iconName: "chevron-small-right",
 };
 
 const mapDispatchToProps = dispatch => ({

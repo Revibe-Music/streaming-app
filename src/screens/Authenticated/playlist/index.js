@@ -23,14 +23,16 @@ import { BarIndicator } from 'react-native-indicators';
 import { compact } from 'lodash';
 import { connect } from 'react-redux';
 
+
+import ParalaxContainer from "../../../components/containers/paralaxContainer";
 import OptionsMenu from "../../../components/OptionsMenu/index";
 import SongItem from "../../../components/listItems/songItem";
+import List from "../../../components/lists/List";
+import RevibeAPI from "../../../api/revibe";
 
 import { playSong } from './../../../redux/audio/actions'
 import { getPlatform } from '../../../api/utils';
 import styles from "./styles";
-
-
 
 
 class Playlist extends Component {
@@ -44,144 +46,95 @@ class Playlist extends Component {
     this.state = {
       primaryColor: "#121212",
       secondaryColor: "#121212",
-      songs: this.props.navigation.state.params.songs,
+      songs: this.props.navigation.state.params.songs.slice(0,30),
+      numSongs: this.props.navigation.state.params.songs.length,
+      updating: true
     };
 
-    this.playlist = this.props.navigation.state.params.playlist,
-    this.getImage = this.getImage.bind(this)
+    this.revibe = new RevibeAPI()
+    this.playlist = this.revibe.playlists.filtered(`id = "${this.props.navigation.state.params.playlist.id}"`)["0"]
+
+    this.updateContent = this.updateContent.bind(this)
   }
 
-  async componentDidMount() {
-
-    // var colorRequest = getColorFromURL(this.playlist.images[1].url)
-    // this.setState({ primaryColor: color.primary, secondaryColor: color.secondary})
-
+  async componentDidMount(){
+    // var songs = this.props.navigation.state.params.songs.slice(0,30)
+    // var songs = this.props.navigation.state.params.songs
+    // this.setState({
+    //   songs: songs,
+    // })
+    setTimeout(() => this._addListeners(), 500)
+    setTimeout(() => {
+      // var songs = this.revibe.getSavedPlaylistSongs(this.playlist.id)
+      var songs = this.props.navigation.state.params.songs
+      this.setState({songs: songs})
+    }, 500)
+    setTimeout(() => this.setState({updating: false}), 1000)
   }
 
-
-  getImage() {
-    return require("./../../../../assets/albumPlaceholder.png")
+  componentWillUnmount() {
+    this._removeListeners()
   }
 
+  _addListeners() {
+    this.playlist.addListener(this.updateContent)
+  }
 
+  _removeListeners() {
+    this.playlist.removeListener(this.updateContent)
+  }
+
+  updateContent(playlist, changes) {
+    if(changes.changedProperties.filter(x => x==="songs").length > 0) {
+      if(!this.state.updating) {
+        this.setState({updating: true})
+        var songs = this.revibe.getSavedPlaylistSongs(this.playlist.id)
+        this.setState({songs: songs})
+        this.setState({updating: false})
+      }
+    }
+  }
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <StatusBar barStyle="light-content" />
-        <HeaderImageScrollView
-          maxHeight={hp("40")}
-          minHeight={hp("10")}
-          maxOverlayOpacity={0.5}
-          minOverlayOpacity={0}
-          overlayColor="#121212"
-          fadeOutForeground
-          scrollViewBackgroundColor="#121212"
-          renderHeader={() => (
-            <LinearGradient
-              style={{flex:1}}
-              locations={[0,0.4,0.65]}
-              colors={[this.state.primaryColor, this.state.secondaryColor, '#121212']}
-            >
-            <View style={{top: hp("10%")}}>
-            <ImageLoad
-              isShowActivity={false}
-              style={styles.albumImg}
-              placeholderStyle={styles.albumImg}
-              source={this.getImage()}
-              placeholderSource={require("./../../../../assets/albumArtPlaceholder.png")}
-            />
+      <ParalaxContainer
+        displayLogo={false}
+        placeholderImage={require("./../../../../assets/albumArtPlaceholder.png")}
+        title={`${this.playlist.name}`}
+        note={`Playlist • ${this.state.numSongs} ${this.state.numSongs > 1 ? "Songs" : this.state.numSongs ===0  ? "Songs" : "Song"}`}
+        showButton={true}
+        onButtonPress={() => this.props.playSong(0, this.state.songs)}
+        images={this.playlist.regularImage}
+      >
+        <View style={styles.container}>
+          {this.state.loading  ?
+            <View style={styles.loadingIndicator}>
+              <BarIndicator animationDuration={700} color='#7248bd' count={5} />
             </View>
-            </LinearGradient>
-
-          )}
-          renderFixedForeground={() => (
-            <Animatable.View
-              style={styles.navTitleView}
-              ref={navTitleView => {
-                this.navTitleView = navTitleView;
-              }}
-            >
-              <Text style={styles.navTitle}>{this.playlist.name}</Text>
-            </Animatable.View>
-          )}
-          renderForeground={() => (
+          :
             <>
-            <View style={styles.titleContainer}>
-              <Text style={styles.imageTitle}>{this.playlist.name}</Text>
-            </View>
-
-            </>
-
-          )}
-          renderTouchableFixedForeground={() => (
-            <>
-            <View style={styles.headerContainer}>
-              <Button
-                transparent
-                title=""
-                onPress={() => this.props.navigation.goBack()}>
-                <Icon name="ios-arrow-back" style={{color:"white", fontSize: 30, textAlign: "left"}}/>
-              </Button>
-            </View>
-            </>
-          )}
-        >
-
-          <TriggeringView
-            style={styles.section}
-            onHide={() => this.navTitleView.fadeInUp(200)}
-            onDisplay={() => this.navTitleView.fadeOut(100)}
-          >
-          <View style={styles.title}>
-            <Text note style={{textAlign: "center"}}>{this.state.songs.length} {this.state.songs.length > 1 ? "Songs" : this.state.songs.length ===0  ? "Songs" : "Song"}</Text>
-          </View>
-
-          <View style={styles.center}>
-            <Button
-            rounded
-            large
-            onPress={() => this.props.playSong(0, this.state.songs)}
-            style={styles.shuffleBtn}>
-            <View style={styles.center}>
-              <Text uppercase style={styles.shuffle}>Listen</Text>
-            </View>
-
-            </Button>
-          </View>
-          </TriggeringView>
-
-          <View style={styles.container}>
-            {this.state.loading  ?
-              <View style={styles.loadingIndicator}>
-                <BarIndicator animationDuration={700} color='#7248bd' count={5} />
+            {this.state.songs.length > 0 ?
+              <View style={{flex: 1, minHeight: 1}}>
+              {this.state.songs.map(song => (
+                <SongItem
+                 song={song}
+                 playlist={this.state.songs}
+                 displayImage={true}
+                 displayType={false}
+                 displayLogo={true}
+                 source={this.source}
+                />
+              ))}
               </View>
             :
-              <>
-              {this.state.songs.length > 0 ?
-                <View style={{flex: 1, minHeight: 1}}>
-                {this.state.songs.map(song => (
-                  <SongItem
-                   song={song}
-                   playlist={this.state.songs}
-                   displayImage={false}
-                   displayType={false}
-                   source={this.source}
-                  />
-                ))}
-                </View>
-              :
-              <View style={styles.textContainer}>
-                <Text style={styles.noDataText}>No Songs.</Text>
-              </View>
-              }
-              </>
-
+            <View style={styles.textContainer}>
+              <Text style={styles.noDataText}>No Songs.</Text>
+            </View>
             }
-          </View>
-        </HeaderImageScrollView>
-        <OptionsMenu navigation={this.props.navigation}/>
-      </View>
+            </>
+          }
+        </View>
+      </ParalaxContainer>
     );
   }
 }

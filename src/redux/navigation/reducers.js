@@ -2,8 +2,10 @@ var initialState = {
   selectedSong: null,     // full song object inlcuding album and contributors
   selectedArtist: null,   // full artist object
   selectedAlbum: null,    // full album object inlcuding contributors
+  selectedPlaylist: null,
   currentTab: null,
-  currentPage: null
+  currentPage: null,
+  currentKey: null,
 };
 
 export const navigationReducer = (state = initialState, action) => {
@@ -23,6 +25,11 @@ export const navigationReducer = (state = initialState, action) => {
            ...state,
            selectedAlbum: JSON.parse(JSON.stringify(action.album))
         };
+      case 'SET_PLAYLIST':
+        return {
+           ...state,
+           selectedPlaylist: JSON.parse(JSON.stringify(action.playlist))
+        };
       case 'SET_CURRENT_TAB':
         return {
            ...state,
@@ -32,6 +39,7 @@ export const navigationReducer = (state = initialState, action) => {
         return {
            ...state,
            currentPage: action.page,
+           currentKey: action.key,
         };
       default:
          return state;

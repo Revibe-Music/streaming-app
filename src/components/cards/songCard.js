@@ -9,10 +9,20 @@ import FastImage from "./../images/fastImage";
 import { goToAlbum } from './../../redux/navigation/actions';
 import styles from "./styles";
 
-class AlbumCard extends PureComponent {
+class SongCard extends PureComponent {
 
   constructor(props) {
     super(props);
+
+    // this is used as an album object to display song related info on album page
+    this.album = {
+      id: this.props.song.id,
+      name: this.props.song.name,
+      platform: this.props.song.platform,
+      contributors: this.props.song.contributors,
+      images: this.props.song.album.images,
+      type: "song"
+    }
   }
 
   setArtist(item) {
@@ -26,24 +36,24 @@ class AlbumCard extends PureComponent {
     return (
       <TouchableOpacity
       style={{borderBottomWidth:0}}
-      onPress={() => this.props.goToAlbum(this.props.album,this.props.songs)}
+      onPress={() => this.props.goToAlbum(this.album,[this.props.song])}
       delayPressIn={0} useForeground >
         <Card style={styles.card} noShadow={true}>
           <FastImage
             style={styles.cardImg} // rounded or na?
             source={this.props.image}
-            placeholder={require("./../../../assets/albumPlaceholder.png")}
+            placeholder={require("./../../../assets/albumArtPlaceholder.png")}
           />
           <Body style={styles.cardItem}>
             <View style={styles.radioCardName}>
               <View style={{ flex: 0.5}}>
                 <Text numberOfLines={1} style={styles.text}>
-                  {this.props.album.name}
+                  {this.props.song.name}
                 </Text>
               </View>
               <View style={{ flex: 0.5}}>
                 <Text numberOfLines={1} note>
-                  {this.setArtist(this.props.album)}
+                  {this.setArtist(this.props.song)}
                 </Text>
               </View>
             </View>
@@ -54,18 +64,17 @@ class AlbumCard extends PureComponent {
   }
 }
 
-AlbumCard.propTypes = {
-  album: PropTypes.object.isRequired,
-  songs: PropTypes.array,
+SongCard.propTypes = {
+  song: PropTypes.object.isRequired,
   image: PropTypes.string
 };
 
-AlbumCard.defaultProps = {
-  songs: [],
+SongCard.defaultProps = {
+  song: [],
 };
 
 const mapDispatchToProps = dispatch => ({
     goToAlbum: (album,songs) => dispatch(goToAlbum(album,songs)),
 });
 
-export default connect(null,mapDispatchToProps)(AlbumCard)
+export default connect(null,mapDispatchToProps)(SongCard)

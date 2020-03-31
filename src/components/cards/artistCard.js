@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import ImageLoad from 'react-native-image-placeholder';
 import { connect } from 'react-redux';
 
+import FastImage from "./../images/fastImage";
 import { goToArtist } from './../../redux/navigation/actions';
 import styles from "./styles";
 
@@ -21,7 +22,11 @@ class ArtistCard extends PureComponent {
       onPress={() => this.props.goToArtist(this.props.artist)}
       delayPressIn={0} useForeground >
         <Card style={styles.card} noShadow={true}>
-          <Image source={this.props.image} style={styles.artistCardImg} />
+        <FastImage
+          style={styles.artistCardImg} // rounded or na?
+          source={this.props.image}
+          placeholder={require("./../../../assets/userPlaceholder.png")}
+        />
           <Body style={styles.cardItem}>
             <View style={styles.radioCardName}>
               <View style={{ flex: 0.5}}>

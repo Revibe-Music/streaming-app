@@ -123,8 +123,9 @@ class Artist extends Component {
       <>
       <ParalaxContainer
         platform={this.artist.platform}
+        placeholderImage={require("./../../../../assets/userPlaceholder.png")}
         title={this.artist.name}
-        image={this.getArtistImage()}
+        images={this.getArtistImage()}
       >
         <View style={styles.container}>
           {this.state.loading  ?

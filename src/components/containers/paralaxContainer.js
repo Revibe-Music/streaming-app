@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {StyleSheet, StatusBar,Image} from 'react-native';
+import {StyleSheet, StatusBar,Image, ScrollView, Flatlist} from 'react-native';
 import { Container as BaseContainer, Content, Header, Left, Body, Right, Text, View, Button, Icon} from "native-base";
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 
@@ -12,6 +12,8 @@ import { getColorFromURL } from 'rn-dominant-color';
 
 import { connect } from 'react-redux';
 import OptionsMenu from "./../OptionsMenu/index";
+import FastImage from "./../images/fastImage";
+import PlaylistImage from "./../images/playlistImage";
 import { goBack } from './../../redux/navigation/actions';
 
 
@@ -27,13 +29,15 @@ export class ParalaxContainer extends Component {
   }
 
   async componentDidMount() {
-    if(this.props.image.hasOwnProperty("uri")) {
-      try {
-        var color = await getColorFromURL(this.props.image.uri)
-        this.setState({ primaryColor: color.primary, secondaryColor: color.secondary})
-      }
-      catch(error) {
-        console.log(error);
+    if(this.props.images.length === undefined) {
+      if(this.props.images.hasOwnProperty("uri")) {
+        try {
+          var color = await getColorFromURL(this.props.images.uri)
+          this.setState({ primaryColor: color.primary, secondaryColor: color.secondary})
+        }
+        catch(error) {
+          console.log(error);
+        }
       }
     }
   }
@@ -63,6 +67,7 @@ export class ParalaxContainer extends Component {
         minOverlayOpacity={0}
         overlayColor="#121212"
         fadeOutForeground
+        ScrollViewComponent={Flatlist}
         scrollViewBackgroundColor="#121212"
         renderHeader={() => (
           <LinearGradient
@@ -71,13 +76,16 @@ export class ParalaxContainer extends Component {
             colors={[this.state.primaryColor, this.state.secondaryColor, '#121212']}
           >
           <View style={{top: hp("10%")}}>
-          <ImageLoad
-            isShowActivity={false}
-            style={styles.albumImg}
-            placeholderStyle={styles.albumImg}
-            source={this.props.image}
-            placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
-          />
+          {this.props.images.length ?
+            <PlaylistImage images={this.props.images} />
+            :
+            <FastImage
+              style={styles.singleImage} // rounded or na?
+              source={this.props.images}
+              placeholder={this.props.placeholderImage}
+            />
+          }
+
           </View>
           </LinearGradient>
         )}
@@ -108,9 +116,14 @@ export class ParalaxContainer extends Component {
               onPress={() => this.props.goBack()}>
               <Icon name="ios-arrow-back" style={{color:"white", fontSize: 30, textAlign: "left"}}/>
             </Button>
-            <View style={{padding: 10}}>
-            {this.displayLogo()}
-            </View>
+            {this.props.displayLogo ?
+              <View style={{padding: 10}}>
+              {this.displayLogo()}
+              </View>
+            :
+              null
+            }
+
           </View>
           </>
         )}
@@ -153,6 +166,8 @@ export class ParalaxContainer extends Component {
 
 ParalaxContainer.propTypes = {
   platform: PropTypes.string,
+  displayLogo: PropTypes.bool,
+  placeholderImage: PropTypes.node,
   title: PropTypes.string,
   text: PropTypes.string,
   note: PropTypes.string,
@@ -160,11 +175,15 @@ ParalaxContainer.propTypes = {
   buttonText: PropTypes.string,
   onButtonPress: PropTypes.func,
   image: PropTypes.string,
+  images: PropTypes.array,
 };
 
 ParalaxContainer.defaultProps = {
   showButton: false,
+  displayLogo: true,
   buttonText: "Listen",
+  images: [],
+  // placeholderImage:require("./../../../assets/albumArtPlaceholder.png")
 };
 
 
@@ -185,6 +204,7 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: "center",
+    marginTop: hp("1"),
     fontSize: hp("2"),
     color: "white"
   },
@@ -226,9 +246,26 @@ const styles = StyleSheet.create({
     fontSize: hp("4%"),
   },
 
-  albumImg: {
-    height: hp("25"),
-    width: hp("25"),
+  singleImage: {
+    height: hp("24"),
+    width: hp("24"),
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    resizeMode: 'contain',
+    backgroundColor:"#121212",
+  },
+  multiImageContainer: {
+    height: hp("24"),
+    width: hp("24"),
+    flexDirection: "column",
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  multiImage: {
+    height: hp("11.5"),
+    width: hp("11.5"),
     alignSelf: 'center',
     resizeMode: 'contain',
     backgroundColor:"#121212",

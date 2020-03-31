@@ -353,7 +353,7 @@ export default {
     height: hp("5%"),
     width: wp("15%"),
     borderRadius: hp(".8%"),
-    backgroundColor: "#7248BD",
+    backgroundColor: "grey",
     justifyContent: "center",
     alignItems:"center",
   },
@@ -432,5 +432,22 @@ mainText: {
     fontWeight: "bold",
     fontSize: hp("2%"),
     textAlign: "left",
+  },
+
+  playListDeleteButton: {
+    height: hp("5%"),
+    width: wp("30%"),
+    borderRadius: hp(".8%"),
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems:"center",
+  },
+  playListCancelButton: {
+    height: hp("4%"),
+    width: wp("20%"),
+    borderRadius: hp(".8%"),
+    backgroundColor: "#7248BD",
+    justifyContent: "center",
+    alignItems:"center",
   },
 };

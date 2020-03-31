@@ -55,11 +55,6 @@ class Player extends Component {
     }
 
     async componentDidUpdate(prevProps) {
-      // very tempory way to close player when user selects go to artist
-      // or go to album to get plyer to close. The issue is that if
-      // user is already on artist or album page then existing options menu
-      // also closes the player. Will need to figure out how to get active page
-      // from navigation
       if(this.props.hasAudio) {
         if(prevProps.playlist.length > 0) {
           try{
@@ -77,15 +72,9 @@ class Player extends Component {
           var color = await getColorFromURL(this.props.playlist[this.props.currentIndex].album.images[1].url)
           this.setState({primaryColor: color.primary, secondaryColor: color.secondary})
         }
-        if(prevProps.selectedSong && !this.props.selectedSong) {
-          var routes = this.props.navigation.state.routes
-          for(var x=0; x<routes.length; x++) {
-            if(routes[x].routes.length > 1) {
-              this._panel.hide()
-              this.props.navigation.setParams({ visible: true })
-              break
-            }
-          }
+        if(prevProps.currentKey !== this.props.currentKey) {
+          this._panel.hide()
+          this.props.navigation.setParams({ visible: true })
         }
       }
     }
@@ -322,7 +311,7 @@ function mapStateToProps(state) {
     currentIndex: state.audioState.currentIndex,
     hasAudio: state.audioState.hasAudio,
     activePlatform: state.audioState.activePlatform,
-    selectedSong: state.naviationState.selectedSong,
+    currentKey: state.naviationState.currentKey,
   }
 };
 

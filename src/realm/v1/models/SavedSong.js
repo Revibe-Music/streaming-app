@@ -1,6 +1,6 @@
 import realm from './../../realm';
 
-export default class SavedSong {
+export default class SavedSong extends Realm.Object {
 
   static schema = {
     name: "SavedSong",
@@ -10,7 +10,7 @@ export default class SavedSong {
     }
   }
 
-  _validate(song) {
+  static _validate(song) {
     // structure song and all nested objects to put in realm format
     if(!song.dateSaved) {
       song.dateSaved = new Date().toLocaleString()
@@ -39,12 +39,12 @@ export default class SavedSong {
     return song
   }
 
-  prepare(song) {
+  static prepare(song) {
     var formattedSong = this._validate(song)
     return {song: formattedSong, dateSaved: song.dateSaved}
   }
 
-  create(song) {
+  static create(song) {
     var newObject = {}
     realm.write(() => {
       newObject.object = realm.create('SavedSong', this.prepare(song), true);
@@ -53,20 +53,15 @@ export default class SavedSong {
   }
 
   delete() {
-    if(realm.objects("SavedSong").filtered(`song.id = "${this.song.id}"`).length < 2) {
+
+    if(this.song.linkingObjectsCount() < 2) {
       // only one SavedSong object refers to this song object so delete the song object
-      var song = realm.objects("Song").filtered(`id = "${this.song.id}"`)[0]
-      song.delete()
+      // var song = realm.objects("Song").filtered(`id = "${this.song.id}"`)[0]
+      this.song.delete()
     }
     realm.write(() => {
       realm.delete(this);
     })
-
-
-
-
-
-
 
   }
 }

@@ -37,8 +37,8 @@ export class Container extends Component {
               <Text style={styles.pageTitle}> {this.props.title} </Text>
             </View>
           }
-          {this.props.headerIcon ?
-            <View style={{alignItems: "flex-end", width: "20%"}}>
+          {this.props.headerIcon !== null?
+            <View style={{flexDirection: "row", justifyContent: "flex-end",alignItems: "flex-end", width: "20%", paddingRight: "2%"}}>
               {this.props.headerIcon}
             </View>
           :
@@ -72,6 +72,7 @@ Container.propTypes = {
 };
 
 Container.defaultProps = {
+  headerIcon: null,
   headerTitlePosition: "left",
   scrollable: true,
 };

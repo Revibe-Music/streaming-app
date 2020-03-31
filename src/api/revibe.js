@@ -120,7 +120,7 @@ export default class RevibeAPI extends BasePlatformAPI {
       id: song['song_id'],
       uri: song['song_uri'],
       contributors: this._parseContributors(song[contributorKey], song['song_id']),
-      duration: parseFloat(song['duration']),
+      duration: song['duration'] ? parseFloat(song['duration']) : 0,
       album: this._parseAlbum(song['album']),
       platform: song['platform'],
     }
@@ -168,7 +168,8 @@ export default class RevibeAPI extends BasePlatformAPI {
       var formattedPlaylist = {
         name: playlist['name'],
         id: playlist['id'],
-        images: []  // need to get these
+        dateCreated: playlist['date_created'] ? playlist['date_created'] : new Date(),
+        curated: playlist['curated']
       }
       return formattedPlaylist
   }
@@ -496,6 +497,33 @@ export default class RevibeAPI extends BasePlatformAPI {
     return songs
   }
 
+  async fetchAllPlaylistsSongs() {
+    /**
+    * Summary: Fetch all of a user's playlists (required implementation).
+    *
+    * @see  BasePlatformAPI
+    *
+    * @return {Object} List containing playlist objects
+    */
+    const playlists = await this._request("music/playlist/", "GET", null, true, true)
+    songPromises = []
+    for(var x=0; x<playlists.length; x++) {
+      playlists[x] = this._parsePlaylist(playlists[x])
+      const playlistId = playlists[x].id
+      songPromises.push(this.fetchPlaylistSongs(playlists[x].id).then((songs) => ({playlist: playlistId, songs: songs}) ))
+    }
+    realm.write(() => {
+      for(var x=0; x<playlists.length; x++) {
+        realm.create("Playlist", {name: playlists[x].name, id: playlists[x].id.toString(), dateCreated: playlists[x].dateCreated}, true)
+      }
+    })
+    const playlistSongs = await Promise.all(songPromises)
+    for(var x=0; x<playlists.length; x++) {
+      var playlist = this.playlists.filtered(`id = "${playlists[x].id}"`)["0"]
+      playlist.batchAddSongs(playlistSongs.filter(y => y.playlist == playlists[x].id)[0].songs)
+    }
+  }
+
   async fetchAllPlaylists() {
     /**
     * Summary: Fetch all of a user's playlists (required implementation).
@@ -504,14 +532,14 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @return {Object} List containing playlist objects
     */
-
-    var playlists = await this._request("music/playlist/", "GET", null, true)
-    for(var x=0; x<playlists.length; x++) {
-      playlists[x] = this._parsePlaylist(playlists[x])
-      // probably need to look at date added here
-    }
+    var playlists = await this._request("music/playlist/", "GET", null, true, true)
+    playlists = playlists.map(playlist => this._parsePlaylist(playlist))
+    realm.write(() => {
+      for(var x=0; x<playlists.length; x++) {
+        realm.create("Playlist", {name: playlists[x].name, id: playlists[x].id.toString(), dateCreated: playlists[x].dateCreated}, true)
+      }
+    })
     return playlists
-
   }
 
   async fetchPlaylistSongs(id) {
@@ -525,10 +553,12 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
 
-    var songs = await this._request("music/playlist/songs/?playlist_id="+id, "GET", null, true)
+    var songs = await this._request("music/playlist/songs/?playlist_id="+id, "GET", null, true, true)
+    // console.log(songs);
     for(var x=0; x<songs.length; x++) {
-      songs[x] = this._parseSong(songs[x])
-      // probably need to look at date added here
+      var dateSaved = songs[x].date_saved
+      songs[x] = this._parseSong(songs[x].song)
+      songs[x].dateSaved = dateSaved
     }
     return songs
   }
@@ -748,9 +778,177 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @param {Object}   album    album object
     */
     var response = await this._request("music/playlist/", "POST", {name: name}, true)
+    var data = {}
     realm.write(() => {
-      realm.create("Playlist", {name: name, id: String(response.data.id)})
+      data.playlist = realm.create("Playlist", {name: name, id: String(response.data.id), dateCreated: new Date()})
     })
+    return data.playlist
+  }
+
+  async deletePlaylist(id) {
+    /**
+    * Summary: Remove all songs from album to Revibe library. (Still need to implement)
+    *
+    * @param {Object}   album    album object
+    */
+    var response = await this._request("music/playlist/"+id, "DELETE", null, true)
+    var playlist = this.playlists.filtered(`id = "${id}"`)[0]
+    playlist.delete()
+  }
+
+  async batchAddSongsToPlaylist(songs, playlistId) {
+    /**
+    * Summary: Add song to Revibe library.
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {object}   song    seconds value to seek to
+    * @param {string}   playlist    seconds value to seek to
+    */
+    var formattedSongs = []
+    for(var j=0; j<songs.length; j++) {
+      if(songs[j].platform === "Revibe") {
+        var formattedSong = {song_id: songs[j].id, platform: songs[j].platform}
+      }
+      else {
+        if(songs[j].contributors.length === undefined) {
+          songs[j].contributors = Object.keys(songs[j].contributors).map(y => songs[j].contributors[y])
+        }
+        for(var x=0; x<songs[j].contributors.length; x++) {
+          if(songs[j].contributors[x].artist.images.length === undefined) {
+            songs[j].contributors[x].artist.images = Object.keys(songs[j].contributors[x].artist.images).map(y => songs[j].contributors[x].artist.images[y])
+          }
+        }
+
+        if(songs[j].contributors.length === undefined) {
+          songs[j].contributors[0].artist.images = Object.keys(songs[j].contributors[x].artist.images).map(y => songs[j].contributors[x].artist.images[y])
+        }
+        if(songs[j].contributors.length > 1) {
+          var artists = []
+          for(var x=0; x<songs[j].contributors.length; x++) {
+            var artist = {
+              artist_id: songs[j].contributors[x].artist.id,
+              artist_uri: songs[j].contributors[x].artist.uri,
+              name: songs[j].contributors[x].artist.name,
+              image_refs: songs[j].contributors[x].artist.images.map(img => ({ref: img.url, height: img.height, width: img.width}))
+            }
+            artists.push(artist)
+          }
+        }
+        else {
+          var artists = {
+            artist_id: songs[j].contributors[0].artist.id,
+            artist_uri: songs[j].contributors[0].artist.uri,
+            name: songs[j].contributors[0].artist.name,
+            image_refs: songs[j].contributors[0].artist.images.map(x => ({ref: x.url, height: x.height, width: x.width}))
+          }
+        }
+        var formattedSong = {
+          platform: songs[j].platform,
+          song: {
+              song_id: songs[j].id,
+              song_uri: songs[j].uri,
+              title : songs[j].name,
+              duration: parseFloat(songs[j].duration) ? songs[j].duration.toFixed(2) : 0
+          },
+          artist: artists,
+          album: {
+          	album_id: songs[j].album.id,
+          	album_uri: songs[j].album.uri,
+          	name: songs[j].album.name,
+          	type: songs[j].album.type,
+            image_refs: songs[j].album.images.map(x => ({ref: x.url, height: x.height, width: x.width}))
+          },
+        }
+      }
+      formattedSongs.push(formattedSong)
+    }
+    var data = {playlist_id: playlistId, songs: formattedSongs}
+    var response = await this._request("music/playlist/songs/bulk/", "POST", data, true)
+    var playlist = this.playlists.filtered(`id = "${playlistId}"`)["0"]
+    playlist.batchAddSongs(songs)
+  }
+
+  async addSongToPlaylist(song, playlistId) {
+    /**
+    * Summary: Add song to Revibe library.
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {object}   song    seconds value to seek to
+    * @param {string}   playlist    seconds value to seek to
+    */
+
+    if(song.platform === "Revibe") {
+      var data = {song_id: song.id, playlist_id: playlistId}
+    }
+    else {
+      if(song.contributors.length === undefined) {
+        song.contributors = Object.keys(song.contributors).map(y => song.contributors[y])
+      }
+      for(var x=0; x<song.contributors.length; x++) {
+        if(song.contributors[x].artist.images.length === undefined) {
+          song.contributors[x].artist.images = Object.keys(song.contributors[x].artist.images).map(y => song.contributors[x].artist.images[y])
+        }
+      }
+
+      if(song.contributors.length === undefined) {
+        song.contributors[0].artist.images = Object.keys(song.contributors[x].artist.images).map(y => song.contributors[x].artist.images[y])
+      }
+      if(song.contributors.length > 1) {
+        var artists = []
+        for(var x=0; x<song.contributors.length; x++) {
+          var artist = {
+            artist_id: song.contributors[x].artist.id,
+            artist_uri: song.contributors[x].artist.uri,
+            name: song.contributors[x].artist.name,
+            image_refs: song.contributors[x].artist.images.map(img => ({ref: img.url, height: img.height, width: img.width}))
+          }
+          artists.push(artist)
+        }
+      }
+      else {
+        var artists = {
+          artist_id: song.contributors[0].artist.id,
+          artist_uri: song.contributors[0].artist.uri,
+          name: song.contributors[0].artist.name,
+          image_refs: song.contributors[0].artist.images.map(x => ({ref: x.url, height: x.height, width: x.width}))
+        }
+      }
+      var data = {
+        playlist_id: playlistId,
+        platform: song.platform,
+        song: {
+            song_id: song.id,
+            song_uri: song.uri,
+            title : song.name,
+            duration: song.duration ? song.duration : 0
+        },
+        artist: artists,
+        album: {
+        	album_id: song.album.id,
+        	album_uri: song.album.uri,
+        	name: song.album.name,
+        	type: song.album.type,
+          image_refs: song.album.images.map(x => ({ref: x.url, height: x.height, width: x.width}))
+        },
+      }
+    }
+    var response = await this._request("music/playlist/songs/", "POST", data, true)
+    this.saveToPlaylist(song, playlistId)   // save to realm database
+  }
+
+  async removeSongFromPlaylist(songId, playlistId) {
+    /**
+    * Summary: Remove song from Revibe library.
+    *
+    * @see  BasePlatformAPI
+    *
+    * @param {number}   time    seconds value to seek to
+    */
+    var data = {song_id: songId, playlist_id: playlistId}
+    var response = await this._request("music/playlist/songs/", "DELETE", data, true)
+    this.removeFromPlaylist(songId, playlistId)   // save to realm database
   }
 
 
