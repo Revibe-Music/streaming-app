@@ -12,6 +12,7 @@ import SongItem from "../../../components/listItems/songItem";
 import AlbumCard from "../../../components/cards/albumCard";
 import AlbumItem from "../../../components/listItems/albumItem";
 import ViewAllItem from "../../../components/listItems/ViewAllItem";
+import DonationModal from "../../../components/modals/donationModal";
 
 import { playSong } from './../../../redux/audio/actions'
 import { goToViewAll } from "./../../../redux/navigation/actions";
@@ -31,7 +32,8 @@ class Artist extends Component {
       albums: [],
       eps: [],
       appearsOn: [],
-      songs: []
+      songs: [],
+      showDonationModal: false
     }
 
     this.renderItem = this.renderItem.bind(this)
@@ -125,9 +127,14 @@ class Artist extends Component {
         platform={this.artist.platform}
         placeholderImage={require("./../../../../assets/userPlaceholder.png")}
         title={this.artist.name}
+        allowDonations={true}
         images={this.getArtistImage()}
       >
         <View style={styles.container}>
+          <Button style={styles.donationButton} onPress={() => this.setState({showDonationModal: true})}>
+            <Icon type="MaterialIcons" name="attach-money" style={styles.donationButtonText}/>
+            <Text style={styles.donationButtonText}> Tip Jar </Text>
+          </Button>
           {this.state.loading  ?
             <View style={styles.loadingIndicator}>
               <BarIndicator animationDuration={700} color='#7248bd' count={5} />
@@ -277,6 +284,11 @@ class Artist extends Component {
           }
         </View>
       </ParalaxContainer>
+      <DonationModal
+        isVisible={this.state.showDonationModal}
+        onClose={() => this.setState({showDonationModal: false})}
+        artist={this.artist}
+      />
       </>
     );
   }

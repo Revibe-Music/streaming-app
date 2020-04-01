@@ -248,4 +248,19 @@ export default {
       paddingEnd: 5,
       backgroundColor: "#121212"
     },
+    donationButton: {
+      alignSelf: "flex-end",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "column",
+      backgroundColor: "transparent",
+      width: wp("20"),
+      height: hp("4")
+    },
+    donationButtonText: {
+      color: "#7248BD",
+      fontSize: hp("2"),
+      paddingRight: wp("2"),
+      paddingLeft: wp("2"),
+    }
 };

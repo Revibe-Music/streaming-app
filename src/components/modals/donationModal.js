@@ -4,7 +4,7 @@
 * public platform tabs (YouTube) will automatically render
 */
 import React, { Component } from "react";
-import { TouchableOpacity, View, Text } from 'react-native'
+import { TouchableOpacity, View, Text, Linking } from 'react-native'
 import { Container, Tabs, Tab, Icon, Header, Left, Body, Right, Button, ListItem } from "native-base";
 import PropTypes from 'prop-types';
 import { CheckBox } from 'react-native-elements'
@@ -12,6 +12,8 @@ import { connect } from 'react-redux';
 import styles from "./styles";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import Modal from "react-native-modal";
+import Venmo from './../../../assets/venmo_logo_blue.svg'
+import CashApp from './../../../assets/cash_app_logo.svg'
 
 
 class DonationModal extends Component {
@@ -19,32 +21,35 @@ class DonationModal extends Component {
   constructor(props) {
      super(props);
 
-     var venmoUrl = `venmo://paycharge?txn=pay&recipients=${artist.venmo_username}&amount=${amount}&note="Supporting local artists through Revibe"`
-     var cashAppUrl = ` cash.me/$${artist.cashApp_username}/${amount}`
+     // var venmoUrl = `venmo://paycharge?txn=pay&recipients=${artist.venmo_username}&amount=${amount}&note="Supporting local artists through Revibe"`
+     this.venmoUrl = `venmo://paycharge?txn=pay&recipients=Riley_Stephens&amount=${5}&note="Supporting local artists through Revibe"`
+     // var cashAppUrl = `cash.me/$${artist.cashApp_username}/${amount}`
+
      this.state = {
-       // platforms: ["Revibe", "YouTube", "Spotify"],
-       platforms: Object.keys(this.props.platforms),
-       sortBy: "dateSaved"
+       displayPaymentMethods: false,
+       paymentMethod: null,
+       amount: "5",
      }
 
-     this.selectPlatform = this.selectPlatform.bind(this)
-     this.selectSortBy = this.selectSortBy.bind(this)
+     this.availablelaymentMethods = ["Venmo", "Cash App"]
+
+     this.selectPaymentMethod = this.selectPaymentMethod.bind(this)
+     this.selectAmount = this.selectAmount.bind(this)
+     this.close = this.close.bind(this)
   }
 
-  selectPlatform(platform) {
-    if(this.state.platforms.filter(x => x===platform).length > 0) {
-      var updatedPlatforms = this.state.platforms.filter(x => x!==platform)
-    }
-    else {
-      var updatedPlatforms = [...this.state.platforms, platform]
-    }
-    this.setState({platforms: updatedPlatforms})
-    this.props.onPlatformChange(updatedPlatforms)
+  close() {
+    this.setState({paymentMethod: null,amount: "5", displayPaymentMethods:false})
+    this.props.onClose()
   }
 
-  selectSortBy(method) {
-    this.setState({sortBy: method})
-    this.props.onSortByChange(method)
+
+  selectPaymentMethod(paymentMethod) {
+    this.setState({paymentMethod: paymentMethod})
+  }
+
+  selectAmount(amount) {
+    this.setState({amount: amount})
   }
 
 
@@ -54,86 +59,81 @@ class DonationModal extends Component {
         isVisible={this.props.isVisible}
         hasBackdrop={false}
         deviceWidth={wp("100")}
+        swipeDirection={["down", "up"]}
+        onSwipeComplete={() => this.close()}
         style={{justifyContent: 'flex-end',margin: 0, padding: 0}}
-        >
-        <View style={{backgroundColor: '#202020', height: "65%", width: "100%", borderRadius: 25}}>
-          <View style={{flexDirection: "column", marginLeft: wp("3%")}}>
-          <View style={{width: wp("40%"), marginTop: hp("3%")}}>
-            <Text style={styles.filterHeaderText}>Platforms</Text>
-            {Object.keys(this.props.platforms).map(platform => (
-              <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
-                <TouchableOpacity onPress={() => this.selectPlatform(platform)}>
-                  <View style={{flexDirection: "row"}}>
-                    <CheckBox
-                      checked={this.state.platforms.filter(x => x===platform).length > 0}
-                      onPress={() => this.selectPlatform(platform)}
-                      checkedIcon='dot-circle-o'
-                      uncheckedIcon='circle-o'
-                      checkedColor="#7248BD"
-                      style={styles.filterCheckbox}
-                    />
-                    <View style={styles.textContainer}>
-                     <View>
-                       <Text style={styles.filterOptionText}>{platform}</Text>
-                     </View>
-                   </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            ))}
+      >
+
+        <View style={{backgroundColor: 'transparent', height: "100%", width: "100%", alignItems: "center", justifyContent: "center"}}>
+          <View style={{backgroundColor: '#202020', height: "40%", width: "70%", borderRadius: 25}}>
+            <View style={styles.closeButtonContainer} >
+              <Button style={styles.closeButton} transparent onPress={() => this.close()}>
+                <Icon transparent={false} name="md-close" style={styles.closeButtonIcon}/>
+              </Button>
             </View>
-            {this.props.allowSort ?
-              <View style={{width: wp("40%"), marginTop: hp("4%")}}>
-                <Text style={styles.filterHeaderText}>Sort By</Text>
-                <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
-                  <TouchableOpacity onPress={() => this.selectSortBy("dateSaved")}>
-                    <View style={{flexDirection: "row"}}>
-                      <CheckBox
-                        checked={this.state.sortBy==="dateSaved"}
-                        onPress={() => this.selectSortBy("dateSaved")}
-                        checkedIcon='dot-circle-o'
-                        uncheckedIcon='circle-o'
-                        checkedColor="#7248BD"
-                        style={styles.filterCheckbox}
-                      />
-                      <View style={styles.textContainer}>
-                       <View>
-                         <Text style={styles.filterOptionText}>Date Saved</Text>
-                       </View>
-                     </View>
-                    </View>
-                  </TouchableOpacity>
+            {!this.state.displayPaymentMethods ?
+              <>
+              <Text style={styles.filterHeaderText}>Amount</Text>
+              <View style={{height: "30%", width: "30%", marginLeft: "5%", marginTop: hp("3")}}>
+                <View style={{flexDirection: "column", justifyContent: "center"}}>
+                  <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                    <Button style={[styles.donationAmountButton, this.state.amount == 5 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(5)}>
+                      <Text style={{color: "white"}}> $5 </Text>
+                    </Button>
+                    <Button style={[styles.donationAmountButton, this.state.amount == 10 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(10)}>
+                      <Text style={{color: "white"}}> $10 </Text>
+                    </Button>
+                    <Button style={[styles.donationAmountButton, this.state.amount == 15 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(15)}>
+                      <Text style={{color: "white"}}> $15 </Text>
+                    </Button>
+                  </View>
                 </View>
-                <View style={[styles.filterListItem, {marginTop: hp("2%")}]}>
-                  <TouchableOpacity onPress={() => this.selectSortBy("alphabetically")}>
-                    <View style={{flexDirection: "row"}}>
-                      <CheckBox
-                        checked={this.state.sortBy==="alphabetically"}
-                        onPress={() => this.selectSortBy("alphabetically")}
-                        checkedIcon='dot-circle-o'
-                        uncheckedIcon='circle-o'
-                        checkedColor="#7248BD"
-                        style={styles.filterCheckbox}
-                      />
-                      <View style={styles.textContainer}>
-                       <View>
-                         <Text style={styles.filterOptionText}>A-Z</Text>
-                       </View>
-                     </View>
-                    </View>
-                  </TouchableOpacity>
+                <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                  <Button style={[styles.donationAmountButton, this.state.amount ==  20? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(20)}>
+                    <Text style={{color: "white"}}> $20 </Text>
+                  </Button>
+                  <Button style={[styles.donationAmountButton, this.state.amount == 25 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(25)}>
+                    <Text style={{color: "white"}}> $25 </Text>
+                  </Button>
+                  <Button style={[styles.donationAmountButton, this.state.amount == 30 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(30)}>
+                    <Text style={{color: "white"}}> $30 </Text>
+                  </Button>
+                  </View>
                 </View>
+                <View style={{marginTop: hp("10"),justifyContent: "center", alignItems: "center"}}>
+                  <Button
+                    style={styles.nextButton}
+                    onPress={() => this.setState({displayPaymentMethods:true})}
+                  >
+                    <Text style={{color: "#7248BD", fontSize: 20}}> Next </Text>
+                  </Button>
                 </View>
+                </>
             :
-              null
+            <>
+            <Text style={styles.filterHeaderText}>Method</Text>
+              <View style={{marginTop: hp("4"), alignItems: "center", justifyContent: "center"}}>
+                <Button style={styles.paymentButton} onPress={() => Linking.openURL(`venmo://paycharge?txn=pay&recipients=Riley_Stephens&amount=${this.state.amount}&note=Supporting local artists through Revibe`)}>
+                  <Venmo width={wp("30")}/>
+                </Button>
+                </View>
+                <View style={{marginTop: hp("4"), alignItems: "center", justifyContent: "center"}}>
+
+                <Button style={styles.paymentButton} onPress={() => Linking.openURL(`https://cash.app/$RileyStephens28/${this.state.amount}/Yeee`)}>
+                  <CashApp width={wp("50")} height={100}/>
+                </Button>
+              </View>
+            <View style={{marginTop: hp("5"),justifyContent: "center", alignItems: "center"}}>
+              <Button
+                style={styles.nextButton}
+                onPress={() => this.setState({displayPaymentMethods:false})}
+              >
+                <Text style={{color: "#7248BD", fontSize: 20}}> Back </Text>
+              </Button>
+            </View>
+              </>
             }
           </View>
-          <Button style={styles.filterCancelButton}
-          block
-          onPress={() => this.props.onClose() }
-          >
-            <Text style={styles.filterCancelText}>Close</Text>
-          </Button>
         </View>
       </Modal>
     );
@@ -145,16 +145,12 @@ DonationModal.propTypes = {
   isVisible: PropTypes.bool,
   allowSort: PropTypes.bool,
   onClose: PropTypes.func,
-  onSortByChange: PropTypes.func,
-  onPlatformChange: PropTypes.func,
 };
 
 DonationModal.defaultProps = {
   isVisible: false,
   allowSort: true,
   onClose: () => console.log("Must pass function to onClose props."),
-  onSortByChange: () => console.log("Must pass function to onSortByChange props."),
-  onPlatformChange: () => console.log("Must pass function to onPlatformChange props."),
 };
 
 function mapStateToProps(state) {

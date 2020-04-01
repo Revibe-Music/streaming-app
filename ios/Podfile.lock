@@ -303,6 +303,8 @@ PODS:
   - RNSpotify (1.2.11):
     - React
     - RNEventEmitter
+  - RNSVG (12.0.3):
+    - React
   - RNVectorIcons (6.6.0):
     - React
   - SDWebImage (5.6.1):
@@ -368,6 +370,7 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNSound (from `../node_modules/react-native-sound`)
   - RNSpotify (from `../node_modules/rn-spotify-sdk`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -484,6 +487,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-sound"
   RNSpotify:
     :path: "../node_modules/rn-spotify-sdk"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   Yoga:
@@ -546,6 +551,7 @@ SPEC CHECKSUMS:
   RNReanimated: 6abbbae2e5e72609d85aabd92a982a94566885f1
   RNSound: c980916b596cc15c8dcd2f6ecd3b13c4881dbe20
   RNSpotify: a63cc52f37dd1420e03cc76e3e885bd5ce410ff8
+  RNSVG: 7e16ddfc6e00d5aa69c9eb83e699bcce5dcb85d4
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   SDWebImage: 7edb9c3ea661e77a66661f7f044de8c1b55d1120
   SDWebImageWebPCoder: 36f8f47bd9879a8aea6044765c1351120fd8e3a8

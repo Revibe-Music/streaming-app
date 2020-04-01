@@ -51,4 +51,41 @@ export default {
     fontSize: hp("2.5%"),
     color: "white",
   },
+
+  closeButtonContainer: {
+    flex:.1,
+    justifyContent: "center",
+    alignItems:"flex-start",
+    marginTop: hp("3%"),
+    marginLeft: wp("3%"),
+  },
+  closeButton: {
+    fontSize: hp("3")
+  },
+  closeButtonIcon: {
+    color: "white",
+    fontSize: hp("3%")
+  },
+  donationAmountButton: {
+    margin: hp("2"),
+    backgroundColor: "transparent",
+    borderColor: "#7248BD",
+    borderWidth: hp(".2"),
+    width: wp("12"),
+    justifyContent: "center",
+    alignItems: "center" ,
+  },
+  nextButton: {
+    margin: hp("2"),
+    backgroundColor: "transparent",
+    width: wp("20"),
+    justifyContent: "center",
+    alignItems: "center" ,
+  },
+  paymentButton: {
+    backgroundColor: "white",
+    width: wp("30"),
+    // height: hp("6"),
+    justifyContent: "center",
+  }
 };
