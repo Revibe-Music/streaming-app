@@ -59,7 +59,7 @@ class AlbumItem extends PureComponent {
     return (
       <BaseListItem noBorder style={styles.listItem}>
         <TouchableOpacity onPress={() => this.props.goToAlbum(this.props.album, [], this.props.isLocal)}>
-          <View style={{flexDirection: "row"}}>
+          <View style={{flexDirection: "row", alignItems: "center"}}>
             <FastImage
               style={styles.image} // rounded or na?
               source={this.getImage()}

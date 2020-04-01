@@ -103,7 +103,7 @@ class OptionsMenu extends PureComponent {
      this.setState({ addingToLibrary: true })
      var platform = getPlatform(this.props.song.platform)
      platform.addSongToLibrary(this.props.song)
-     setTimeout(() => this.setState({ addingToLibrary: false }), 1300)
+     setTimeout(() => this.setState({ addingToLibrary: false }), 1000)
      this.closeOptionsMenu(1500)
    }
 
@@ -111,7 +111,7 @@ class OptionsMenu extends PureComponent {
      this.setState({ removingFromLibrary: true })
      var platform = getPlatform(this.props.song.platform)
      platform.removeSongFromLibrary(this.props.song.id)
-     setTimeout(() => this.setState({ removingFromLibrary: false }), 1300)
+     setTimeout(() => this.setState({ removingFromLibrary: false }), 1200)
      this.closeOptionsMenu(1500)
    }
 
@@ -130,7 +130,7 @@ class OptionsMenu extends PureComponent {
      else {
        this.setState({ addingToPlaylist: true,  playlist: playlist.name})
        await this.revibe.addSongToPlaylist(this.props.song, playlist.id)
-       setTimeout(() => this.setState({ addingToPlaylist: false, playlist: null }), 1300)
+       setTimeout(() => this.setState({ addingToPlaylist: false, playlist: null }), 1000)
        this.closeOptionsMenu(1500)
      }
    }
@@ -138,21 +138,21 @@ class OptionsMenu extends PureComponent {
    async removeSongFromPlaylist() {
      this.setState({ removingFromPlaylist: true, playlist: this.props.selectedPlaylist.name })
      await this.revibe.removeSongFromPlaylist(this.props.song.id, this.props.selectedPlaylist.id)
-     setTimeout(() => this.setState({ removingFromPlaylist: false, playlist: null }), 1300)
+     setTimeout(() => this.setState({ removingFromPlaylist: false, playlist: null }), 1000)
      this.closeOptionsMenu(1500)
    }
 
    addSongToQueue() {
      this.setState({ addingToQueue: true })
      this.props.addToQueue(this.props.song)
-     setTimeout(() => this.setState({ addingToQueue: false }), 1300)
+     setTimeout(() => this.setState({ addingToQueue: false }), 1200)
      this.closeOptionsMenu(1500)
    }
 
    addSongToPlayNext() {
      this.setState({ addingToPlayNext: true })
      this.props.addToPlayNext(this.props.song)
-     setTimeout(() => this.setState({ addingToPlayNext: false }), 1300)
+     setTimeout(() => this.setState({ addingToPlayNext: false }), 1000)
      this.closeOptionsMenu(1500)
    }
 
@@ -199,6 +199,7 @@ class OptionsMenu extends PureComponent {
           playlist={playlist}
           displayIcon={false}
           iconName="plus"
+          preventLiveUpdates={true}
           onPress={() => this.addSongToPlaylist(playlist)}
         />
        ))

@@ -65,7 +65,7 @@ export default {
     height: hp("5%"),
     width: wp("5%"),
     justifyContent: "center",
-    alignItems:"flex-end"
+    alignItems:"center"
   },
   ellipsisContainer: {
     height: hp("5%"),

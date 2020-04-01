@@ -777,7 +777,9 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @param {Object}   album    album object
     */
+    console.log(name);
     var response = await this._request("music/playlist/", "POST", {name: name}, true)
+    console.log(response);
     var data = {}
     realm.write(() => {
       data.playlist = realm.create("Playlist", {name: name, id: String(response.data.id), dateCreated: new Date()})
