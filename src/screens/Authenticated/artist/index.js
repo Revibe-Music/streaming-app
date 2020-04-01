@@ -4,7 +4,7 @@ import { View,Button,Text,Icon,List } from "native-base";
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import ViewMoreText from 'react-native-view-more-text';
 import { BarIndicator } from 'react-native-indicators';
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import { connect } from 'react-redux';
 
 import ParalaxContainer from "../../../components/containers/paralaxContainer";
@@ -13,7 +13,7 @@ import AlbumCard from "../../../components/cards/albumCard";
 import AlbumItem from "../../../components/listItems/albumItem";
 import ViewAllItem from "../../../components/listItems/ViewAllItem";
 import DonationModal from "../../../components/modals/donationModal";
-
+import TipJar from '../../../../assets/tip_jar.svg'
 import { playSong } from './../../../redux/audio/actions'
 import { goToViewAll } from "./../../../redux/navigation/actions";
 import { getPlatform } from '../../../api/utils';
@@ -132,8 +132,7 @@ class Artist extends Component {
       >
         <View style={styles.container}>
           <Button style={styles.donationButton} onPress={() => this.setState({showDonationModal: true})}>
-            <Icon type="MaterialIcons" name="attach-money" style={styles.donationButtonText}/>
-            <Text style={styles.donationButtonText}> Tip Jar </Text>
+            <TipJar height={hp("7")}/>
           </Button>
           {this.state.loading  ?
             <View style={styles.loadingIndicator}>

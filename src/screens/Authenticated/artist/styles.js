@@ -254,8 +254,11 @@ export default {
       justifyContent: "center",
       flexDirection: "column",
       backgroundColor: "transparent",
+      // borderColor: "#7248BD",
+      // borderWidth: hp(.3),
       width: wp("20"),
-      height: hp("4")
+      height: hp("7"),
+      // marginBottom: hp(1),
     },
     donationButtonText: {
       color: "#7248BD",
