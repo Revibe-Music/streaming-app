@@ -88,18 +88,18 @@ class PlaylistItem extends PureComponent {
 
 
   render() {
-    var playlist = this.revibe.playlists.filtered(`id = "${this.props.playlist.id}"`)["0"]
-    var images = playlist.smallImage
+    // var playlist = this.revibe.playlists.filtered(`id = "${this.props.playlist.id}"`)["0"]
+    // var images = playlist.smallImage
     return (
       <BaseListItem noBorder style={styles.listItem}>
         <TouchableOpacity onPress={this.onPress}>
           <View style={{flexDirection: "row", alignItems: "center"}}>
-            {images.length ?
-              <PlaylistImage images={images} height={hp("7")} width={hp("7")}/>
+            {this.state.images.length ?
+              <PlaylistImage images={this.state.images} height={hp("7")} width={hp("7")}/>
               :
               <FastImage
                 style={styles.image} // rounded or na?
-                source={images}
+                source={this.state.images}
                 placeholder={require("./../../../assets/albumArtPlaceholder.png")}
               />
             }

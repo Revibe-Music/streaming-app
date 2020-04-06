@@ -59,8 +59,7 @@ export default class Playlist extends Realm.Object {
 
   get regularImage() {
     var songs = JSON.parse(JSON.stringify(this.allSongs.map(x => x.song)))
-    var albums = songs.map(x => x.album)
-    var albums = uniqBy(albums,'id')
+    var albums = uniqBy(songs.map(x => x.album), "id")
     if(albums.length >= 4) {
       var albumArts = albums.slice(0,4)
       var images = []

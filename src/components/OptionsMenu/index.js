@@ -68,14 +68,15 @@ class OptionsMenu extends PureComponent {
 
    closeOptionsMenu(timeout=null) {
      if(timeout === null) {
-       this.setState({displayArtists: false,displayPlaylists: false})
        this.props.selectSong(null)
+       this.setState({displayArtists: false, displayPlaylists: false, playlist: null})
      }
      else {
        setTimeout(() => {
-         this.setState({displayArtists: false,displayPlaylists: false})
          this.props.selectSong(null)
+         this.setState({displayArtists: false,displayPlaylists: false, playlist: null})
        }, timeout)
+
      }
    }
 
@@ -111,11 +112,11 @@ class OptionsMenu extends PureComponent {
      this.setState({ removingFromLibrary: true })
      var platform = getPlatform(this.props.song.platform)
      platform.removeSongFromLibrary(this.props.song.id)
-     setTimeout(() => this.setState({ removingFromLibrary: false }), 1200)
+     setTimeout(() => this.setState({ removingFromLibrary: false }), 1000)
      this.closeOptionsMenu(1500)
    }
 
-   async addSongToPlaylist(playlist) {
+   addSongToPlaylist(playlist) {
      var playlist = this.revibe.playlists.filtered(`id = "${playlist.id}"`)["0"]
      if(playlist.songIsSaved(this.props.song)) {
        Alert.alert(
@@ -129,16 +130,16 @@ class OptionsMenu extends PureComponent {
      }
      else {
        this.setState({ addingToPlaylist: true,  playlist: playlist.name})
-       await this.revibe.addSongToPlaylist(this.props.song, playlist.id)
-       setTimeout(() => this.setState({ addingToPlaylist: false, playlist: null }), 1000)
+       this.revibe.addSongToPlaylist(this.props.song, playlist.id)
+       setTimeout(() => this.setState({ addingToPlaylist: false}), 1000)
        this.closeOptionsMenu(1500)
      }
    }
 
-   async removeSongFromPlaylist() {
+   removeSongFromPlaylist() {
      this.setState({ removingFromPlaylist: true, playlist: this.props.selectedPlaylist.name })
-     await this.revibe.removeSongFromPlaylist(this.props.song.id, this.props.selectedPlaylist.id)
-     setTimeout(() => this.setState({ removingFromPlaylist: false, playlist: null }), 1000)
+     this.revibe.removeSongFromPlaylist(this.props.song.id, this.props.selectedPlaylist.id)
+     setTimeout(() => this.setState({ removingFromPlaylist: false}), 1000)
      this.closeOptionsMenu(1500)
    }
 

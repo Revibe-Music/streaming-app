@@ -161,6 +161,17 @@ export default class RevibeAPI extends BasePlatformAPI {
       bio: artist['bio'],
       images: this._parseImages(artist['images'])
     }
+    console.log(artist.social_media);
+    if(artist.social_media.length > 0) {
+      console.log("YEET 1");
+      if(artist.social_media.filter(x => x.social_media === "venmo").length > 0) {
+        console.log("YEET 2");
+        formattedArtist.venmo = artist.social_media.filter(x => x.social_media === "venmo")[0].handle
+      }
+      if(artist.social_media.filter(x => x.social_media === "cash_app").length > 0) {
+        formattedArtist.cashApp = artist.social_media.filter(x => x.social_media === "cash_app")[0].handle
+      }
+    }
     return formattedArtist
   }
 
@@ -665,6 +676,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
     var response = await this._request(`content/artist/${id}/`, "GET", null, true)
+    // console.log(response.data);
     return this._parseArtist(response.data)
   }
 
@@ -777,9 +789,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @param {Object}   album    album object
     */
-    console.log(name);
     var response = await this._request("music/playlist/", "POST", {name: name}, true)
-    console.log(response);
     var data = {}
     realm.write(() => {
       data.playlist = realm.create("Playlist", {name: name, id: String(response.data.id), dateCreated: new Date()})
