@@ -54,9 +54,8 @@ export default class SavedSong extends Realm.Object {
 
   delete() {
 
-    if(this.song.linkingObjectsCount() < 2) {
+    if(realm.objects("SavedSong").filtered(`song.id = "${this.song.id}"`).length < 2) {
       // only one SavedSong object refers to this song object so delete the song object
-      // var song = realm.objects("Song").filtered(`id = "${this.song.id}"`)[0]
       this.song.delete()
     }
     realm.write(() => {

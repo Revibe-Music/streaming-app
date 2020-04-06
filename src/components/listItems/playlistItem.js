@@ -31,12 +31,16 @@ class PlaylistItem extends PureComponent {
   }
 
   componentDidMount() {
-    this.state.playlist.addListener(this.update)
-    setTimeout(() => this.setState({updating: false}), 1000)
+    if(!this.props.preventLiveUpdates) {
+      this.state.playlist.addListener(this.update)
+      setTimeout(() => this.setState({updating: false}), 1000)
+    }
   }
 
   componentWillUnmount() {
-    this.state.playlist.removeListener(this.update)
+    if(!this.props.preventLiveUpdates) {
+      this.state.playlist.removeListener(this.update)
+    }
   }
 
   update(playlist, changes) {
@@ -84,18 +88,18 @@ class PlaylistItem extends PureComponent {
 
 
   render() {
-    var playlist = this.revibe.playlists.filtered(`id = "${this.props.playlist.id}"`)["0"]
-    var images = playlist.smallImage
+    // var playlist = this.revibe.playlists.filtered(`id = "${this.props.playlist.id}"`)["0"]
+    // var images = playlist.smallImage
     return (
       <BaseListItem noBorder style={styles.listItem}>
         <TouchableOpacity onPress={this.onPress}>
-          <View style={{flexDirection: "row"}}>
-            {images.length ?
-              <PlaylistImage images={images} height={hp("7")} width={hp("7")}/>
+          <View style={{flexDirection: "row", alignItems: "center"}}>
+            {this.state.images.length ?
+              <PlaylistImage images={this.state.images} height={hp("7")} width={hp("7")}/>
               :
               <FastImage
                 style={styles.image} // rounded or na?
-                source={images}
+                source={this.state.images}
                 placeholder={require("./../../../assets/albumArtPlaceholder.png")}
               />
             }
@@ -133,11 +137,13 @@ PlaylistItem.propTypes = {
   iconName: PropTypes.string,
   displayIcon: PropTypes.bool,
   onPress: PropTypes.func,
-  editting: PropTypes.bool
+  editting: PropTypes.bool,
+  preventLiveUpdates: PropTypes.bool
 };
 
 PlaylistItem.defaultProps = {
   editting: false,
+  preventLiveUpdates: false,
   iconName: "chevron-small-right",
 };
 

@@ -48,9 +48,10 @@ class Artist extends Component {
     var contentList = []
     contentList.push(this.platform.fetchArtistTopSongs(this.artist.id))
     contentList.push(this.platform.fetchArtistAlbums(this.artist.id))
+    var artist = await this.platform.fetchArtist(this.artist.id)
+    console.log(artist);
     if(this.artist.images.length < 1) {
       // fetch artist images if none exist
-      var artist = await this.platform.fetchArtist(this.artist.id)
       this.artist.images = artist.images
     }
     var content = await Promise.all(contentList)

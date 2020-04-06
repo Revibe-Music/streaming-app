@@ -58,34 +58,33 @@ class ArtistItem extends PureComponent {
     return (
       <BaseListItem noBorder style={styles.listItem}>
         <TouchableOpacity onPress={() => this.props.goToArtist(this.props.artist, this.props.isLocal)}>
-          <View style={{flexDirection: "row"}}>
-          <FastImage
-            style={[styles.image, {borderRadius: hp("3.5%")}]} // rounded or na?
-            source={this.getImage()}
-            placeholderSource={require("./../../../assets/userPlaceholder.png")}
-          />
+          <View style={{flexDirection: "row", alignItems: "center"}}>
+            <FastImage
+              style={[styles.image, {borderRadius: hp("3.5%")}]} // rounded or na?
+              source={this.getImage()}
+              placeholderSource={require("./../../../assets/userPlaceholder.png")}
+            />
             <View style={styles.textContainer}>
-             <View>
-               <Text style={[styles.mainText,{color:"white"}]} numberOfLines={1}>{this.props.artist.name}</Text>
-             </View>
-             <View style={{flexDirection: "row"}}>
-               {this.props.displayLogo ?
-                 <View style={styles.logoContainer}>
-                 {this.displayPlatform()}
-                 </View>
-                :
-                  null
-               }
-             <View>
-               <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist()}</Text>
+               <View>
+                 <Text style={[styles.mainText,{color:"white"}]} numberOfLines={1}>{this.props.artist.name}</Text>
                </View>
-             </View>
-           </View>
-           <View style={styles.arrowContainer}>
-            <Icon type="Entypo" name={this.props.iconName} style={styles.arrow} />
-           </View>
+               <View style={{flexDirection: "row"}}>
+                 {this.props.displayLogo ?
+                   <View style={styles.logoContainer}>
+                   {this.displayPlatform()}
+                   </View>
+                  :
+                    null
+                 }
+               <View>
+                 <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist()}</Text>
+               </View>
+            </View>
+          </View>
+         <View style={styles.arrowContainer}>
+          <Icon type="Entypo" name={this.props.iconName} style={styles.arrow} />
          </View>
-
+        </View>
         </TouchableOpacity>
       </BaseListItem>
     )

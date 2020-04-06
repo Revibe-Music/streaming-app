@@ -58,11 +58,6 @@ class Playlist extends Component {
   }
 
   async componentDidMount(){
-    // var songs = this.props.navigation.state.params.songs.slice(0,30)
-    // var songs = this.props.navigation.state.params.songs
-    // this.setState({
-    //   songs: songs,
-    // })
     setTimeout(() => this._addListeners(), 500)
     setTimeout(() => {
       // var songs = this.revibe.getSavedPlaylistSongs(this.playlist.id)

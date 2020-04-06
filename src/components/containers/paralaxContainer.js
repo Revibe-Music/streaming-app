@@ -26,9 +26,22 @@ export class ParalaxContainer extends Component {
        secondaryColor: "#121212",
      }
      this.displayLogo = this.displayLogo.bind(this)
+     this.getColorBackdrop = this.getColorBackdrop.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.getColorBackdrop()
+  }
+
+  componentDidUpdate(prevProps) {
+    if(prevProps.images.length === undefined && this.props.images.length === undefined) {
+      if(prevProps.images.uri !== this.props.images.uri) {
+        this.getColorBackdrop()
+      }
+    }
+  }
+
+  async getColorBackdrop() {
     if(this.props.images.length === undefined) {
       if(this.props.images.hasOwnProperty("uri")) {
         try {
