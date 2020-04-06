@@ -161,11 +161,8 @@ export default class RevibeAPI extends BasePlatformAPI {
       bio: artist['bio'],
       images: this._parseImages(artist['images'])
     }
-    console.log(artist.social_media);
     if(artist.social_media.length > 0) {
-      console.log("YEET 1");
       if(artist.social_media.filter(x => x.social_media === "venmo").length > 0) {
-        console.log("YEET 2");
         formattedArtist.venmo = artist.social_media.filter(x => x.social_media === "venmo")[0].handle
       }
       if(artist.social_media.filter(x => x.social_media === "cash_app").length > 0) {

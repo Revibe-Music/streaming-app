@@ -30,7 +30,6 @@ class DonationModal extends Component {
        paymentMethod: null,
        amount: "5",
      }
-
      this.availablelaymentMethods = ["Venmo", "Cash App"]
 
      this.selectPaymentMethod = this.selectPaymentMethod.bind(this)
@@ -113,15 +112,22 @@ class DonationModal extends Component {
             <>
             <Text style={styles.filterHeaderText}>Method</Text>
               <View style={{marginTop: hp("4"), alignItems: "center", justifyContent: "center"}}>
-                <Button style={styles.paymentButton} onPress={() => Linking.openURL(`venmo://paycharge?txn=pay&recipients=Riley_Stephens&amount=${this.state.amount}&note=Supporting local artists through Revibe`)}>
-                  <Venmo width={wp("30")}/>
-                </Button>
+                {this.props.venmoHandle ?
+                  <Button style={styles.paymentButton} onPress={() => Linking.openURL(`venmo://paycharge?txn=pay&recipients=${this.props.venmoHandle}&amount=${this.state.amount}&note=Supporting local artists through Revibe`)}>
+                    <Venmo width={wp("30")}/>
+                  </Button>
+                :
+                  null
+                }
                 </View>
                 <View style={{marginTop: hp("4"), alignItems: "center", justifyContent: "center"}}>
-
-                <Button style={styles.paymentButton} onPress={() => Linking.openURL(`https://cash.app/$RileyStephens28/${this.state.amount}/Yeee`)}>
-                  <CashApp width={wp("50")} height={100}/>
-                </Button>
+                {this.props.cashAppHandle ?
+                  <Button style={styles.paymentButton} onPress={() => Linking.openURL(`https://cash.app/$${this.props.cashAppHandle}/${this.state.amount}/Yeee`)}>
+                    <CashApp width={wp("50")} height={100}/>
+                  </Button>
+                :
+                  null
+                }
               </View>
             <View style={{marginTop: hp("5"),justifyContent: "center", alignItems: "center"}}>
               <Button
@@ -143,13 +149,16 @@ class DonationModal extends Component {
 
 DonationModal.propTypes = {
   isVisible: PropTypes.bool,
-  allowSort: PropTypes.bool,
+  venmoHandle: PropTypes.string,
+  cashAppHandle: PropTypes.string,
   onClose: PropTypes.func,
+
 };
 
 DonationModal.defaultProps = {
   isVisible: false,
-  allowSort: true,
+  venmoHandle: null,
+  cashAppHandle: null,
   onClose: () => console.log("Must pass function to onClose props."),
 };
 

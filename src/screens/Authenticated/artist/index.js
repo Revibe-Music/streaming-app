@@ -33,6 +33,7 @@ class Artist extends Component {
       eps: [],
       appearsOn: [],
       songs: [],
+      showTipJar: false,
       showDonationModal: false
     }
 
@@ -49,7 +50,14 @@ class Artist extends Component {
     contentList.push(this.platform.fetchArtistTopSongs(this.artist.id))
     contentList.push(this.platform.fetchArtistAlbums(this.artist.id))
     var artist = await this.platform.fetchArtist(this.artist.id)
-    console.log(artist);
+    if(artist["venmo"]) {
+      this.artist.venmo = artist.venmo
+      this.setState({showTipJar: true})
+    }
+    if(artist["cashApp"]) {
+      this.artist.cashApp = artist.cashApp
+      this.setState({showTipJar: true})
+    }
     if(this.artist.images.length < 1) {
       // fetch artist images if none exist
       this.artist.images = artist.images
@@ -132,9 +140,14 @@ class Artist extends Component {
         images={this.getArtistImage()}
       >
         <View style={styles.container}>
+        {this.state.showTipJar ?
           <Button style={styles.donationButton} onPress={() => this.setState({showDonationModal: true})}>
             <TipJar height={hp("7")}/>
           </Button>
+        :
+          null
+        }
+
           {this.state.loading  ?
             <View style={styles.loadingIndicator}>
               <BarIndicator animationDuration={700} color='#7248bd' count={5} />
@@ -287,7 +300,8 @@ class Artist extends Component {
       <DonationModal
         isVisible={this.state.showDonationModal}
         onClose={() => this.setState({showDonationModal: false})}
-        artist={this.artist}
+        venmoHandle={this.artist["venmo"]}
+        cashAppHandle={this.artist["cashApp"]}
       />
       </>
     );
