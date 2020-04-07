@@ -46,7 +46,7 @@ class DonationModal extends Component {
   }
 
   openCashApp() {
-    Linking.openURL(`https://cash.app/$${this.props.cashAppHandle}/${this.state.amount}/Yeee`)
+    Linking.openURL(`https://cash.app/$${this.props.cashAppHandle}/${this.state.amount}`)
     this.revibe.recordTip(this.props.artist.id, this.state.amount, "cashapp")
   }
 
@@ -160,7 +160,6 @@ DonationModal.propTypes = {
   venmoHandle: PropTypes.string,
   cashAppHandle: PropTypes.string,
   onClose: PropTypes.func,
-
 };
 
 DonationModal.defaultProps = {

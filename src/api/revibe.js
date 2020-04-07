@@ -1095,8 +1095,6 @@ export default class RevibeAPI extends BasePlatformAPI {
       other: other,
     }
     var response = await this._request(`content/artist/${artistId}/donate/third-party/`, "POST", data, true)
-    console.log(response);
-
   }
 
   async fetchEnvVariables() {
