@@ -165,8 +165,8 @@ export default class RevibeAPI extends BasePlatformAPI {
       if(artist.social_media.filter(x => x.social_media === "venmo").length > 0) {
         formattedArtist.venmo = artist.social_media.filter(x => x.social_media === "venmo")[0].handle
       }
-      if(artist.social_media.filter(x => x.social_media === "cash_app").length > 0) {
-        formattedArtist.cashApp = artist.social_media.filter(x => x.social_media === "cash_app")[0].handle
+      if(artist.social_media.filter(x => x.social_media === "cashapp").length > 0) {
+        formattedArtist.cashApp = artist.social_media.filter(x => x.social_media === "cashapp")[0].handle
       }
     }
     return formattedArtist
@@ -1078,6 +1078,25 @@ export default class RevibeAPI extends BasePlatformAPI {
     }
     this.updateLastListenTime(song)
     var request = await this._request("metrics/stream/", "POST", data, true)
+  }
+
+  async recordTip(artistId, amount, service, other=false) {
+    /**
+    * Summary: Send data associated with streaming to revibe server.
+    *
+    *
+    * @param {object}   song        song to record data about
+    * @param {number}   duration    show long song was listened to
+    */
+    var data = {
+      recipient: artistId,
+      service: service,
+      amount: amount,
+      other: other,
+    }
+    var response = await this._request(`content/artist/${artistId}/donate/third-party/`, "POST", data, true)
+    console.log(response);
+
   }
 
   async fetchEnvVariables() {

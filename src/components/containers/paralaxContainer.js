@@ -147,10 +147,15 @@ export class ParalaxContainer extends Component {
           onHide={() => this.navTitleView.fadeInUp(200)}
           onDisplay={() => this.navTitleView.fadeOut(100)}
         >
-        <View style={styles.title}>
-          <Text style={styles.title}>{this.props.text}</Text>
-          <Text note style={{textAlign: "center"}}>{this.props.note}</Text>
-        </View>
+        {this.props.text || this.props.note ?
+          <View style={styles.title}>
+            <Text style={styles.title}>{this.props.text}</Text>
+            <Text note style={{textAlign: "center"}}>{this.props.note}</Text>
+          </View>
+        :
+          null
+        }
+
         {this.props.showButton ?
           <View style={styles.center}>
             <Button
@@ -166,7 +171,6 @@ export class ParalaxContainer extends Component {
         :
           null
         }
-
         </TriggeringView>
         {this.props.children}
       </HeaderImageScrollView>

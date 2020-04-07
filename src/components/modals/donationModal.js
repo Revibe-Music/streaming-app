@@ -8,38 +8,46 @@ import { TouchableOpacity, View, Text, Linking } from 'react-native'
 import { Container, Tabs, Tab, Icon, Header, Left, Body, Right, Button, ListItem } from "native-base";
 import PropTypes from 'prop-types';
 import { CheckBox } from 'react-native-elements'
-import { connect } from 'react-redux';
-import styles from "./styles";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
+import styles from "./styles";
 import Modal from "react-native-modal";
 import Venmo from './../../../assets/venmo_logo_blue.svg'
 import CashApp from './../../../assets/cash_app_logo.svg'
+import RevibeAPI from './../../api/revibe'
 
 
 class DonationModal extends Component {
 
   constructor(props) {
      super(props);
-
-     // var venmoUrl = `venmo://paycharge?txn=pay&recipients=${artist.venmo_username}&amount=${amount}&note="Supporting local artists through Revibe"`
-     this.venmoUrl = `venmo://paycharge?txn=pay&recipients=Riley_Stephens&amount=${5}&note="Supporting local artists through Revibe"`
-     // var cashAppUrl = `cash.me/$${artist.cashApp_username}/${amount}`
-
      this.state = {
        displayPaymentMethods: false,
        paymentMethod: null,
-       amount: "5",
+       amount: "1",
      }
      this.availablelaymentMethods = ["Venmo", "Cash App"]
-
+     this.revibe = new RevibeAPI()
      this.selectPaymentMethod = this.selectPaymentMethod.bind(this)
      this.selectAmount = this.selectAmount.bind(this)
      this.close = this.close.bind(this)
+     this.openVenmo = this.openVenmo.bind(this)
+     this.openCashApp = this.openCashApp.bind(this)
   }
 
   close() {
-    this.setState({paymentMethod: null,amount: "5", displayPaymentMethods:false})
+    this.setState({paymentMethod: null,amount: "1", displayPaymentMethods:false})
     this.props.onClose()
+  }
+
+  openVenmo() {
+    Linking.openURL(`venmo://paycharge?txn=pay&recipients=${this.props.venmoHandle}&amount=${this.state.amount}&note=Supporting local artists through Revibe`)
+    this.revibe.recordTip(this.props.artist.id, this.state.amount, "venmo")
+  }
+
+  openCashApp() {
+    Linking.openURL(`https://cash.app/$${this.props.cashAppHandle}/${this.state.amount}/Yeee`)
+    this.revibe.recordTip(this.props.artist.id, this.state.amount, "cashapp")
   }
 
 
@@ -72,30 +80,30 @@ class DonationModal extends Component {
             </View>
             {!this.state.displayPaymentMethods ?
               <>
-              <Text style={styles.filterHeaderText}>Amount</Text>
+              <Text style={styles.filterHeaderText}>Tip {this.props.artist.name}</Text>
               <View style={{height: "30%", width: "30%", marginLeft: "5%", marginTop: hp("3")}}>
                 <View style={{flexDirection: "column", justifyContent: "center"}}>
                   <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                    <Button style={[styles.donationAmountButton, this.state.amount == 1 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(1)}>
+                      <Text style={{color: "white"}}> $1 </Text>
+                    </Button>
+                    <Button style={[styles.donationAmountButton, this.state.amount == 2 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(2)}>
+                      <Text style={{color: "white"}}> $2 </Text>
+                    </Button>
                     <Button style={[styles.donationAmountButton, this.state.amount == 5 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(5)}>
                       <Text style={{color: "white"}}> $5 </Text>
-                    </Button>
-                    <Button style={[styles.donationAmountButton, this.state.amount == 10 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(10)}>
-                      <Text style={{color: "white"}}> $10 </Text>
-                    </Button>
-                    <Button style={[styles.donationAmountButton, this.state.amount == 15 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(15)}>
-                      <Text style={{color: "white"}}> $15 </Text>
                     </Button>
                   </View>
                 </View>
                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-                  <Button style={[styles.donationAmountButton, this.state.amount ==  20? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(20)}>
+                  <Button style={[styles.donationAmountButton, this.state.amount ==  10? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(10)}>
+                    <Text style={{color: "white"}}> $10 </Text>
+                  </Button>
+                  <Button style={[styles.donationAmountButton, this.state.amount == 15 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(15)}>
+                    <Text style={{color: "white"}}> $15 </Text>
+                  </Button>
+                  <Button style={[styles.donationAmountButton, this.state.amount == 20 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(20)}>
                     <Text style={{color: "white"}}> $20 </Text>
-                  </Button>
-                  <Button style={[styles.donationAmountButton, this.state.amount == 25 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(25)}>
-                    <Text style={{color: "white"}}> $25 </Text>
-                  </Button>
-                  <Button style={[styles.donationAmountButton, this.state.amount == 30 ? {backgroundColor:"#7248BD"} : {}]} onPress={() => this.selectAmount(30)}>
-                    <Text style={{color: "white"}}> $30 </Text>
                   </Button>
                   </View>
                 </View>
@@ -113,7 +121,7 @@ class DonationModal extends Component {
             <Text style={styles.filterHeaderText}>Method</Text>
               <View style={{marginTop: hp("4"), alignItems: "center", justifyContent: "center"}}>
                 {this.props.venmoHandle ?
-                  <Button style={styles.paymentButton} onPress={() => Linking.openURL(`venmo://paycharge?txn=pay&recipients=${this.props.venmoHandle}&amount=${this.state.amount}&note=Supporting local artists through Revibe`)}>
+                  <Button style={styles.paymentButton} onPress={() => this.openVenmo()}>
                     <Venmo width={wp("30")}/>
                   </Button>
                 :
@@ -122,7 +130,7 @@ class DonationModal extends Component {
                 </View>
                 <View style={{marginTop: hp("4"), alignItems: "center", justifyContent: "center"}}>
                 {this.props.cashAppHandle ?
-                  <Button style={styles.paymentButton} onPress={() => Linking.openURL(`https://cash.app/$${this.props.cashAppHandle}/${this.state.amount}/Yeee`)}>
+                  <Button style={styles.paymentButton} onPress={() => this.openCashApp()}>
                     <CashApp width={wp("50")} height={100}/>
                   </Button>
                 :
@@ -146,9 +154,9 @@ class DonationModal extends Component {
   }
 }
 
-
 DonationModal.propTypes = {
   isVisible: PropTypes.bool,
+  artist: PropTypes.object,
   venmoHandle: PropTypes.string,
   cashAppHandle: PropTypes.string,
   onClose: PropTypes.func,
@@ -162,10 +170,4 @@ DonationModal.defaultProps = {
   onClose: () => console.log("Must pass function to onClose props."),
 };
 
-function mapStateToProps(state) {
-  return {
-    platforms: state.platformState.platforms,
-  }
-};
-
-export default connect(mapStateToProps)(DonationModal)
+export default DonationModal

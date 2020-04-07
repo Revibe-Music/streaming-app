@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ScrollView } from 'react-native';
+import { TouchableOpacity, ScrollView, Image } from 'react-native';
 import { View,Button,Text,Icon,List } from "native-base";
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import ViewMoreText from 'react-native-view-more-text';
@@ -127,7 +127,14 @@ class Artist extends Component {
       <AlbumCard album={item} image={this.getAlbumImage(item)} />
     )
   }
-
+  // <TipJar height={hp("7")}/>
+  // {this.state.showTipJar ?
+  //   <Button style={styles.donationButton} onPress={() => this.setState({showDonationModal: true})}>
+  //     <Image source={require("./../../../../assets/tip_jar.png")} style={{height:hp("6"), width: hp(6)}}/>
+  //   </Button>
+  // :
+  //   null
+  // }
 
   render() {
     return (
@@ -139,14 +146,15 @@ class Artist extends Component {
         allowDonations={true}
         images={this.getArtistImage()}
       >
+      {this.state.showTipJar ?
+        <Button style={styles.donationButton} onPress={() => this.setState({showDonationModal: true})}>
+          <Image source={require("./../../../../assets/tip_jar.png")} style={{height:hp("6"), width: hp(5)}}/>
+        </Button>
+      :
+        null
+      }
         <View style={styles.container}>
-        {this.state.showTipJar ?
-          <Button style={styles.donationButton} onPress={() => this.setState({showDonationModal: true})}>
-            <TipJar height={hp("7")}/>
-          </Button>
-        :
-          null
-        }
+
 
           {this.state.loading  ?
             <View style={styles.loadingIndicator}>
@@ -300,6 +308,7 @@ class Artist extends Component {
       <DonationModal
         isVisible={this.state.showDonationModal}
         onClose={() => this.setState({showDonationModal: false})}
+        artist={this.artist}
         venmoHandle={this.artist["venmo"]}
         cashAppHandle={this.artist["cashApp"]}
       />
