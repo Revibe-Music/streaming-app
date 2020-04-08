@@ -561,12 +561,15 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
 
-    var songs = await this._request("music/playlist/songs/?playlist_id="+id, "GET", null, true, true)
+    console.log(id);
+    var songs = await this._request("music/playlist/songs?playlist_id="+id, "GET", null, true, true)
     // console.log(songs);
     for(var x=0; x<songs.length; x++) {
-      var dateSaved = songs[x].date_saved
-      songs[x] = this._parseSong(songs[x].song)
-      songs[x].dateSaved = dateSaved
+      let song = this._parseSong(songs[x].song)
+      if(songs[x].date_saved) {
+        song.dateSaved = songs[x].date_saved
+      }
+      songs[x] = song
     }
     return songs
   }
@@ -654,6 +657,10 @@ export default class RevibeAPI extends BasePlatformAPI {
         if(response[x].results) {
           response[x].results = this._parseArtist(response[x].results)
         }
+      }
+      else if(response[x].type==="playlists") {
+        response[x].results = response[x].results.map(x => that._parsePlaylist(x))
+        console.log(response[x]);
       }
       if(response[x].name == "Top Hits - All-Time") {
         delete response[x]

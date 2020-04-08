@@ -9,6 +9,7 @@ import ArtistItem from "./../../components/listItems/artistItem";
 import SongCard from "./../../components/cards/songCard";
 import AlbumCard from "./../../components/cards/albumCard";
 import ArtistCard from "./../../components/cards/artistCard";
+import PlaylistCard from "./../../components/cards/playlistCard";
 import RevibeAPI from './../../api/revibe'
 import { connect } from 'react-redux';
 
@@ -145,6 +146,11 @@ class Browse extends Component {
     else if(type==="artists") {
       return(
         <ArtistCard artist={item} image={this.getImage(item.images)} />
+      )
+    }
+    else if(type==="playlists") {
+      return(
+        <PlaylistCard playlist={item}/>
       )
     }
     else if(type === "container") {

@@ -52,19 +52,33 @@ class Playlist extends Component {
     };
 
     this.revibe = new RevibeAPI()
-    this.playlist = this.revibe.playlists.filtered(`id = "${this.props.navigation.state.params.playlist.id}"`)["0"]
+    if(this.props.navigation.state.params.isLocal) {
+      this.playlist = this.revibe.playlists.filtered(`id = "${this.props.navigation.state.params.playlist.id}"`)["0"]
+    }
+    else {
+      this.playlist = this.props.navigation.state.params.playlist
+    }
 
     this.updateContent = this.updateContent.bind(this)
   }
 
   async componentDidMount(){
-    setTimeout(() => this._addListeners(), 500)
-    setTimeout(() => {
-      // var songs = this.revibe.getSavedPlaylistSongs(this.playlist.id)
-      var songs = this.props.navigation.state.params.songs
-      this.setState({songs: songs})
-    }, 500)
-    setTimeout(() => this.setState({updating: false}), 1000)
+    if(this.state.songs.length < 1) {
+      if(!this.props.navigation.state.params.isLocal) {
+        this.setState({ loading: true })
+        var results = await this.revibe.fetchPlaylistSongs(this.playlist.id)
+      }
+      this.setState({ loading:false, songs: results,})
+    }
+    else {
+      setTimeout(() => this._addListeners(), 500)
+      setTimeout(() => {
+        // var songs = this.revibe.getSavedPlaylistSongs(this.playlist.id)
+        var songs = this.props.navigation.state.params.songs
+        this.setState({songs: songs})
+      }, 500)
+      setTimeout(() => this.setState({updating: false}), 1000)
+    }
   }
 
   componentWillUnmount() {
@@ -76,7 +90,9 @@ class Playlist extends Component {
   }
 
   _removeListeners() {
-    this.playlist.removeListener(this.updateContent)
+    if(this.props.navigation.state.params.isLocal) {
+      this.playlist.removeListener(this.updateContent)
+    }
   }
 
   updateContent(playlist, changes) {
@@ -99,7 +115,7 @@ class Playlist extends Component {
         note={`Playlist • ${this.state.numSongs} ${this.state.numSongs > 1 ? "Songs" : this.state.numSongs ===0  ? "Songs" : "Song"}`}
         showButton={true}
         onButtonPress={() => this.props.playSong(0, this.state.songs)}
-        images={this.playlist.regularImage}
+        images={this.playlist.regularImage ? this.playlist.regularImage : require("./../../../../assets/albumArtPlaceholder.png")}
       >
         <View style={styles.container}>
           {this.state.loading  ?

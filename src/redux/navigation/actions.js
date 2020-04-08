@@ -89,15 +89,21 @@ export function goToAlbum(album, songs=[],isLocal=false) {
   }
 }
 
-export function goToPlaylist(playlist) {
+export function goToPlaylist(playlist, isLocal=true) {
   return async (dispatch) => {
-    songs = getPlatform("Revibe").getSavedPlaylistSongs(playlist.id)
+    if(isLocal) {
+      songs = getPlatform("Revibe").getSavedPlaylistSongs(playlist.id)
+    }
+    else {
+      songs = []
+    }
     var options = {
       routeName: "Playlist",
-      key: `Playlist:${playlist.id}`,
+      key: isLocal ? `Playlist:${playlist.id}:local` : songs.length > 0 ? `Playlist:${playlist.id}:${songs.length}:remote` : `Playlist:${playlist.id}:remote`,
       params: {
         playlist: playlist,
         songs: songs,
+        isLocal: isLocal
       }
     }
     dispatch(setPlaylist(playlist))
