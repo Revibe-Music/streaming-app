@@ -147,30 +147,6 @@ export class ParalaxContainer extends Component {
           onHide={() => this.navTitleView.fadeInUp(200)}
           onDisplay={() => this.navTitleView.fadeOut(100)}
         >
-        {this.props.text || this.props.note ?
-          <View style={styles.title}>
-            <Text style={styles.title}>{this.props.text}</Text>
-            <Text note style={{textAlign: "center"}}>{this.props.note}</Text>
-          </View>
-        :
-          null
-        }
-
-        {this.props.showButton ?
-          <View style={styles.center}>
-            <Button
-            rounded
-            large
-            onPress={() => this.props.onButtonPress()}
-            style={styles.shuffleBtn}>
-            <View style={styles.center}>
-              <Text uppercase style={styles.shuffle}>{this.props.buttonText}</Text>
-            </View>
-            </Button>
-          </View>
-        :
-          null
-        }
         </TriggeringView>
         {this.props.children}
       </HeaderImageScrollView>

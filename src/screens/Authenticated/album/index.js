@@ -110,6 +110,23 @@ class Album extends Component {
         onButtonPress={() => this.props.playSong(0, this.state.songs)}
         images={this.getImage()}
       >
+        <View style={[styles.title, {marginTop: hp("1")}]}>
+          <Text style={styles.title}>{this.setArtist()}</Text>
+          <Text note style={{textAlign: "center"}}>{this.album.type !== "song" ? this.displayNumSongs() : null}</Text>
+        </View>
+        <View style={[styles.center, {marginBottom: hp("2")}]}>
+          <Button
+            rounded
+            large
+            onPress={() => this.props.playSong(0, this.state.songs)}
+            style={styles.shuffleBtn}
+          >
+            <View style={styles.center}>
+              <Text uppercase style={styles.shuffle}>Listen</Text>
+            </View>
+          </Button>
+        </View>
+
         <View style={styles.container}>
           {this.state.loading  ?
             <View style={styles.loadingIndicator}>

@@ -76,6 +76,19 @@ export default {
       marginTop: hp("2"),
   },
 
+  saveText: {
+      fontSize: hp(1.5),
+      letterSpacing: 1.2,
+      fontWeight: "bold",
+      color: "#7248BD"
+  },
+  saveBtn: {
+      backgroundColor: "transparent",
+      height: hp("6%"),
+      width: wp("12%"),
+      marginTop: hp("2"),
+  },
+
   headerContainer: {
     marginTop: hp("3"),
     flexDirection: "row",

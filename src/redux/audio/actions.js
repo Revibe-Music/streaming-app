@@ -2,6 +2,8 @@ import MusicControl from 'react-native-music-control';
 import BackgroundTimer from 'react-native-background-timer';
 import { getPlatform } from './../../api/utils';
 import RevibeAPI from './../../api/revibe';
+import {test} from './../../amplitude/amplitude';
+import amplitude from 'amplitude-js'
 
 
 const play = (index, playlist, activePlatform, inQueue, source) => {
@@ -74,6 +76,7 @@ const reset = () => ({
           var song = getState().audioState.playlist[getState().audioState.currentIndex]
           var revibe = new RevibeAPI()
           revibe.recordStream(song, getState().audioState.time.current)
+          amplitude.getInstance().logEvent('stream');
         }
       }
 

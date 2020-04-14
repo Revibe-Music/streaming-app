@@ -7,12 +7,14 @@
 
 import React from 'react'
 import { AppRegistry } from 'react-native';
+import amplitude from 'amplitude-js'
 import App from './App';
 import {name as appName} from './app.json';
 import { Provider } from 'react-redux'
 
 import store from './src/redux/rootReducer';
 
+amplitude.getInstance().init('ac5bc02f3725f6d6a531b2751e78e1a8')
 
 const RevibeApp = () => (
   <Provider store={store}>

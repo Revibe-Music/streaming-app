@@ -15,7 +15,8 @@ export default {
   title: {
     textAlign: "center",
     fontSize: hp("2"),
-    color: "white"
+    color: "white",
+    
   },
   name: {
     fontWeight: 'bold',
@@ -62,6 +63,8 @@ export default {
   sectionLarge: {
     height: 600,
   },
+
+
 
   shuffle: {
       fontSize: 15,

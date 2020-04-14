@@ -48,7 +48,8 @@ class Playlist extends Component {
       secondaryColor: "#121212",
       songs: this.props.navigation.state.params.songs.slice(0,30),
       numSongs: this.props.navigation.state.params.songs.length,
-      updating: true
+      updating: true,
+
     };
 
     this.revibe = new RevibeAPI()
@@ -68,7 +69,7 @@ class Playlist extends Component {
         this.setState({ loading: true })
         var results = await this.revibe.fetchPlaylistSongs(this.playlist.id)
       }
-      this.setState({ loading:false, songs: results,})
+      this.setState({ loading:false, songs: results,numSongs: results.length})
     }
     else {
       setTimeout(() => this._addListeners(), 500)
@@ -117,6 +118,50 @@ class Playlist extends Component {
         onButtonPress={() => this.props.playSong(0, this.state.songs)}
         images={this.playlist.regularImage ? this.playlist.regularImage : require("./../../../../assets/albumArtPlaceholder.png")}
       >
+
+      <View style={[styles.title, {marginTop: hp("1")}]}>
+        <Text style={styles.title}>{`Playlist • ${this.state.numSongs} ${this.state.numSongs > 1 ? "Songs" : this.state.numSongs ===0  ? "Songs" : "Song"}`}</Text>
+      </View>
+      <View style={{flexDirection: "row", marginBottom: hp("2")}}>
+        <View style={{flexDirection: "column", width: wp("15"), justifyContent: "center", alignItems: "center"}}>
+          <Button
+            onPress={() => this.props.playSong(0, this.state.songs)}
+            style={styles.saveBtn}
+          >
+            <View style={styles.center}>
+              <Text uppercase style={styles.saveText}>save</Text>
+            </View>
+          </Button>
+          </View>
+          <View style={{flexDirection: "column", width: wp("70"), justifyContent: "center", alignItems: "center"}}>
+          <Button
+            rounded
+            large
+            onPress={() => this.props.playSong(0, this.state.songs)}
+            style={styles.shuffleBtn}
+          >
+            <View style={styles.center}>
+              <Text uppercase style={styles.shuffle}>Listen</Text>
+            </View>
+          </Button>
+        </View>
+      </View>
+
+      {this.props.showButton ?
+        <View style={styles.center}>
+          <Button
+          rounded
+          large
+          onPress={() => this.props.onButtonPress()}
+          style={styles.shuffleBtn}>
+          <View style={styles.center}>
+            <Text uppercase style={styles.shuffle}>{this.props.buttonText}</Text>
+          </View>
+          </Button>
+        </View>
+      :
+        null
+      }
         <View style={styles.container}>
           {this.state.loading  ?
             <View style={styles.loadingIndicator}>

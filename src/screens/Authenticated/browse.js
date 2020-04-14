@@ -150,7 +150,8 @@ class Browse extends Component {
     }
     else if(type==="playlists") {
       return(
-        <PlaylistCard playlist={item}/>
+        // image={this.getImage(item.images)}
+        <PlaylistCard playlist={item} />
       )
     }
     else if(type === "container") {
