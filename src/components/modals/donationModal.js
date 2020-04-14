@@ -40,8 +40,14 @@ class DonationModal extends Component {
     this.props.onClose()
   }
 
-  openVenmo() {
-    Linking.openURL(`venmo://paycharge?txn=pay&recipients=${this.props.venmoHandle}&amount=${this.state.amount}&note=Supporting local artists through Revibe`)
+  async openVenmo() {
+    const supported = await Linking.canOpenURL(`venmo://paycharge?txn=pay&recipients=${this.props.venmoHandle}&amount=${this.state.amount}&note=Supporting local artists through Revibe`);
+    if (supported) {
+      Linking.openURL(`venmo://paycharge?txn=pay&recipients=${this.props.venmoHandle}&amount=${this.state.amount}&note=Supporting local artists through Revibe`)
+    }
+    else {
+      Linking.openURL(`https://venmo.com/${this.props.venmoHandle}?txn=pay&amount=${this.state.amount}&note=Supporting local artists through Revibe`)
+    }
     this.revibe.recordTip(this.props.artist.id, this.state.amount, "venmo")
   }
 
