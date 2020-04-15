@@ -11,9 +11,7 @@ import { Text } from "native-base";
 import PropTypes from 'prop-types';
 import LinearGradient from 'react-native-linear-gradient';
 import Modal from "react-native-modal";
-
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-
 import { connect } from 'react-redux';
 
 import Logo from './../../components/Logo';
@@ -25,13 +23,11 @@ import AccountSync from "./../../components/accountSync/index";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
 import RevibeAPI from './../../api/revibe'
 import YouTubeAPI from './../../api/youtube'
-
 import Tutorial from './tutorial'
 
 import { getPlatform } from './../../api/utils';
-
+import { logEvent } from './../../amplitude/amplitude';
 import { initializePlatforms } from './../../redux/platform/actions'
-
 import eyeImg from './../../../assets/eye_black.png';
 
 
@@ -93,9 +89,11 @@ class LoginScreen extends Component {
 
     async submitButtonPressed() {
       if(this.state.registering) {
+        logEvent("Registration", "Submitted")
         await this._register()
       }
       else {
+        logEvent("Login", "Submitted")
         await this._login()
       }
     }
@@ -128,10 +126,12 @@ class LoginScreen extends Component {
           await this.props.initializePlatforms()
           this.setState({syncing: true})
           setTimeout(this.syncAccounts, 5000)
+          logEvent("Login", "Success")
         }
         else {
           this.setState({error: response})
           this.setState({loading: false})
+          logEvent("Login", "Failed")
         }
       }
       catch(error) {
@@ -147,6 +147,7 @@ class LoginScreen extends Component {
             this.setState({ success: true })
             await this.youtube.login()
             this.props.initializePlatforms()
+            logEvent("Registration", "Success")
             this.props.navigation.navigate(
               {
                 key: "Tutorial",
@@ -157,6 +158,7 @@ class LoginScreen extends Component {
           else {
             this.setState({error: response})
             this.setState({loading: false})
+            logEvent("Registration", "Failed")
           }
         }
         catch(error) {

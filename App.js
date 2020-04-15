@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, AppState } from "react-native";
 import { connect } from 'react-redux';
 import SplashScreen from "react-native-splash-screen";
 import MusicControl from 'react-native-music-control';
@@ -9,6 +9,7 @@ import BackgroundTimer from 'react-native-background-timer';
 import { RootNavigator } from './src/navigation/rootNavigation';
 
 import RevibeAPI from './src/api/revibe';
+import { logEvent } from './src/amplitude/amplitude';
 import { connection } from './src/redux/connection/actions';
 import { setTopLevelNavigator } from './src/redux/navigation/actions';
 import { resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing,continuousTimeUpdate } from './src/redux/audio/actions';
@@ -20,14 +21,21 @@ class App extends React.Component {
 
   constructor(props) {
      super(props);
+     this.state = {
+       appState: AppState.currentState
+     }
   };
 
-   componentDidUpdate(prevProps) {
-     if(!prevProps.platformsInitialized && this.props.platformsInitialized) {
-       this.props.checkRevibeAccount();
-       this.props.checkPlatformAuthentication();
-     }
-   }
+  _handleAppStateChange = nextAppState => {
+    if (this.state.appState.match(/inactive|background/) && nextAppState === "active") {
+      logEvent("App", "Enter Foreground")
+    }
+    else if (this.state.appState === "active" && nextAppState.match(/inactive|background/)) {
+      logEvent("App", "Enter Background")
+    }
+    this.setState({ appState: nextAppState });
+  };
+
 
   async componentDidMount() {
     await this.props.initializePlatforms();
@@ -45,18 +53,10 @@ class App extends React.Component {
     MusicControl.enableControl('nextTrack', true)
     MusicControl.enableControl('previousTrack', true)
     MusicControl.enableControl('changePlaybackPosition', true)   // Changing track position on lockscreen
-    MusicControl.on('play', () => {
-      this.props.resumeSong();
-    })
-    MusicControl.on('pause', ()=> {
-      this.props.pauseSong();
-    })
-    MusicControl.on('nextTrack', ()=> {
-      this.props.nextSong();
-    })
-    MusicControl.on('previousTrack', ()=> {
-      this.props.prevSong();
-    })
+    MusicControl.on('play', this.props.resumeSong)
+    MusicControl.on('pause', this.props.pauseSong)
+    MusicControl.on('nextTrack', this.props.nextSong)
+    MusicControl.on('previousTrack', this.props.prevSong)
     MusicControl.on('changePlaybackPosition', (position) => {
       position = parseFloat(position);
       this.props.setScrubbing(true)
@@ -64,9 +64,15 @@ class App extends React.Component {
       this.props.setScrubbing(false)
     })
     SplashScreen.hide();
+    logEvent("App", "Launched")
+    AppState.addEventListener("change", this._handleAppStateChange);
   }
 
-  shouldComponentUpdate(nextProps) {
+  componentWillUnmount() {
+    AppState.removeEventListener("change", this._handleAppStateChange);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
     if(nextProps.isPlaying !== this.props.isPlaying) {
       if(nextProps.isPlaying) {
         BackgroundTimer.runBackgroundTimer(this.props.continuousTimeUpdate, 250)
@@ -76,7 +82,17 @@ class App extends React.Component {
       }
       return false
     }
+    if(nextState.appState !== this.state.appState) {
+      return false
+    }
     return true
+  }
+
+  componentDidUpdate(prevProps) {
+    if(!prevProps.platformsInitialized && this.props.platformsInitialized) {
+      this.props.checkRevibeAccount();
+      this.props.checkPlatformAuthentication();
+    }
   }
 
 

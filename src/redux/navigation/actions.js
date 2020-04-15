@@ -1,5 +1,7 @@
 import { NavigationActions } from 'react-navigation';
 import { getPlatform } from './../../api/utils';
+import { logEvent } from './../../amplitude/amplitude';
+
 
 const setSong = song => ({
     type: 'SET_SONG',
@@ -59,6 +61,7 @@ export function goToContentPage(type) {
     }
     await navigator.dispatch(NavigationActions.navigate(options));
     dispatch(setPage())
+    logEvent("Visit", "Library Page", {"Content Type": type})
   }
 }
 
@@ -74,7 +77,7 @@ export function goToPlaylistPage() {
 }
 
 export function goToAlbum(album, songs=[],isLocal=false) {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     var options = {
      routeName: "Album",
      key: isLocal ? `Album:${album.id}:local` : songs.length > 0 ? `Album:${album.id}:${songs.length}:remote` : `Album:${album.id}:remote`,
@@ -86,11 +89,12 @@ export function goToAlbum(album, songs=[],isLocal=false) {
     dispatch(setAlbum(album))
     await navigator.dispatch(NavigationActions.navigate(options));
     dispatch(setPage())
+    logEvent("Visit", "Album Page", {"Platform": album.platform, "ID": album.id, "Active Tab": getState().navigationState.currentTab, "Local": isLocal})
   }
 }
 
 export function goToPlaylist(playlist, isLocal=true) {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     if(isLocal) {
       songs = getPlatform("Revibe").getSavedPlaylistSongs(playlist.id)
     }
@@ -109,11 +113,12 @@ export function goToPlaylist(playlist, isLocal=true) {
     dispatch(setPlaylist(playlist))
     await navigator.dispatch(NavigationActions.navigate(options));
     dispatch(setPage())
+    logEvent("Visit", "Playlist Page", {"ID": playlist.id, "Active Tab": getState().navigationState.currentTab, "Local": isLocal})
   }
 }
 
 export function goToArtist(artist, isLocal=false) {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     var options = {key: isLocal ? `Artist:${artist.id}:local` : `Artist:${artist.id}:remote`}
     if(isLocal) {
       options.routeName = "Album"
@@ -137,6 +142,7 @@ export function goToArtist(artist, isLocal=false) {
     dispatch(setArtist(artist))
     await navigator.dispatch(NavigationActions.navigate(options));
     dispatch(setPage())
+    logEvent("Visit", "Artist Page", {"Platform": artist.platform, "ID": artist.id, "Active Tab": getState().navigationState.currentTab, "Local": isLocal})
   }
 }
 
@@ -160,7 +166,7 @@ export function goToViewAll(data, type, title="", endpoint="",platform="Revibe",
 }
 
 export function goBack() {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     if(getCurrentTab(navigator.state.nav) === "Playlist") {
       dispatch(setPlaylist(null))
     }

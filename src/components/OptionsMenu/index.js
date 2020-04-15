@@ -17,6 +17,8 @@ import PlaylistItem from "./../../components/listItems/playlistItem";
 import { getPlatform } from './../../api/utils';
 import { addToQueue, addToPlayNext } from './../../redux/audio/actions';
 import { selectSong, goToAlbum, goToArtist } from './../../redux/navigation/actions'
+import { logEvent } from './../../amplitude/amplitude';
+
 import realm from './../../realm/realm';
 
 import styles from "./styles";
@@ -106,6 +108,7 @@ class OptionsMenu extends PureComponent {
      platform.addSongToLibrary(this.props.song)
      setTimeout(() => this.setState({ addingToLibrary: false }), 1000)
      this.closeOptionsMenu(1500)
+     logEvent("Library", "Add Song", {"Platform": this.props.song.platform, "ID": this.props.song.id})
    }
 
    removeSongFromLibrary() {
@@ -114,6 +117,7 @@ class OptionsMenu extends PureComponent {
      platform.removeSongFromLibrary(this.props.song.id)
      setTimeout(() => this.setState({ removingFromLibrary: false }), 1000)
      this.closeOptionsMenu(1500)
+     logEvent("Library", "Add Song", {"Platform": this.props.song.platform, "ID": this.props.song.id})
    }
 
    addSongToPlaylist(playlist) {
@@ -133,6 +137,7 @@ class OptionsMenu extends PureComponent {
        this.revibe.addSongToPlaylist(this.props.song, playlist.id)
        setTimeout(() => this.setState({ addingToPlaylist: false}), 1000)
        this.closeOptionsMenu(1500)
+       logEvent("Playlist", "Add Song", {"Platform": this.props.song.platform, "ID": this.props.song.id, "Playlist ID": playlist.id})
      }
    }
 
@@ -141,6 +146,7 @@ class OptionsMenu extends PureComponent {
      this.revibe.removeSongFromPlaylist(this.props.song.id, this.props.selectedPlaylist.id)
      setTimeout(() => this.setState({ removingFromPlaylist: false}), 1000)
      this.closeOptionsMenu(1500)
+     logEvent("Playlist", "Delete Song", {"Platform": this.props.song.platform, "ID": this.props.song.id, "Playlist ID": playlist.id})
    }
 
    addSongToQueue() {
@@ -469,9 +475,9 @@ class OptionsMenu extends PureComponent {
 
 function mapStateToProps(state) {
   return {
-    song: state.naviationState.selectedSong,
-    currentPage: state.naviationState.currentPage,
-    selectedPlaylist: state.naviationState.selectedPlaylist,
+    song: state.navigationState.selectedSong,
+    currentPage: state.navigationState.currentPage,
+    selectedPlaylist: state.navigationState.selectedPlaylist,
   }
 };
 

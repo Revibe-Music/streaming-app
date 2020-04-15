@@ -5,6 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import AppIntroSlider from 'react-native-app-intro-slider';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
+import { logEvent } from './../../amplitude/amplitude';
 
 import image1 from './../../../assets/page1.png';
 import image2 from './../../../assets/page2.png';
@@ -70,6 +71,13 @@ class Tutorial extends Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      currentSlide: 0
+    }
+  }
+
+  componentDidMount() {
+    logEvent("Onboarding", "Started")
   }
 
   _renderItem = ({ item, dimensions }) => (
@@ -95,7 +103,12 @@ class Tutorial extends Component {
       <AppIntroSlider
         slides={slides}
         renderItem={this._renderItem}
-        onDone={() => this.props.navigation.navigate({key: "LinkAccounts", routeName: "LinkAccounts"})}
+        onSlideChange={(index, lastIndex) => this.setState({currentSlide: index})}
+        onDone={() => {
+          logEvent("Onboarding", "Completed")
+          this.props.navigation.navigate({key: "LinkAccounts", routeName: "LinkAccounts"})
+        }}
+        onSkip={() => logEvent("Onboarding", "Skipped", {"Last Page Viewed": this.state.currentSlide+1})}
         doneLabel="Get Started"
         bottomButton />
     );

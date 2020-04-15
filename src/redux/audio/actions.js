@@ -2,18 +2,16 @@ import MusicControl from 'react-native-music-control';
 import BackgroundTimer from 'react-native-background-timer';
 import { getPlatform } from './../../api/utils';
 import RevibeAPI from './../../api/revibe';
-import {test} from './../../amplitude/amplitude';
-import amplitude from 'amplitude-js'
+import { logEvent } from './../../amplitude/amplitude';
 
 
-const play = (index, playlist, activePlatform, inQueue, source) => {
+const play = (index, playlist, activePlatform, inQueue) => {
   return {
    type: 'PLAY_SONG',
    activePlatform: activePlatform,
    playlist: playlist,
    index: index,
    inQueue: inQueue,
-   source: source
  };
 }
 const resume = () => ({
@@ -68,15 +66,14 @@ const reset = () => ({
 
 
 // Audio Controls
- const playSong = (index, playlist=null, inQueue=false, source=null) => {
+ const playSong = (index, playlist=null, inQueue=false) => {
   return async (dispatch, getState) => {
-      source = !!source ? source : getState().audioState.source   //dont do anything for the time being
       if(getState().audioState.playlist.length > 0) {
         if(getState().audioState.time.current > 30) {
           var song = getState().audioState.playlist[getState().audioState.currentIndex]
           var revibe = new RevibeAPI()
           revibe.recordStream(song, getState().audioState.time.current)
-          amplitude.getInstance().logEvent('stream');
+          logEvent("Play", "Song", {"Platform": song.platform, "ID": song.id, "Stream Time": parseFloat(getState().audioState.time.current.toFixed(2)), "Active Tab": getState().navigationState.currentTab, "Active Page":getState().navigationState.currentPage })
         }
       }
 
@@ -99,7 +96,7 @@ const reset = () => ({
         }
       }
 
-      dispatch(play(index, playlist, platform.name, inQueue, source));
+      dispatch(play(index, playlist, platform.name, inQueue));
 
       if(!Array.isArray(playlist[index].album.images)) {
         playlist[index].album.images = Object.keys(playlist[index].album.images).map(x => playlist[index].album.images[x])
@@ -156,7 +153,7 @@ const pauseSong = () => {
       var newPlaylist = getState().audioState.playlist.slice(0,getState().audioState.currentIndex+1).concat(getState().audioState.queue[0]).concat(getState().audioState.playlist.slice(getState().audioState.currentIndex+1))
       dispatch(editQueue(getState().audioState.queue.slice(1)));
       dispatch(editQueueIndex(index));
-      dispatch(playSong(index, newPlaylist, true, "Queue"));
+      dispatch(playSong(index, newPlaylist, true));
     }
     else {
       dispatch(playSong(index));
@@ -180,6 +177,7 @@ const pauseSong = () => {
 const addToQueue = (song) => {
  return (dispatch, getState) => {
    dispatch(editQueue(getState().audioState.queue.concat([song])));
+   logEvent("Queue", "Add To Queue")
  }
 }
 
@@ -187,6 +185,7 @@ const addToQueue = (song) => {
 const addToPlayNext = (song) => {
  return (dispatch, getState) => {
    dispatch(editQueue([song].concat(getState().audioState.queue)));
+   logEvent("Queue", "Play Next")
  }
 }
 
@@ -195,6 +194,7 @@ const removeFromQueue = (index) => {
    var newQueue = getState().audioState.queue
    newQueue.splice(index, 1);
    dispatch(editQueue(newQueue));
+   logEvent("Queue", "Remove From Queue")
  }
 }
 
@@ -219,7 +219,8 @@ const updateQueue = queue => {
         const ri = Math.floor(Math.random() * (i + 1));
         [combinedPlaylists[i], combinedPlaylists[ri]] = [combinedPlaylists[ri], combinedPlaylists[i]];
       }
-      dispatch(playSong(0, combinedPlaylists, source="Shuffle"));
+      dispatch(playSong(0, combinedPlaylists));
+      logEvent("Play", "Shuffle")
       return combinedPlaylists
   }
 }

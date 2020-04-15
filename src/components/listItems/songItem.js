@@ -76,8 +76,13 @@ class SongItem extends PureComponent {
   }
 
   onClick() {
-    var index = this.props.playlist.map(function(e) { return e.id; }).indexOf(this.props.song.id);
-    this.props.playSong(index, this.props.playlist, false, this.props.source)
+    if(this.props.onClick) {
+      this.props.onClick()
+    }
+    if(!this.props.preventPlay) {
+      var index = this.props.playlist.map(function(e) { return e.id; }).indexOf(this.props.song.id);
+      this.props.playSong(index, this.props.playlist, false)
+    }
   }
 
   render() {
@@ -130,13 +135,15 @@ SongItem.propTypes = {
   displayImage: PropTypes.bool,
   displayType: PropTypes.bool,
   displayLogo: PropTypes.bool,
-  source: PropTypes.string,
+  onClick: PropTypes.func,
+  preventPlay: PropTypes.bool
 };
 
 SongItem.defaultProps = {
   displayImage: true,
   displayType: false,
   displayLogo: false,
+  preventPlay: false,
 };
 
 
@@ -149,7 +156,7 @@ function mapStateToProps(state) {
 };
 const mapDispatchToProps = dispatch => ({
     selectSong: (song) => dispatch(selectSong(song)),
-    playSong: (index, playlist, inQueue, source) => dispatch(playSong(index, playlist, inQueue, source))
+    playSong: (index, playlist, inQueue) => dispatch(playSong(index, playlist, inQueue))
 });
 
 export default connect(mapStateToProps,mapDispatchToProps)(SongItem)

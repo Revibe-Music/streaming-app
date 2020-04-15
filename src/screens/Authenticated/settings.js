@@ -7,6 +7,8 @@ import React, { Component } from "react";
 import { TouchableOpacity, View, Text, Alert } from 'react-native'
 import { Container, Tabs, Tab, Icon, Header, Left, Body, Right, Button } from "native-base";
 import { connect } from 'react-redux';
+
+import { logEvent } from './../../amplitude/amplitude';
 import SpotifyAccount from "./../../components/manageAccounts/spotify";
 
 import styles from "./styles";

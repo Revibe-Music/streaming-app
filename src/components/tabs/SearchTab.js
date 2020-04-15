@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, SectionList } from "react-native";
 import { Container, Content,Tab, } from "native-base";
 import PropTypes from 'prop-types';
 
+import { logEvent } from './../../amplitude/amplitude';
 import AnimatedPopover from "./../animatedPopover/index";
 import SongItem from "./../listItems/songItem";
 import AlbumItem from "./../listItems/albumItem";
@@ -45,6 +46,7 @@ class SearchTabs extends Component {
       results: results,
       numResults: results.songs.length + results.artists.length + results.albums.length
     })
+    logEvent("Search", "Executed", {"Platform": this.props.platform.name})
   }
 
   setSections() {
@@ -68,9 +70,7 @@ class SearchTabs extends Component {
          <SongItem
           song={item}
           playlist={this.state.results["songs"]}
-          displayImage={true}
           displayType={true}
-          source="Search"
          />
        )
      }
@@ -79,9 +79,6 @@ class SearchTabs extends Component {
          <ArtistItem
           artist={item}
           displayType={true}
-          isLocal={false}
-          source="Search"
-          navigation={this.props.navigation}
          />
        )
      }
@@ -90,9 +87,6 @@ class SearchTabs extends Component {
          <AlbumItem
           album={item}
           displayType={true}
-          isLocal={false}
-          source="Search"
-          navigation={this.props.navigation}
          />
        )
      }

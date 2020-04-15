@@ -179,7 +179,6 @@ class Browse extends Component {
                 <View style={{alignItems: "flex-start",width: "50%"}}>
                   <Text style={styles.pageTitle}> Browse </Text>
                 </View>
-
               <View style={{alignItems: "flex-end", width: "50%", }}>
                 <TouchableOpacity
                   style={styles.menuContainer}

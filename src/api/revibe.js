@@ -669,6 +669,18 @@ export default class RevibeAPI extends BasePlatformAPI {
     return response
   }
 
+  async fetchCuratedPlaylists() {
+    /**
+    * Summary: Fetch curated playlists
+    *
+    * @return {Object} List containing playlist objects
+    */
+    var response = await this._request("content/browse/revibe-playlists/", "GET", null, true)
+    console.log(response.data);
+    response = response.data.results.map(x => this._parsePlaylist(x))
+    return response
+  }
+
   async fetchArtist(id) {
     /**
     * Summary: Fetch artist from id (required implementation).

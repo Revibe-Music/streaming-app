@@ -10,6 +10,7 @@ import Modal from "react-native-modal";
 import { uniqBy } from 'lodash'
 
 import { shuffleSongs } from '../../../redux/audio/actions'
+import { logEvent } from '../../../amplitude/amplitude';
 import RevibeAPI from '../../../api/revibe'
 import Container from "../../../components/containers/container";
 import SearchBar from "../../../components/searchBar/index";
@@ -172,9 +173,19 @@ class LibraryContent extends Component {
   setFilterText(text) {
     if(text !== "") {
       this.setState({filterText: text, filtering: true})
+      if(!this.logSearchTimer) {
+        this.logSearchTimer = setTimeout(() => logEvent("Library", "Search"), 2000)
+      }
+      else {
+        clearTimeout(this.logSearchTimer)
+        this.logSearchTimer = setTimeout(() => logEvent("Library", "Search"), 2000)
+      }
     }
     else {
       this.setState({filterText: text})
+      if(this.logSearchTimer) {
+        clearTimeout(this.logSearchTimer)
+      }
     }
   }
 

@@ -162,19 +162,11 @@ ParalaxContainer.propTypes = {
   displayLogo: PropTypes.bool,
   placeholderImage: PropTypes.node,
   title: PropTypes.string,
-  text: PropTypes.string,
-  note: PropTypes.string,
-  showButton: PropTypes.bool,
-  buttonText: PropTypes.string,
-  onButtonPress: PropTypes.func,
-  image: PropTypes.string,
   images: PropTypes.array,
 };
 
 ParalaxContainer.defaultProps = {
-  showButton: false,
   displayLogo: true,
-  buttonText: "Listen",
   images: [],
   // placeholderImage:require("./../../../assets/albumArtPlaceholder.png")
 };
@@ -204,11 +196,13 @@ const styles = StyleSheet.create({
   navTitle: {
     color: 'white',
     fontSize: 18,
+    textAlign: "center",
     backgroundColor: 'transparent',
   },
   imageTitle: {
     color: 'white',
     backgroundColor: 'transparent',
+    textAlign: "center",
     fontSize: hp("3"),
   },
   center: {

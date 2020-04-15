@@ -32,6 +32,7 @@ import RevibeAPI from "../../../api/revibe";
 
 import { playSong } from './../../../redux/audio/actions'
 import { getPlatform } from '../../../api/utils';
+import { logEvent } from '../../../amplitude/amplitude';
 import styles from "./styles";
 
 
@@ -113,19 +114,18 @@ class Playlist extends Component {
         displayLogo={false}
         placeholderImage={require("./../../../../assets/albumArtPlaceholder.png")}
         title={`${this.playlist.name}`}
-        note={`Playlist • ${this.state.numSongs} ${this.state.numSongs > 1 ? "Songs" : this.state.numSongs ===0  ? "Songs" : "Song"}`}
-        showButton={true}
-        onButtonPress={() => this.props.playSong(0, this.state.songs)}
         images={this.playlist.regularImage ? this.playlist.regularImage : require("./../../../../assets/albumArtPlaceholder.png")}
       >
-
       <View style={[styles.title, {marginTop: hp("1")}]}>
         <Text style={styles.title}>{`Playlist • ${this.state.numSongs} ${this.state.numSongs > 1 ? "Songs" : this.state.numSongs ===0  ? "Songs" : "Song"}`}</Text>
       </View>
       <View style={{flexDirection: "row", marginBottom: hp("2")}}>
         <View style={{flexDirection: "column", width: wp("15"), justifyContent: "center", alignItems: "center"}}>
           <Button
-            onPress={() => this.props.playSong(0, this.state.songs)}
+            onPress={() => {
+              this.props.playSong(0, this.state.songs)
+              logEvent("Play", "Playlist")
+            }}
             style={styles.saveBtn}
           >
             <View style={styles.center}>

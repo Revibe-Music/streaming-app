@@ -13,6 +13,7 @@ import { getPlatform } from './../../api/utils';
 import { getActivePlatforms } from './../../realm/utils/v1';
 import { logoutAllPlatforms } from './../../redux/platform/actions';
 import { resetAudio } from './../../redux/audio/actions';
+import { logEvent } from './../../amplitude/amplitude';
 
 const { width } = Dimensions.get("screen");
 
@@ -29,7 +30,15 @@ const _Drawer = props => (
     </Block>
     <Block flex>
       <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-        <DrawerItems {...props} />
+        <DrawerItems
+          {...props}
+          onItemPress = {( route, focused ) => {
+            props.onItemPress(route, focused)
+            if(route.route.key === "Accounts") {
+              logEvent("View", "Settings")
+            }
+          }}
+        />
         <Block flex style={{ marginTop: 24, marginVertical: 8, paddingHorizontal: 8 }}>
             <Block style={{ borderColor: "rgba(0,0,0,0.2)", width: '100%', borderWidth: StyleSheet.hairlineWidth, alignItems: "flex-start", justifyContent: "flex-start" }}/>
 
@@ -51,6 +60,7 @@ const _Drawer = props => (
                   shareText = `sms:&body=${encodeURI(shareText)}`
                 }
                 Linking.openURL(shareText).catch((err) => console.error('An error occurred', err))
+                logEvent("Share", "Invite Friend")
               }}
             >
               <Icon type="Ionicons" name="md-share-alt" style={{color:"#7248BD", fontSize: hp('2.3%')}} />
@@ -58,7 +68,10 @@ const _Drawer = props => (
             </Button>
             <Button style={{width: wp('40%'), height: hp('6%'), backgroundColor: "transparent",alignSelf: 'flex-start', justifyContent: "flex-start"}}
               block
-              onPress={() => Linking.openURL("https://revibe.tech/pages/contact-us").catch((err) => console.error('An error occurred', err))}
+              onPress={() => {
+                Linking.openURL("https://revibe.tech/pages/contact-us").catch((err) => console.error('An error occurred', err))
+                logEvent("Feedback", "Submit Form")
+              }}
             >
               <Icon type="Ionicons" name="md-mail" style={{color:"#7248BD", fontSize: hp('2%')}} />
               <Text style={{color: "#7248BD",fontSize: hp('2%')}}>Feedback</Text>

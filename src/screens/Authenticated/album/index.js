@@ -10,6 +10,7 @@ import SongItem from "../../../components/listItems/songItem";
 
 import { playSong } from './../../../redux/audio/actions'
 import { getPlatform } from '../../../api/utils';
+import { logEvent } from '../../../amplitude/amplitude';
 import styles from "./styles";
 
 
@@ -105,9 +106,6 @@ class Album extends Component {
         platform={this.album.platform}
         title={this.album.name}
         text={this.setArtist()}
-        note={this.album.type !== "song" ? this.displayNumSongs() : null}
-        showButton={true}
-        onButtonPress={() => this.props.playSong(0, this.state.songs)}
         images={this.getImage()}
       >
         <View style={[styles.title, {marginTop: hp("1")}]}>
@@ -118,7 +116,10 @@ class Album extends Component {
           <Button
             rounded
             large
-            onPress={() => this.props.playSong(0, this.state.songs)}
+            onPress={() => {
+              this.props.playSong(0, this.state.songs)
+              logEvent("Play", "Album")
+            }}
             style={styles.shuffleBtn}
           >
             <View style={styles.center}>

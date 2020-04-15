@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 
 
 import { shuffleSongs } from '../../../redux/audio/actions'
+import { logEvent } from '../../../amplitude/amplitude';
 import RevibeAPI from '../../../api/revibe'
 import SpotifyAPI from '../../../api/spotify'
 import Container from "../../../components/containers/container";
@@ -67,7 +68,8 @@ class PlaylistContent extends Component {
      this.deletePlaylists = this.deletePlaylists.bind(this)
   }
 
-  async componentDidMount(){
+  async componentDidMount() {
+    // var curatedPlaylists = this.revibe.fetchCuratedPlaylists()
     var filteredData = []
     filteredData = realm.objects('Playlist')
     filteredData = Object.keys(filteredData).map(x => filteredData[x])
@@ -76,6 +78,8 @@ class PlaylistContent extends Component {
     setTimeout(() => this.updateContent(), 500)
     setTimeout(() => this._addListeners(), 500)
     setTimeout(() => this.setState({updating: false}), 1000)
+    // curatedPlaylists = await curatedPlaylists
+    // console.log(curatedPlaylists);
   }
 
   componentWillUnmount() {
@@ -164,7 +168,10 @@ class PlaylistContent extends Component {
     if(this.state.selectedPlaylist.id) {
       var playlistSongs = await this.spotify.fetchPlaylistSongs(this.state.selectedPlaylist.id)
       await this.revibe.batchAddSongsToPlaylist(playlistSongs, newPlaylist.id)
-      // newPlaylist.batchAddSongs(playlistSongs)
+      logEvent("Playlist", "Create", {"Imported": true, "Source": "Spotify"})
+    }
+    else {
+      logEvent("Playlist", "Create", {"Imported": false})
     }
     this.setState({availablePlaylists: [], selectingPlaylists: false, loading: false})
   }
@@ -190,6 +197,7 @@ class PlaylistContent extends Component {
     var playlistDeletions = []
     for(var x=0; x<this.state.edittedPlaylists.length; x++) {
       playlistDeletions.push(this.revibe.deletePlaylist(this.state.edittedPlaylists[x].id))
+      logEvent("Playlist", "Delete")
     }
     await Promise.all(playlistDeletions)
     this.updateContent()

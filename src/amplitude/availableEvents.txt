@@ -1,0 +1,60 @@
+(DONE) App - Launched
+(DONE) App - Enter Foreground
+(DONE) App - Enter Background
+
+Registration - Account Info Complete
+(DONE) Registration - Submitted
+(DONE) Registration - Success
+(DONE) Registration - Failed
+
+(DONE) Login - Submitted
+(DONE) Login - Success
+(DONE) Login - Failed
+
+(FEATURE NOT IMPLEMENTED) Tutorial - Started
+(FEATURE NOT IMPLEMENTED) Tutorial - Skipped
+(FEATURE NOT IMPLEMENTED) Tutorial - Completed
+
+(DONE) Onboarding - Started
+(DONE) Onboarding - Skipped
+(DONE) Onboarding - Completed
+
+// these need action (Connect or Disconnect) and platform (only spotify for now)
+(DONE) External Account - Clicked
+(DONE) External Account - Canceled
+(DONE) External Account - Success
+(DONE) External Account - Failed
+
+(DONE) Play - Song     (this is a stream)
+(DONE) Play - Album    (this is a clicking listen button)
+(DONE) Play - Playlist (this is a clicking listen button)
+Play - Shuffle  (this is a clicking shuffle button)
+
+// need to pass id, platform
+(DONE) View - Artist Page
+(DONE) View - Album Page
+(DONE) View - Library Page (send content type)
+(DONE) View - Playlist Page
+(DONE) View - Settings Page
+
+(DONE) Queue - Play Next
+(DONE) Queue - Add To Queue
+(DONE) Queue - Remove From Queue
+
+(DONE) Playlist - Create
+(DONE) Playlist - Delete
+(DONE) Playlist - Add Song
+(DONE) Playlist - Delete Song
+
+(DONE) Library - Add Song
+(DONE) Library - Delete Song
+(DONE) Library - Search
+
+(DONE) Search - Executed
+(REMOVED) Search - Result Selected (not needed because we know if we are on search page from play song, view artist, view album, etc)
+
+(DONE) Share - Invite Friend
+(FEATURE NOT IMPLEMENTED) Share - Post On Social Media
+
+(DONE) Feedback - Submit Form
+Feedback - Rate On App Store

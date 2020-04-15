@@ -19,7 +19,6 @@ import VideoPlayer from "./../audioControls/videoPlayer";
 import Queue from "./../queue/index";
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import OfflineNotice from './../offlineNotice/index';
-import TrackPlayer from './../../api/TrackPlayer'
 
 import styles from "./styles";
 import { selectSong } from './../../redux/navigation/actions'
@@ -311,7 +310,7 @@ function mapStateToProps(state) {
     currentIndex: state.audioState.currentIndex,
     hasAudio: state.audioState.hasAudio,
     activePlatform: state.audioState.activePlatform,
-    currentKey: state.naviationState.currentKey,
+    currentKey: state.navigationState.currentKey,
   }
 };
 

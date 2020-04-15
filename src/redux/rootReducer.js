@@ -12,7 +12,7 @@ const rootReducer = combineReducers({
   audioState: audioReducer,
   platformState: platformReducer,
   connectionState: connectionReducer,
-  naviationState: navigationReducer,
+  navigationState: navigationReducer,
 });
 
 const store = createStore(

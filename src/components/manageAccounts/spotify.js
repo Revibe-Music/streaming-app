@@ -8,6 +8,7 @@ import CookieManager from 'react-native-cookies';
 import AnimatedPopover from './../animatedPopover/index';
 import SpotifyAPI from './../../api/spotify';
 import { updatePlatformData, removePlatformData,initializePlatforms } from './../../redux/platform/actions'
+import { logEvent } from './../../amplitude/amplitude';
 import styles from "./styles";
 
 
@@ -23,6 +24,7 @@ class SpotifyAccount extends Component {
   }
 
   async connectSpotify() {
+      logEvent("External Account", "Clicked", {"Action": "Connect", "Platform": "Spotify"})
       await this.spotify.login();
       var profile = await this.spotify.getProfile()
       if(profile.product === "premium") {
@@ -30,14 +32,16 @@ class SpotifyAccount extends Component {
         var songs = await this.spotify.fetchLibrarySongs()
         this.props.initializePlatforms()
         this.setState({loading: false})
+        logEvent("External Account", "Success", {"Action": "Connect", "Platform": "Spotify"})
       }
       else {
         await this.spotify.logout()
+        logEvent("External Account", "Failed", {"Action": "Connect", "Platform": "Spotify"})
         Alert.alert(
           'Sorry, you must have a premium Spotify account.',
           '',
           [
-            {text: 'OK', onPress: () => console.log('OK Pressed')},
+            {text: 'OK', onPress: () => logEvent("External Account", "Canceled", {"Action": "Connect", "Platform": "Spotify"})},
           ],
           {cancelable: false},
         );
@@ -45,6 +49,7 @@ class SpotifyAccount extends Component {
   }
 
   disconnectSpotify() {
+      logEvent("External Account", "Clicked", {"Action": "Disconnect", "Platform": "Spotify"})
       Alert.alert(
         'Are you sure you want to disconnect Spotify?',
         'This will remove all Spotify content from Revibe.',
@@ -55,10 +60,11 @@ class SpotifyAccount extends Component {
             this.props.initializePlatforms()
             await CookieManager.clearAll(true)
             this.setState({loading: false})
+            logEvent("External Account", "Success", {"Action": "Disconnect", "Platform": "Spotify"})
           }},
           {
             text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
+            onPress: () => logEvent("External Account", "Canceled", {"Action": "Disconnect", "Platform": "Spotify"}),
             style: 'cancel',
           },
         ],
