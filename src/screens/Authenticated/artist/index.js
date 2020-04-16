@@ -50,7 +50,6 @@ class Artist extends Component {
     contentList.push(this.platform.fetchArtistTopSongs(this.artist.id))
     contentList.push(this.platform.fetchArtistAlbums(this.artist.id))
     var artist = await this.platform.fetchArtist(this.artist.id)
-    console.log(artist);
     if(artist["venmo"]) {
       this.artist.venmo = artist.venmo
       this.setState({showTipJar: true})

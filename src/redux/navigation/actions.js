@@ -34,12 +34,12 @@ export function setTopLevelNavigator(navigatorRef) {
   navigator = navigatorRef;
 }
 
-function getCurrentTab(nav){
+function getNavigationState(nav){
   if(Array.isArray(nav.routes) && nav.routes.length>0){
     if(nav.routeName === "Browse" || nav.routeName === "Search" || nav.routeName === "Library" ) {
       return {tab: nav.routeName, page: nav.routes[nav.index].routeName, key: nav.routes[nav.index].key}
     }
-    return getCurrentTab(nav.routes[nav.index])
+    return getNavigationState(nav.routes[nav.index])
   }
 }
 
@@ -167,7 +167,7 @@ export function goToViewAll(data, type, title="", endpoint="",platform="Revibe",
 
 export function goBack() {
   return async (dispatch) => {
-    if(getCurrentTab(navigator.state.nav) === "Playlist") {
+    if(getNavigationState(navigator.state.nav) === "Playlist") {
       dispatch(setPlaylist(null))
     }
     await navigator.dispatch(NavigationActions.back());
@@ -176,16 +176,27 @@ export function goBack() {
 }
 
 
-export function setTab(tab) {
+export function setTab(tab=null) {
   return async (dispatch) => {
-    dispatch(setCurrentTab(tab))
+    if(tab) {
+      dispatch(setCurrentTab(tab))
+    }
+    else {
+      var nav = getNavigationState(navigator.state.nav)
+      dispatch(setCurrentTab(nav.tab))
+    }
   }
 }
 
-export function setPage(page) {
+export function setPage(page=null, key=null) {
   return async (dispatch) => {
-    var nav = getCurrentTab(navigator.state.nav)
-    dispatch(setCurrentPage(nav.page, nav.key))
-    dispatch(setCurrentTab(nav.tab))
+    if(page) {
+      dispatch(setCurrentPage(page, key))
+    }
+    else {
+      var nav = getNavigationState(navigator.state.nav)
+      dispatch(setCurrentPage(nav.page, nav.key))
+      dispatch(setCurrentTab(nav.tab))
+    }
   }
 }

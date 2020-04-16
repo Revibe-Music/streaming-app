@@ -5,13 +5,15 @@ import RevibeAPI from './../../api/revibe';
 import { logEvent } from './../../amplitude/amplitude';
 
 
-const play = (index, playlist, activePlatform, inQueue) => {
+const play = (index, playlist, activePlatform, inQueue, playedFromTab, playedFromPage) => {
   return {
    type: 'PLAY_SONG',
    activePlatform: activePlatform,
    playlist: playlist,
    index: index,
    inQueue: inQueue,
+   playedFromTab: playedFromTab,
+   playedFromPage: playedFromPage
  };
 }
 const resume = () => ({
@@ -73,11 +75,28 @@ const reset = () => ({
           var song = getState().audioState.playlist[getState().audioState.currentIndex]
           var revibe = new RevibeAPI()
           revibe.recordStream(song, getState().audioState.time.current)
-          logEvent("Play", "Song", {"Platform": song.platform, "ID": song.id, "Stream Time": parseFloat(getState().audioState.time.current.toFixed(2)), "Active Tab": getState().navigationState.currentTab, "Active Page":getState().navigationState.currentPage })
+          var eventData = {
+            "Platform": song.platform,
+            "ID": song.id,
+            "Stream Time": parseFloat(getState().audioState.time.current.toFixed(2)),
+            "App Location" : {
+              "Tab": getState().audioState.playedFromTab,
+              "Page":getState().audioState.playedFromPage,
+            }
+          }
+          logEvent("Play", "Song", eventData)
         }
       }
 
-      playlist = !!playlist ? playlist : getState().audioState.playlist
+      if(!playlist) {
+        playlist = getState().audioState.playlist
+        var playedFromTab = getState().audioState.playedFromTab
+        var playedFromPage = getState().audioState.playedFromPage
+      }
+      else {
+        var playedFromTab = getState().navigationState.currentTab
+        var playedFromPage = getState().navigationState.currentPage
+      }
 
       if(getState().audioState.queueIndex !== null) {
         if(getState().audioState.queueIndex !== index) {
@@ -96,7 +115,7 @@ const reset = () => ({
         }
       }
 
-      dispatch(play(index, playlist, platform.name, inQueue));
+      dispatch(play(index, playlist, platform.name, inQueue, playedFromTab, playedFromPage));
 
       if(!Array.isArray(playlist[index].album.images)) {
         playlist[index].album.images = Object.keys(playlist[index].album.images).map(x => playlist[index].album.images[x])

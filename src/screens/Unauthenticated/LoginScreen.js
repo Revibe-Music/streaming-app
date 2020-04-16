@@ -26,7 +26,7 @@ import YouTubeAPI from './../../api/youtube'
 import Tutorial from './tutorial'
 
 import { getPlatform } from './../../api/utils';
-import { logEvent } from './../../amplitude/amplitude';
+import { logEvent, setRegistration } from './../../amplitude/amplitude';
 import { initializePlatforms } from './../../redux/platform/actions'
 import eyeImg from './../../../assets/eye_black.png';
 
@@ -147,6 +147,7 @@ class LoginScreen extends Component {
             this.setState({ success: true })
             await this.youtube.login()
             this.props.initializePlatforms()
+            setRegistration()
             logEvent("Registration", "Success")
             this.props.navigation.navigate(
               {

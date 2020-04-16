@@ -41,7 +41,7 @@ class SpotifyAccount extends Component {
           'Sorry, you must have a premium Spotify account.',
           '',
           [
-            {text: 'OK', onPress: () => logEvent("External Account", "Canceled", {"Action": "Connect", "Platform": "Spotify"})},
+            {text: 'OK', onPress: () => console.log("Need premium account")},
           ],
           {cancelable: false},
         );

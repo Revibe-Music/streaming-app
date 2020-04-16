@@ -5,11 +5,12 @@ import SplashScreen from "react-native-splash-screen";
 import MusicControl from 'react-native-music-control';
 import NetInfo from "@react-native-community/netinfo";
 import BackgroundTimer from 'react-native-background-timer';
+import DefaultPreference from 'react-native-default-preference';
 
 import { RootNavigator } from './src/navigation/rootNavigation';
 
 import RevibeAPI from './src/api/revibe';
-import { logEvent } from './src/amplitude/amplitude';
+import { logEvent, setUserData } from './src/amplitude/amplitude';
 import { connection } from './src/redux/connection/actions';
 import { setTopLevelNavigator } from './src/redux/navigation/actions';
 import { resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing,continuousTimeUpdate } from './src/redux/audio/actions';
@@ -64,6 +65,8 @@ class App extends React.Component {
       this.props.setScrubbing(false)
     })
     SplashScreen.hide();
+    DefaultPreference.get('user_id')
+      .then(id => setUserData(id));
     logEvent("App", "Launched")
     AppState.addEventListener("change", this._handleAppStateChange);
   }

@@ -16,13 +16,8 @@ import store from './src/redux/rootReducer';
 
 var testAmplitudeKey = "09f00d58305976a02830711d6fab3b72"
 var prodAmplitudeKey = "ac5bc02f3725f6d6a531b2751e78e1a8"
-var amplitudeConfig = {
-    saveEvents: true,
-    includeReferrer: true,
-    sessionTimeout: 15*60*1000, // 30 min
-}
 
-amplitude.getInstance().init(testAmplitudeKey, null, amplitudeConfig);
+amplitude.getInstance().init(prodAmplitudeKey);
 
 const RevibeApp = () => (
   <Provider store={store}>

@@ -107,7 +107,19 @@ class PlaylistItem extends PureComponent {
              <View>
                <Text style={[styles.mainText,{color:"white"}]} numberOfLines={1}>{this.props.playlist.name}</Text>
              </View>
-              {this.displayPlatforms()}
+             <View style={{flexDirection: "row"}}>
+
+                {this.props.playlist.curated ?
+                  <View>
+                    <Text numberOfLines={1} note style={styles.noteText}>by Revibe</Text>
+                  </View>
+                :
+                <View style={styles.logoContainer}>
+                {this.displayPlatforms()}
+                </View>
+               }
+
+             </View>
            </View>
            {!this.props.editting ?
              <View style={styles.arrowContainer}>

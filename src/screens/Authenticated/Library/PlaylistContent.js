@@ -69,7 +69,7 @@ class PlaylistContent extends Component {
   }
 
   async componentDidMount() {
-    // var curatedPlaylists = this.revibe.fetchCuratedPlaylists()
+    this.fetchCuratedPlaylists()
     var filteredData = []
     filteredData = realm.objects('Playlist')
     filteredData = Object.keys(filteredData).map(x => filteredData[x])
@@ -78,8 +78,6 @@ class PlaylistContent extends Component {
     setTimeout(() => this.updateContent(), 500)
     setTimeout(() => this._addListeners(), 500)
     setTimeout(() => this.setState({updating: false}), 1000)
-    // curatedPlaylists = await curatedPlaylists
-    // console.log(curatedPlaylists);
   }
 
   componentWillUnmount() {
@@ -107,6 +105,11 @@ class PlaylistContent extends Component {
     var sortedData = [...data]
     if(this.state.sortBy === "dateCreated") {
       sortedData.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
+      sortedData.sort(function(a, b) {
+        if(!a.curated && b.curated) { return -1; }
+        if(a.curated && !b.curated) { return 1; }
+        return 0;
+      })
     }
     else {
       sortedData.sort(function(a, b) {
@@ -143,6 +146,21 @@ class PlaylistContent extends Component {
     filteredData = JSON.parse(JSON.stringify(Object.keys(filteredData).map(x => filteredData[x])))
     filteredData = this._sort(filteredData)
     this.setState({content: this._format(filteredData)})
+  }
+
+  async fetchCuratedPlaylists() {
+    var curatedPlaylists = this.revibe.fetchCuratedPlaylists()
+    curatedPlaylists = await curatedPlaylists
+    var savedCuratedPlaylists = this.revibe.playlists.filtered('curated == $0',true)
+    for(var x=0; x<curatedPlaylists.length; x++) {
+      if(savedCuratedPlaylists.filtered(`id = "${curatedPlaylists[x].id}"`).length < 1) {
+        console.log("Adding", curatedPlaylists[x].name);
+        const newPlaylist = await this.revibe.savePlaylist(curatedPlaylists[x].id, curatedPlaylists[x].name, true, curatedPlaylists[x].dateCreated)
+        const playlistSongs = await this.revibe.fetchPlaylistSongs(curatedPlaylists[x].id)
+        newPlaylist.batchAddSongs(playlistSongs)
+      }
+    }
+
   }
 
   setFilterText(text) {
@@ -196,7 +214,12 @@ class PlaylistContent extends Component {
     await this.setState({loading: true})
     var playlistDeletions = []
     for(var x=0; x<this.state.edittedPlaylists.length; x++) {
-      playlistDeletions.push(this.revibe.deletePlaylist(this.state.edittedPlaylists[x].id))
+      if(this.state.edittedPlaylists[x].curated) {
+        this.revibe.playlists.filtered(`id = "${this.state.edittedPlaylists[x].id}"`)['0'].delete()
+      }
+      else {
+        playlistDeletions.push(this.revibe.deletePlaylist(this.state.edittedPlaylists[x].id))
+      }
       logEvent("Playlist", "Delete")
     }
     await Promise.all(playlistDeletions)

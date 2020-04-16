@@ -9,7 +9,8 @@ var initialState = {
    queueIndex: null, // where the queued song was inserted into playlist
    queue: [],
    playlist: [],    //should probably limit this to around 50 to reduce memory usage
-   source: "",   // where song is being played from ex: "Library", "Search", etc.
+   playedFromTab: "",   // where song is being played from ex: "Library", "Search", etc.
+   playedFromPage: "",   // where song is being played from ex: "Library", "Search", etc.
    time: {
       current: null,
       max: null,
@@ -27,10 +28,12 @@ export const audioReducer = (state = initialState, action) => {
             activePlatform: action.activePlatform,
             playlist: [...action.playlist],
             currentIndex: action.index,
-            source: action.source,
-            time: {max: action.playlist[action.index].duration,
-                  current: 0,
-                  }
+            playedFromTab: action.playedFromTab,
+            playedFromPage: action.playedFromPage,
+            time: {
+              max: action.playlist[action.index].duration,
+              current: 0,
+            }
          };
       case 'RESUME':
          return {

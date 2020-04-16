@@ -94,6 +94,11 @@ class OptionsMenu extends PureComponent {
    songInPlaylist() {
      // check if object is already saved to determine to show "Add" or "Remove"
      if(this.props.currentPage === "Playlist") {
+       if(this.props.selectedPlaylist) {
+         if(this.props.selectedPlaylist.curated) {
+           return false
+         }
+       }
        if(this.props.song) {
          var playlist = this.revibe.playlists.filtered(`id = "${this.props.selectedPlaylist.id}"`)["0"]
          return playlist.songIsSaved(this.props.song)
@@ -197,7 +202,7 @@ class OptionsMenu extends PureComponent {
 
    displayPlaylists() {
      var playlists = []
-     playlists = this.revibe.playlists
+     playlists = this.revibe.playlists.filtered('curated == false')
      playlists = JSON.parse(JSON.stringify(playlists.slice()))
      playlists.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
      return (

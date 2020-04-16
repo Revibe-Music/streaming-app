@@ -119,32 +119,20 @@ class Playlist extends Component {
       <View style={[styles.title, {marginTop: hp("1")}]}>
         <Text style={styles.title}>{`Playlist • ${this.state.numSongs} ${this.state.numSongs > 1 ? "Songs" : this.state.numSongs ===0  ? "Songs" : "Song"}`}</Text>
       </View>
-      <View style={{flexDirection: "row", marginBottom: hp("2")}}>
-        <View style={{flexDirection: "column", width: wp("15"), justifyContent: "center", alignItems: "center"}}>
-          <Button
-            onPress={() => {
-              this.props.playSong(0, this.state.songs)
-              logEvent("Play", "Playlist")
-            }}
-            style={styles.saveBtn}
-          >
-            <View style={styles.center}>
-              <Text uppercase style={styles.saveText}>save</Text>
-            </View>
-          </Button>
+      <View style={{flexDirection: "row", marginBottom: hp("2"),justifyContent: "center", alignItems: "center"}}>
+        <Button
+          rounded
+          large
+          onPress={() => {
+            this.props.playSong(0, this.state.songs)
+            logEvent("Play", "Playlist")
+          }}
+          style={styles.shuffleBtn}
+        >
+          <View style={styles.center}>
+            <Text uppercase style={styles.shuffle}>Listen</Text>
           </View>
-          <View style={{flexDirection: "column", width: wp("70"), justifyContent: "center", alignItems: "center"}}>
-          <Button
-            rounded
-            large
-            onPress={() => this.props.playSong(0, this.state.songs)}
-            style={styles.shuffleBtn}
-          >
-            <View style={styles.center}>
-              <Text uppercase style={styles.shuffle}>Listen</Text>
-            </View>
-          </Button>
-        </View>
+        </Button>
       </View>
 
       {this.props.showButton ?

@@ -23,9 +23,6 @@ class SongItem extends PureComponent {
     this.setArtist = this.setArtist.bind(this)
     this.getImage = this.getImage.bind(this)
     this.onClick = this.onClick.bind(this)
-    if(!this.props.song) {
-      console.log(this.props.song);
-    }
   }
 
   toggleOptionsMenu() {
@@ -87,8 +84,8 @@ class SongItem extends PureComponent {
 
   render() {
     return (
-      <BaseListItem noBorder style={styles.listItem}>
-        <TouchableOpacity onPress={this.onClick}>
+      <BaseListItem noBorder style={[styles.listItem, !Object.keys(this.props.platforms).includes(this.props.song.platform) ? {opacity: .3} : {}]}>
+        <TouchableOpacity disabled={!Object.keys(this.props.platforms).includes(this.props.song.platform)} onPress={this.onClick}>
           <View style={{flexDirection: "row"}}>
             {this.props.displayImage ?
               <FastImage
@@ -119,6 +116,7 @@ class SongItem extends PureComponent {
          </View>
         </TouchableOpacity>
         <TouchableOpacity
+          disabled={!Object.keys(this.props.platforms).includes(this.props.song.platform)}
           style={this.props.displayImage ? styles.ellipsisContainer : [styles.ellipsisContainerImageAdjusted,styles.ellipsisContainer]}
           onPress={this.toggleOptionsMenu}
          >
@@ -151,7 +149,8 @@ function mapStateToProps(state) {
   return {
     currentIndex: state.audioState.currentIndex,
     currentplaylist: state.audioState.playlist,
-    activePlatform: state.audioState.activePlatform
+    activePlatform: state.audioState.activePlatform,
+    platforms: state.platformState.platforms
   }
 };
 const mapDispatchToProps = dispatch => ({
