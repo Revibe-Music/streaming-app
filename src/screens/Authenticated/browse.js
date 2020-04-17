@@ -35,7 +35,7 @@ class Browse extends Component {
    super(props);
    this.state = {
      content: [],
-     loading: false,
+     loading: true,
    }
 
    this.revibe = new RevibeAPI()
@@ -44,19 +44,12 @@ class Browse extends Component {
  }
 
  async componentDidMount() {
-     if (this.props.connected) {
-       this.setState({loading: true})
-       var browseContent = await this.revibe.fetchAllBrowseContent()
-       if(Array.isArray(browseContent)) {
-         this.setState({content:browseContent, loading: false})
-       }
-       else {
-         this.setState({loading: false})
-       }
+     this.setState({loading: true})
+     var browseContent = await this.revibe.fetchAllBrowseContent()
+     if(Array.isArray(browseContent)) {
+       this.setState({content:browseContent, loading: false})
      }
-     else {
-       // get from realm
-     }
+     this.setState({loading: false})
  }
 
   renderContent() {
@@ -148,12 +141,12 @@ class Browse extends Component {
         <ArtistCard artist={item} image={this.getImage(item.images)} />
       )
     }
-    else if(type==="playlists") {
-      return(
-        // image={this.getImage(item.images)}
-        <PlaylistCard playlist={item} />
-      )
-    }
+    // else if(type==="playlists") {
+    //   return(
+    //     // image={this.getImage(item.images)}
+    //     <PlaylistCard playlist={item} />
+    //   )
+    // }
     else if(type === "container") {
 
     }

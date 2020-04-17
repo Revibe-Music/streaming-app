@@ -151,7 +151,7 @@ class OptionsMenu extends PureComponent {
      this.revibe.removeSongFromPlaylist(this.props.song.id, this.props.selectedPlaylist.id)
      setTimeout(() => this.setState({ removingFromPlaylist: false}), 1000)
      this.closeOptionsMenu(1500)
-     logEvent("Playlist", "Delete Song", {"Platform": this.props.song.platform, "ID": this.props.song.id, "Playlist ID": playlist.id})
+     logEvent("Playlist", "Delete Song", {"Platform": this.props.song.platform, "ID": this.props.song.id, "Playlist ID": this.props.selectedPlaylist.id})
    }
 
    addSongToQueue() {

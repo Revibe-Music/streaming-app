@@ -1,5 +1,6 @@
 import amplitude from 'amplitude-js'
 import DeviceInfo from 'react-native-device-info';
+import DefaultPreference from 'react-native-default-preference';
 
 
 
@@ -14,15 +15,16 @@ export function logEvent(categoryName, eventName, eventData={}) {
   categoryName = categoryName.replace(/\b\w/g, l => l.toUpperCase())
   eventName = eventName.replace(/\b\w/g, l => l.toUpperCase())
   // console.log(`Firing Event: ${categoryName} - ${eventName} with properties ${JSON.stringify(eventData)}`);
-  // amplitude.getInstance().logEventWithTimestamp(`${categoryName} - ${eventName}`, eventData);
+  amplitude.getInstance().logEventWithTimestamp(`${categoryName} - ${eventName}`, eventData);
 }
 
-export async function setUserData(userId) {
+export async function setUserData() {
+  var userId = await DefaultPreference.get('user_id')
   amplitude.getInstance().setUserId(userId)
 }
 
 export async function setRegistration(userId) {
-  amplitude.getInstance().setUserId(userId)
+  setUserData()
   var identify = new amplitude.Identify().setOnce('Register Date', new Date())
   amplitude.identify(identify); // Send the Identify call
 }

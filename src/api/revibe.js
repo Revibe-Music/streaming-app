@@ -659,7 +659,6 @@ export default class RevibeAPI extends BasePlatformAPI {
       }
       else if(response[x].type==="playlists") {
         response[x].results = response[x].results.map(x => that._parsePlaylist(x))
-        // console.log(response[x]);
       }
       if(response[x].name == "Top Hits - All-Time") {
         delete response[x]
@@ -887,8 +886,8 @@ export default class RevibeAPI extends BasePlatformAPI {
           }
         }
         else {
-          console.log("WTF");
-          console.log(songs[j]);
+          // console.log("WTF");
+          // console.log(songs[j]);
         }
         var formattedSong = {
           platform: songs[j].platform,

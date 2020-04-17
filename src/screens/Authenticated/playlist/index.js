@@ -70,7 +70,13 @@ class Playlist extends Component {
         this.setState({ loading: true })
         var results = await this.revibe.fetchPlaylistSongs(this.playlist.id)
       }
-      this.setState({ loading:false, songs: results,numSongs: results.length})
+      if(results) {
+        this.setState({ songs: results,numSongs: results.length})
+      }
+      else {
+        this.setState({songs: [], numSongs: 0})
+      }
+      this.setState({ loading:false})
     }
     else {
       setTimeout(() => this._addListeners(), 500)

@@ -26,7 +26,7 @@ import YouTubeAPI from './../../api/youtube'
 import Tutorial from './tutorial'
 
 import { getPlatform } from './../../api/utils';
-import { logEvent, setRegistration } from './../../amplitude/amplitude';
+import { logEvent, setRegistration, setUserData } from './../../amplitude/amplitude';
 import { initializePlatforms } from './../../redux/platform/actions'
 import eyeImg from './../../../assets/eye_black.png';
 
@@ -108,12 +108,15 @@ class LoginScreen extends Component {
           }
           else {
             var changePasswordResponse = await this.revibe.changePassword(this.state.password,this.state.newPassword1,this.state.newPassword2);
-            this.setState({ firstName: response.first_name, success: true })
+            // this.setState({ firstName: changePasswordResponse.first_name, success: true })
+            this.setState({success: true })
             await this.youtube.login()
             await this.fetchConnectedAccounts()
             await this.props.initializePlatforms()
             this.setState({syncing: true})
             setTimeout(this.syncAccounts, 5000)
+            logEvent("Login", "Success")
+            setUserData()
           }
         }
         else if(response.force_change_password) {
@@ -127,6 +130,7 @@ class LoginScreen extends Component {
           this.setState({syncing: true})
           setTimeout(this.syncAccounts, 5000)
           logEvent("Login", "Success")
+          setUserData()
         }
         else {
           this.setState({error: response})
@@ -147,8 +151,8 @@ class LoginScreen extends Component {
             this.setState({ success: true })
             await this.youtube.login()
             this.props.initializePlatforms()
-            setRegistration()
             logEvent("Registration", "Success")
+            setRegistration()
             this.props.navigation.navigate(
               {
                 key: "Tutorial",
