@@ -19,6 +19,7 @@ const AuthenticationNavigator = (signedIn = false) => {
 };
 
 export const RootNavigator = (signedIn = false) => {
+  // var nav = AuthenticationNavigator(false);
   var nav = AuthenticationNavigator(signedIn);
   return createAppContainer(nav);
 };

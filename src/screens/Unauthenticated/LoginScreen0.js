@@ -4,18 +4,18 @@ import {
   KeyboardAvoidingView,
   View,
   TouchableOpacity,
+  Image,
   Dimensions,
-  StatusBar,
-  SafeAreaView,
-  Linking
 } from 'react-native';
-import { Text, CheckBox, Icon } from "native-base";
+import { Text } from "native-base";
 import PropTypes from 'prop-types';
+import LinearGradient from 'react-native-linear-gradient';
 import Modal from "react-native-modal";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { connect } from 'react-redux';
 
 import Logo from './../../components/Logo';
+import Wallpaper from './../../components/Wallpaper';
 import ButtonSubmit from './../../components/ButtonSubmit';
 import UserInput from './../../components/UserInput';
 import ForgotPassword from "./forgotPassword";
@@ -23,19 +23,22 @@ import AccountSync from "./../../components/accountSync/index";
 import LoginOffline from "./../../components/offlineNotice/loginOffline";
 import RevibeAPI from './../../api/revibe'
 import YouTubeAPI from './../../api/youtube'
+import Tutorial from './tutorial'
 
 import { getPlatform } from './../../api/utils';
 import { logEvent, setRegistration, setUserData } from './../../amplitude/amplitude';
 import { initializePlatforms } from './../../redux/platform/actions'
+import eyeImg from './../../../assets/eye_black.png';
 
 
 class LoginScreen extends Component {
 
     constructor(props) {
       super(props);
+
       this.state = {
         press: false,
-        registering: this.props.navigation.state.params.registering,
+        registering: true,
         resettingPassword: false,
         firstName: "",
         lastName: "",
@@ -44,8 +47,6 @@ class LoginScreen extends Component {
         password: "",
         newPassword1: "",
         newPassword2: "",
-        agreedToTermsAndConditions: false,
-        showTermsAndConditionsWarning: false,
         syncing: false,
         loading: false,
         success: false,
@@ -144,64 +145,97 @@ class LoginScreen extends Component {
 
     async _register() {
         try {
-          if(this.state.agreedToTermsAndConditions) {
-            this.setState({loading: true})
-            var response = await this.revibe.register(this.state.username, this.state.password)
-            if(response.access_token) {
-              this.setState({ success: true })
-              await this.youtube.login()
-              this.props.initializePlatforms()
-              logEvent("Registration", "Success")
-              setRegistration()
-              this.props.navigation.navigate(
-                {
-                  key: "LinkAccounts",
-                  routeName: "LinkAccounts",
-                }
-              )
-            }
-            else {
-              console.log(response);
-              this.setState({error: response})
-              this.setState({loading: false})
-              logEvent("Registration", "Failed")
-            }
+          this.setState({loading: true})
+          var response = await this.revibe.register(this.state.firstName, this.state.lastName, this.state.username, this.state.email, this.state.password)
+          if(response.access_token) {
+            this.setState({ success: true })
+            await this.youtube.login()
+            this.props.initializePlatforms()
+            logEvent("Registration", "Success")
+            setRegistration()
+            this.props.navigation.navigate(
+              {
+                key: "Tutorial",
+                routeName: "Tutorial",
+              }
+            )
           }
           else {
-            this.setState({showTermsAndConditionsWarning: true})
+            this.setState({error: response})
+            this.setState({loading: false})
+            logEvent("Registration", "Failed")
           }
-
         }
         catch(error) {
           console.log(error);
         }
     }
 
-    async _googleSignInPressed() {
-      /// Need to check whether a user is logging in or registering in order to direct them to the link accounts page or just log them in
-      var response = await this.revibe.signinWithGoogle();
-      // console.log(response);
-      if(response.access_token) {
-        this.setState({ success: true })
-        await this.youtube.login()
-        this.props.initializePlatforms()
-        // logEvent("Registration", "Success")
-        this.props.navigation.navigate(
-          {
-            key: "Tutorial",
-            routeName: "Tutorial",
-          }
-        )
-      }
-      else {
-        this.setState({error: response})
-        this.setState({loading: false})
-        // logEvent("Registration", "Failed")
-      }
-    }
-
     toggleForgotPasswordModal() {
       this.setState({ forgotPasswordModal: !this.state.forgotPasswordModal });
+    }
+
+    displayFields() {
+      if(this.state.resettingPassword) {
+        return (
+          <>
+          <UserInput
+            icon="lock"
+            secureTextEntry={true}
+            placeholder="Password"
+            returnKeyType={'done'}
+            autoCapitalize={'none'}
+            autoCorrect={false}
+            width={wp("85%")}
+            onChange={(text) => this.setState({newPassword1: text})}
+          />
+          <UserInput
+            icon="lock"
+            secureTextEntry={true}
+            placeholder="Confirm Password"
+            returnKeyType={'done'}
+            autoCapitalize={'none'}
+            autoCorrect={false}
+            width={wp("85%")}
+            onChange={(text) => this.setState({newPassword2: text})}
+          />
+          </>
+        )
+      }
+      else if(this.state.registering) {
+        return (
+          <>
+          <View style={{flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center",width: wp("91%")}} >
+            <UserInput
+              placeholder="First Name"
+              autoCapitalize={'none'}
+              returnKeyType={'done'}
+              autoCorrect={false}
+              width={wp("40%")}
+              onChange={(text) => this.setState({firstName: text})}
+            />
+            <UserInput
+              placeholder="Last Name"
+              autoCapitalize={'none'}
+              returnKeyType={'done'}
+              autoCorrect={false}
+              width={wp("40%")}
+              onChange={(text) => this.setState({lastName: text})}
+            />
+          </View>
+          <UserInput
+            icon="mail"
+            placeholder="Email"
+            autoCapitalize={'none'}
+            returnKeyType={'done'}
+            autoCorrect={false}
+            width={wp("85%")}
+            onChange={(text) => this.setState({email: text})}
+          />
+          </>
+        )
+      }
+      return null
     }
 
     displayError() {
@@ -230,48 +264,26 @@ class LoginScreen extends Component {
   render() {
     return (
       <>
-      <StatusBar barStyle="light-content" />
-      <SafeAreaView style={{flex: 1, backgroundColor:'#0E0E0E', alignItems: "center", justifyContent: "center"}}>
+      <Wallpaper>
         <Logo />
-        <Text style={[styles.title, {marginTop: hp(7), marginBottom: hp(2), marginLeft: wp(8), alignSelf: "flex-start"}]}>{this.state.resettingPassword ? "Reset Password" : this.state.registering ? "Sign up" : "Sign in"}</Text>
         <KeyboardAvoidingView behavior="padding" style={styles.container}>
           {Object.keys(this.state.error).length > 0 ?
-            (<Text style={styles.authenticationError}>
+            <Text style={styles.authenticationError}>
               {this.displayError()}
-            </Text>) : null }
-
-          {this.state.resettingPassword ?
-            (<View style={styles.titleContainer}>
-              <Text style={styles.title}>Reset Password</Text>
-            </View>) : null}
-
-          <View style={{marginBottom: hp(10), alignItems: "center"}}>
-          {this.state.resettingPassword ?
-            <>
-            <UserInput
-              icon="lock"
-              secureTextEntry={true}
-              placeholder="Password"
-              returnKeyType={'done'}
-              autoCapitalize={'none'}
-              autoCorrect={false}
-              width={wp("85%")}
-              height={hp(7)}
-              onChange={(text) => this.setState({newPassword1: text})}
-            />
-            <UserInput
-              icon="lock"
-              secureTextEntry={true}
-              placeholder="Confirm Password"
-              returnKeyType={'done'}
-              autoCapitalize={'none'}
-              autoCorrect={false}
-              width={wp("85%")}
-              height={hp(7)}
-              onChange={(text) => this.setState({newPassword2: text})}
-            />
-            </>
+            </Text>
           :
+            null
+          }
+          {this.state.resettingPassword ?
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>Reset Password</Text>
+            </View>
+          :
+            null
+          }
+          <View style={{flex: 1, alignItems: "flex-end", justifyContent: "center"}} >
+          {this.displayFields()}
+          {!this.state.resettingPassword ?
             <>
             <UserInput
               icon="user"
@@ -280,7 +292,6 @@ class LoginScreen extends Component {
               returnKeyType={'done'}
               autoCorrect={false}
               width={wp("85%")}
-              height={hp(7)}
               onChange={(text) => this.setState({username: text})}
             />
             <UserInput
@@ -291,73 +302,36 @@ class LoginScreen extends Component {
               autoCapitalize={'none'}
               autoCorrect={false}
               width={wp("85%")}
-              height={hp(7)}
               onChange={(text) => this.setState({password: text})}
             />
-            {this.state.registering ?
-              <>
-              <View style={{width: wp(90), alignItems: "center", justifyContent: "flex-start", flexDirection: "row", minHeight: hp(3)}}>
-                <CheckBox
-                  checked={this.state.agreedToTermsAndConditions}
-                  color="#7248BD"
-                  style={{marginRight: wp(5)}}
-                  onPress={() => this.setState({agreedToTermsAndConditions: !this.state.agreedToTermsAndConditions, showTermsAndConditionsWarning: false})}
-                />
-                <Text style={[styles.text, {fontSize: hp(1.2)}]}>I agree to the </Text>
-                <Text style={[styles.text, {fontSize: hp(1.2), color: "#7248BD"}]} onPress={() => Linking.openURL('https://revibe-media.s3.us-east-2.amazonaws.com/Terms+and+Conditions.pdf')}>Terms and Conditions </Text>
-              </View>
-              {this.state.showTermsAndConditionsWarning ?
-                <Text style={{fontSize: hp(1.5), color: "red", alignSelf: "flex-start", marginLeft: wp(10), marginTop: hp(2)}}>Please agree to the Terms and Conditions</Text>
-              :
-                null
-              }
-              </>
-            :
-              <View style={{width: wp(85), alignItems: "center", justifyContent: "flex-start", flexDirection: "row", minHeight: hp(3)}}>
-                <TouchableOpacity
-                  onPress={() => this.setState({showForgotPasswordModal: !this.state.showForgotPasswordModal})}
-                >
-                <Text style={[styles.text, {fontSize: hp(1.2)}]}>Forgot Password?</Text>
-                </TouchableOpacity>
-              </View>
-            }
             </>
+          :
+            null
           }
-        </View>
-        <View style={{alignItems: "center", justifyContent: "space-between", height: hp(30)}}>
-          <ButtonSubmit
-            text={this.state.registering ? "Sign up" : "Sign in"}
-            width={wp(75)}
-            height={hp(5)}
-            onPress={this.submitButtonPressed}
-            loading={this.state.loading}
-            success={this.state.success}
-          />
-
-        <Text style={[styles.text, {fontSize: hp(1.3)}]}>or</Text>
-        <TouchableOpacity
-          onPress={() => this._googleSignInPressed()}
-        >
-          <View style={{width: wp(18), height: wp(18), borderRadius: wp(10), backgroundColor: "#7248BD", alignItems: "center", justifyContent: "center"}}>
-            <Icon type="AntDesign" name="google" style={{fontSize: wp(8), paddingTop: wp(1), color: "white"}} />
           </View>
-        </TouchableOpacity>
 
-          <View style={styles.bottomTextContainer}>
-            <TouchableOpacity
-              onPress={() => this.setState({registering: !this.state.registering})}
-            >
-              <Text style={[styles.text, {fontWeight: 'bold'}]}>{this.state.registering ? "Sign in" : "Sign up"}</Text>
-            </TouchableOpacity>
-            {/*<TouchableOpacity
-              onPress={() => console.log("Skipping")}
-            >
-              <Text style={[styles.text, {fontWeight: 'bold'}]}>Skip</Text>
-            </TouchableOpacity>*/}
-          </View>
-        </View>
         </KeyboardAvoidingView>
-      </SafeAreaView>
+
+        <ButtonSubmit
+          text={this.state.registering ? "SIGNUP" : "LOGIN"}
+          onPress={this.submitButtonPressed}
+          loading={this.state.loading}
+          success={this.state.success}
+        />
+        <View style={styles.bottomTextContainer}>
+          <TouchableOpacity
+            onPress={() => this.setState({registering: !this.state.registering})}
+          >
+            <Text style={styles.text}>{this.state.registering ? "Login To Account" : "Create Account"}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => this.setState({showForgotPasswordModal: !this.state.showForgotPasswordModal})}
+          >
+            <Text style={styles.text}>Forgot Password?</Text>
+          </TouchableOpacity>
+        </View>
+
+      </Wallpaper>
 
       <Modal
       isVisible={this.state.syncing}
@@ -389,12 +363,12 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 2,
     alignItems: 'center',
   },
 
   bottomTextContainer: {
-    // flex: 1,
+    flex: 1,
     width: DEVICE_WIDTH,
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -408,7 +382,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     backgroundColor: 'transparent',
-    fontSize: hp("3.5%"),
+    fontSize: hp("4%"),
   },
   text: {
     color: 'white',

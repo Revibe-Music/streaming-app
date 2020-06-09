@@ -1,5 +1,6 @@
 import DefaultPreference from 'react-native-default-preference';
 import axios from "axios"
+import { GoogleSignin, statusCodes } from '@react-native-community/google-signin';
 var he = require('he');   // needed to decode html
 
 import { IP } from './../config'
@@ -200,7 +201,9 @@ export default class RevibeAPI extends BasePlatformAPI {
     if (authenticated) {
       // if token id expired, refresh before sending with new request
       if(this.hasLoggedIn()) {
+        console.log("Has logged in");
         if(!this.isLoggedIn()) {
+          console.log("Is logged in");
           await this.refreshToken()
         }
         headers['Authorization'] = `Bearer ${this.getToken().accessToken}`
@@ -268,7 +271,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     return await this._request(endpoint, method, body, authenticated, handlePagination, pageSize, limit)
   }
 
-  async register(firstName, lastName, username, email, password) {
+  async register(username, password) {
     /**
     * Summary: Register new Revibe account.
     *
@@ -286,10 +289,8 @@ export default class RevibeAPI extends BasePlatformAPI {
     var data = {
       username: username,
       password: password,
-      first_name: firstName,
-	    last_name: lastName,
-      profile: {email: email},
-      device_type: "mobile" // change to give actual device data
+      profile: {},
+      device_type: "phone" // change to give actual device data
     }
     var response = await this._request("account/register/", "POST", data)
     if(response.data.hasOwnProperty("access_token")) {
@@ -307,7 +308,7 @@ export default class RevibeAPI extends BasePlatformAPI {
         "allow_email_marketing": response.data.user.profile.allow_email_marketing,
         "allow_explicit": response.data.user.profile.allow_explicit,
         "allow_listening_data": response.data.user.profile.allow_listening_data,
-        "email": response.data.user.profile.email,
+        "email": response.data.user.profile.email ? response.data.user.profile.email : "",
         "skip_youtube_when_phone_is_locked": response.data.user.profile.skip_youtube_when_phone_is_locked,
         "user_id": response.data.user.user_id,
         "username": response.data.user.username
@@ -351,7 +352,7 @@ export default class RevibeAPI extends BasePlatformAPI {
         "allow_email_marketing": response.data.user.profile.allow_email_marketing,
         "allow_explicit": response.data.user.profile.allow_explicit,
         "allow_listening_data": response.data.user.profile.allow_listening_data,
-        "email": response.data.user.profile.email,
+        "email": response.data.user.profile.email ? response.data.user.profile.email : "",
         "skip_youtube_when_phone_is_locked": response.data.user.profile.skip_youtube_when_phone_is_locked,
         "user_id": response.data.user.user_id,
         "username": response.data.user.username
@@ -380,6 +381,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     */
 
     var token = this.getToken()
+    console.log(token);
     var data = {
       refresh_token: token.refreshToken,
       device_type: "mobile"
@@ -431,6 +433,86 @@ export default class RevibeAPI extends BasePlatformAPI {
       confirm_new_password: newPassword2
     }
     return await this._request("account/profile/change-password/", "POST", data, true)
+  }
+
+  _initializeGoogle() {
+    /**
+    * Summary: Initialize Google sign in package
+    */
+
+    GoogleSignin.configure({
+      // scopes: ['profile email'],
+      webClientId: '377937989327-ejkdhp7mk4u2gr9t1saq0a8t3di64mtv.apps.googleusercontent.com',
+      offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+      forceConsentPrompt: false, // [Android] if you want to show the authorization prompt at each login.
+    });
+  }
+
+  async signinWithGoogle() {
+    /**
+    * Summary: Sign in with google account.
+    *
+    *
+    */
+
+    try {
+      await GoogleSignin.signOut()
+
+      // go through google sign in flow client side then on revibe server,
+      this._initializeGoogle();
+      var userInfo = await GoogleSignin.signIn();
+      // var data = {access_token: userInfo.idToken, code: userInfo.serverAuthCode}
+      console.log(userInfo);
+      var data = {access_token: userInfo.idToken}
+      var response =  await this._request("account/google-authentication/", "POST", data)
+      console.log(response);
+      if(response.data.hasOwnProperty("access_token")) {
+        var token = {
+          platform: "Revibe",
+          accessToken: response.data.access_token,
+          refreshToken: response.data.refresh_token,
+          expiration: this._generateExpiration(1.9),
+        }
+
+        var user = {
+          "first_name": response.data.user.first_name,
+          "last_name": response.data.user.last_name,
+          "allow_email_marketing": response.data.user.profile.allow_email_marketing,
+          "allow_explicit": response.data.user.profile.allow_explicit,
+          "allow_listening_data": response.data.user.profile.allow_listening_data,
+          "email": response.data.user.profile.email ? response.data.user.profile.email : "",
+          "skip_youtube_when_phone_is_locked": response.data.user.profile.skip_youtube_when_phone_is_locked,
+          "user_id": response.data.user.user_id,
+          "username": response.data.user.username
+        }
+        if(response.data.user.profile.country) user.country = response.data.user.profile.country
+        if(response.data.user.profile.image) user.image = response.data.user.profile.image
+
+        // save token to realm
+        this.saveToken(token)
+
+        // save user to default preferences
+        DefaultPreference.setMultiple(user)
+
+        return response.data.user
+      }
+      return response.data
+
+      // // make request to revibe to save first and last name of user in database
+      // let headers = {Authorization: `Token ${response['key']}`}
+      // let body = {first_name: userInfo.user.givenName, last_name: userInfo.user.familyName}
+      // await this._request("api/accounts/edit-name/", "POST", body, headers)
+      // return {accessToken: response['key']};
+    }
+    catch (error) {
+      console.log("Error in 'Revibe.signupWithGoogle': "+ error);
+    }
+
+    // var token = this.getToken()
+    // var data = {access_token: token.accessToken}
+    // await this._request("account/logout/", "POST", data)
+    // token.delete()
+    // this.library.delete()
   }
 
   async getProfile() {
@@ -562,7 +644,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
 
-    var songs = await this._request("music/playlist/songs?playlist_id="+id, "GET", null, true, true)
+    var songs = await this._request("music/playlist/songs/?playlist_id="+id, "GET", null, true, true)
     for(var x=0; x<songs.length; x++) {
       let song = this._parseSong(songs[x].song)
       if(songs[x].date_saved) {

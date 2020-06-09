@@ -87,6 +87,7 @@ class ForgotPassword extends Component {
             returnKeyType={'done'}
             autoCorrect={false}
             width={wp("75%")}
+            height={hp(5)}
             onChange={(text) => this.setState({username: text})}
           />
           </View>
@@ -97,10 +98,11 @@ class ForgotPassword extends Component {
             <Text style={{color: "green", textAlign: "center", fontSize: hp("2.5%"), marginTop: hp("3%"),fontWeight: 'bold',}}>Email Successfully Sent</Text>
             <Icon type="FontAwesome" name={"check"} style={{color: "green", textAlign: "center", fontSize: hp("3%"), marginTop: hp("3%"),fontWeight: 'bold'}} />
           </View>
-
         :
           <ButtonSubmit
             text="SUBMIT"
+            width={wp(75)}
+            height={hp(5)}
             onPress={this.submitButtonPressed}
             loading={this.state.loading}
           />

@@ -17,7 +17,6 @@ export default class UserInput extends Component {
   }
 
   showPass() {
-    console.log("UPOO");
     this.setState({showPass: !this.state.showPass});
   }
 
@@ -26,27 +25,22 @@ export default class UserInput extends Component {
       <View style={styles.inputWrapper}>
         {this.props.icon ? <Icon type="AntDesign" name={this.props.icon} style={styles.inlineImg} /> : null}
         <TextInput
-          style={[styles.input, {width: this.props.width, paddingLeft: this.props.icon ? 45 : 10}]}
+          style={[styles.input, {height: this.props.height, width: this.props.width, paddingLeft: this.props.icon ? 45 : 10}]}
           onChangeText={this.props.onChange}
           placeholder={this.props.placeholder}
           secureTextEntry={this.state.showPass}
           autoCorrect={this.props.autoCorrect}
           autoCapitalize={this.props.autoCapitalize}
           returnKeyType={this.props.returnKeyType}
-          placeholderTextColor="black"
-          textColor="black"
+          placeholderTextColor="white"
           underlineColorAndroid="transparent"
         />
         {this.props.secureTextEntry ?
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={this.showPass}>
-            {this.state.showPass ?
-              <Icon type="Ionicons" name="md-eye" style={styles.iconEye} />
-            :
-              <Icon type="Ionicons" name="md-eye-off" style={styles.iconEye} />
-            }
-          </TouchableOpacity>
+            <Icon
+              onPress={() => this.setState({showPass: !this.state.showPass})}
+              type="Ionicons" name={this.state.showPass ? "md-eye" : "md-eye-off"}
+              style={styles.iconEye}
+            />
         :
           <View style={styles.iconEye} />
         }
@@ -62,11 +56,15 @@ UserInput.propTypes = {
   autoCorrect: PropTypes.bool,
   autoCapitalize: PropTypes.string,
   returnKeyType: PropTypes.string,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  heigth: PropTypes.number,
+  width: PropTypes.number,
 };
 
 UserInput.defaultProps = {
   onChange: () => console.log("Must pass function to onChange prop."),
+  height: "100%",
+  width: "100%",
 };
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
@@ -74,27 +72,33 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   input: {
-    backgroundColor: 'rgb(255, 255, 255)',
-    opacity: .6,
-    height: 40,
-    borderRadius: 20,
+    backgroundColor: 'transparent',
+    // opacity: .6,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#7248BD",
+    color: "white"
   },
   inputWrapper: {
-    flex: 1,
+    // flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    paddingTop: 15,
+    paddingBottom: 15
   },
   inlineImg: {
     zIndex: 20000,
     left: 35,
-    fontSize: 25
+    fontSize: 25,
+    color: "#7248BD"
   },
   iconEye: {
-    zIndex: 99,
+    zIndex: 9999,
     right: 40,
-    width: 25,
+    width: 30,
     height: 25,
+    color: "#7248BD",
     tintColor: 'rgba(0,0,0,0.6)',
   },
 });

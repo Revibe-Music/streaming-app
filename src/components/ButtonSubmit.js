@@ -86,9 +86,9 @@ export default class ButtonSubmit extends Component {
 
     return (
       <View style={styles.container}>
-        <Animated.View style={{width: changeWidth}}>
+        <Animated.View style={{width: changeWidth, alignItems: 'center', justifyContent: 'center',}}>
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button,  {width: this.props.width, height: this.props.height}]}
             onPress={this._onPress}
             activeOpacity={1}>
             {this.props.loading ? (
@@ -111,20 +111,23 @@ ButtonSubmit.propTypes = {
   onPress: PropTypes.func,
   loading: PropTypes.bool,
   success: PropTypes.bool,
+  width: PropTypes.number,
+  height: PropTypes.number,
 };
 
 ButtonSubmit.defaultProps = {
   onPress: () => console.log("Must pass function to onPress prop."),
   loading: false,
   success: false,
+  width: "100%",
+  height: "100%",
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    top: 40,
+    // flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
   },
   button: {
     alignItems: 'center',

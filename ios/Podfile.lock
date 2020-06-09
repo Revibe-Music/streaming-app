@@ -233,6 +233,8 @@ PODS:
     - React
   - react-native-track-player (1.2.2):
     - React
+  - react-native-webview (9.2.2):
+    - React
   - React-RCTActionSheet (0.61.2):
     - React-Core/RCTActionSheetHeaders (= 0.61.2)
   - React-RCTAnimation (0.61.2):
@@ -286,9 +288,11 @@ PODS:
     - React
     - SDWebImage (~> 5.0)
     - SDWebImageWebPCoder (~> 0.4.1)
+  - RNFS (2.16.6):
+    - React
   - RNGestureHandler (1.4.1):
     - React
-  - RNGoogleSignin (3.0.1):
+  - RNGoogleSignin (3.0.4):
     - GoogleSignIn (~> 5.0.0)
     - React
   - RNReactNativeHapticFeedback (1.9.0):
@@ -345,6 +349,7 @@ DEPENDENCIES:
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - react-native-track-player (from `../node_modules/react-native-track-player`)
+  - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
   - React-RCTBlob (from `../node_modules/react-native/Libraries/Blob`)
@@ -364,6 +369,7 @@ DEPENDENCIES:
   - RNDominantColor (from `../node_modules/rn-dominant-color`)
   - RNEventEmitter (from `../node_modules/react-native-events`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
+  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-community/google-signin`)"
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
@@ -439,6 +445,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-splash-screen"
   react-native-track-player:
     :path: "../node_modules/react-native-track-player"
+  react-native-webview:
+    :path: "../node_modules/react-native-webview"
   React-RCTActionSheet:
     :path: "../node_modules/react-native/Libraries/ActionSheetIOS"
   React-RCTAnimation:
@@ -475,6 +483,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-events"
   RNFastImage:
     :path: "../node_modules/react-native-fast-image"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
@@ -527,6 +537,7 @@ SPEC CHECKSUMS:
   react-native-slider: 8c34e319ec3a3ca9ef9466e4248fd091b5610b57
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   react-native-track-player: 2469e0f2303eab5ec7be14dfc5f47a91a7aee6ee
+  react-native-webview: 70f51702fcd3349102aa66926a81dc790ea6580a
   React-RCTActionSheet: 89b037c0fb7d2671607cb645760164e7e0c013f6
   React-RCTAnimation: e3cefa93c38c004c318f7ec04b883eb14b8b8235
   React-RCTBlob: d26ac0e313fbf14e7203473fd593ccaaeee8329e
@@ -545,8 +556,9 @@ SPEC CHECKSUMS:
   RNDominantColor: 5fef2f987cfbca5c25e9f50bd89cf9679c77458e
   RNEventEmitter: a43a853a0de1dee334d007a4b3d2a6dc29c77270
   RNFastImage: 35ae972d6727c84ee3f5c6897e07f84d0a3445e9
+  RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
-  RNGoogleSignin: 39336070b35fc4cea6a98cf111e00480317be0ae
+  RNGoogleSignin: a00f87261ea13df9a5cea8deafa6927d6f2c3562
   RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
   RNReanimated: 6abbbae2e5e72609d85aabd92a982a94566885f1
   RNSound: c980916b596cc15c8dcd2f6ecd3b13c4881dbe20

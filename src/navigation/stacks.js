@@ -53,7 +53,7 @@ AuthenticationPages = {
 }
 
 
-export const AuthenticationStack= createStackNavigator(AuthenticationPages, {initialRouteName: "Login",headerMode: 'none'});
+export const AuthenticationStack= createStackNavigator(AuthenticationPages, {initialRouteName: "Tutorial",headerMode: 'none'});
 export const BrowseStack= createStackNavigator(BrowsePages, {initialRouteName: "Browse",headerMode: 'none'});
 export const LibraryStack = createStackNavigator(LibraryPages, {initialRouteName: "Library",headerMode: 'none'});
 export const SearchStack = createStackNavigator(SearchPages, {initialRouteName: "Search",headerMode: 'none'});

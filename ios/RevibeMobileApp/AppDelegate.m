@@ -13,6 +13,7 @@
 #import "RNSplashScreen.h"
 
 #import <AVFoundation/AVFoundation.h>
+#import <RNGoogleSignin/RNGoogleSignin.h>
 
 @implementation AppDelegate
 
