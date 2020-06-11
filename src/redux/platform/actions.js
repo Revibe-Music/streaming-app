@@ -115,3 +115,9 @@ export function removePlatformData(platformName) {
     dispatch(updatePlatform(platforms));
   }
 }
+
+export function setError(message) {
+  return async (dispatch, getState) => {
+    dispatch(error(message));
+  }
+}

@@ -118,6 +118,7 @@ class Playlist extends Component {
     return (
       <ParalaxContainer
         displayLogo={false}
+        allowSharing={false}
         placeholderImage={require("./../../../../assets/albumArtPlaceholder.png")}
         title={`${this.playlist.name}`}
         images={this.playlist.regularImage ? this.playlist.regularImage : require("./../../../../assets/albumArtPlaceholder.png")}

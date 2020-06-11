@@ -11,6 +11,8 @@ import SongItem from "../../../components/listItems/songItem";
 import { playSong } from './../../../redux/audio/actions'
 import { getPlatform } from '../../../api/utils';
 import { logEvent } from '../../../amplitude/amplitude';
+import { createBranchUniversalObject } from '../../../navigation/branch'
+
 import styles from "./styles";
 
 
@@ -23,22 +25,31 @@ class Album extends Component {
       following: false,
       secondaryColor: "#121212",
       songs: this.props.navigation.state.params.songs.length > 0 ? this.props.navigation.state.params.songs : [],
+      branchUniversalObject: {}
     };
     this.getImage = this.getImage.bind(this)
     this.setArtist = this.setArtist.bind(this)
     this.displayNumSongs = this.displayNumSongs.bind(this)
 
-    this.platform = getPlatform(this.props.navigation.state.params.album.platform)
-    this.album = this.props.navigation.state.params.album
-    if(this.props.navigation.state.params.source) {
-      this.source = this.props.navigation.state.params.source
+    // this.platform = getPlatform(this.props.navigation.state.params.album.platform)
+    // this.album = this.props.navigation.state.params.album
+    if(this.props.navigation.state.params.album) {
+      this.album = this.props.navigation.state.params.album
+      this.platform = getPlatform(this.props.navigation.state.params.album.platform)
     }
-    else {
-      this.source = "Album"
+    else if(this.props.navigation.state.params.id){
+      this.album = {
+        id: this.props.navigation.state.params.id,
+        images: []
+      }
+      this.platform = getPlatform(this.props.navigation.state.params.platform)
     }
   }
 
   async componentDidMount() {
+    if(this.album.images.length < 1) {
+      this.album = await this.platform.fetchAlbum(this.album.id)
+    }
     if(this.state.songs.length < 1) {
       this.setState({ loading: true })
       var results = await this.platform.fetchAlbumSongs(this.album.id)
@@ -51,6 +62,21 @@ class Album extends Component {
       }
       this.setState({ loading:false, songs: results,})
     }
+    var title = "Revibe Album"
+    var contentType = "album";
+
+    if(this.props.navigation.state.params.hasOwnProperty("album")) {
+      if(this.props.navigation.state.params.album.hasOwnProperty("type")) {
+        title = this.props.navigation.state.params.album.type === "song" ? "Revibe Song" : "Revibe Album"
+        contentType = this.props.navigation.state.params.album.type === "song" ? "song" : "album"
+      }
+    }
+    var object = await createBranchUniversalObject(this.album.name, title, this.album.images[1].url, this.album.platform, contentType, this.album.id)
+    this.setState({branchUniversalObject: object})
+  }
+
+  componentWillUnmount() {
+    // Need to call branchUniversalObject.release() here
   }
 
   setArtist() {
@@ -103,10 +129,12 @@ class Album extends Component {
     return (
       <>
       <ParalaxContainer
-        platform={this.album.platform}
+        platform={this.platform.name}
+        allowSharing={!this.props.navigation.state.params.isLocal}
         title={this.album.name}
         text={this.setArtist()}
         images={this.getImage()}
+        branchUniversalObject={this.state.branchUniversalObject}
       >
         <View style={[styles.title, {marginTop: hp("1")}]}>
           <Text style={styles.title}>{this.setArtist()}</Text>
@@ -143,7 +171,6 @@ class Album extends Component {
                  playlist={this.state.songs}
                  displayImage={false}
                  displayType={false}
-                 source={this.source}
                 />
               ))}
               </View>

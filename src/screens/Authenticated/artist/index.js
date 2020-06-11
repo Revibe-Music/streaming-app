@@ -17,6 +17,8 @@ import TipJar from '../../../../assets/tip_jar.svg'
 import { playSong } from './../../../redux/audio/actions'
 import { goToViewAll } from "./../../../redux/navigation/actions";
 import { getPlatform } from '../../../api/utils';
+import { createBranchUniversalObject } from '../../../navigation/branch'
+
 import styles from "./styles";
 
 
@@ -34,14 +36,24 @@ class Artist extends Component {
       appearsOn: [],
       songs: [],
       showTipJar: false,
-      showDonationModal: false
+      showDonationModal: false,
+      branchUniversalObject: {}
     }
 
     this.renderItem = this.renderItem.bind(this)
     this.getArtistImage = this.getArtistImage.bind(this)
     this.getAlbumImage = this.getAlbumImage.bind(this)
-    this.platform = getPlatform(this.props.navigation.state.params.artist.platform)
-    this.artist = this.props.navigation.state.params.artist
+    if(this.props.navigation.state.params.artist) {
+      this.artist = this.props.navigation.state.params.artist
+      this.platform = getPlatform(this.props.navigation.state.params.artist.platform)
+    }
+    else if(this.props.navigation.state.params.id){
+      this.artist = {
+        id: this.props.navigation.state.params.id,
+        images: []
+      }
+      this.platform = getPlatform(this.props.navigation.state.params.platform)
+    }
   }
 
   async componentDidMount() {
@@ -49,19 +61,14 @@ class Artist extends Component {
     var contentList = []
     contentList.push(this.platform.fetchArtistTopSongs(this.artist.id))
     contentList.push(this.platform.fetchArtistAlbums(this.artist.id))
-    var artist = await this.platform.fetchArtist(this.artist.id)
-    if(artist["venmo"]) {
-      this.artist.venmo = artist.venmo
+    this.artist = await this.platform.fetchArtist(this.artist.id)
+    if(this.artist["venmo"]) {
       this.setState({showTipJar: true})
     }
-    if(artist["cashApp"]) {
-      this.artist.cashApp = artist.cashApp
+    if(this.artist["cashApp"]) {
       this.setState({showTipJar: true})
     }
-    if(this.artist.images.length < 1) {
-      // fetch artist images if none exist
-      this.artist.images = artist.images
-    }
+
     var content = await Promise.all(contentList)
     this.setState({
         topSongs: content[0],
@@ -71,6 +78,12 @@ class Artist extends Component {
         appearsOn: content[1].filter(x => x.type.toLowerCase() === "appears_on"),
         loading:false
     })
+    var object = await createBranchUniversalObject(this.artist.name, "Revibe Artist", this.artist.images[1].url, this.artist.platform, "artist", this.artist.id)
+    this.setState({branchUniversalObject: object})
+  }
+
+  componentWillUnmount() {
+    // Need to call branchUniversalObject.release() here
   }
 
   getArtistImage() {
@@ -127,24 +140,17 @@ class Artist extends Component {
       <AlbumCard album={item} image={this.getAlbumImage(item)} />
     )
   }
-  // <TipJar height={hp("7")}/>
-  // {this.state.showTipJar ?
-  //   <Button style={styles.donationButton} onPress={() => this.setState({showDonationModal: true})}>
-  //     <Image source={require("./../../../../assets/tip_jar.png")} style={{height:hp("6"), width: hp(6)}}/>
-  //   </Button>
-  // :
-  //   null
-  // }
 
   render() {
     return (
       <>
       <ParalaxContainer
-        platform={this.artist.platform}
+        platform={this.platform.name}
         placeholderImage={require("./../../../../assets/userPlaceholder.png")}
         title={this.artist.name}
         allowDonations={true}
         images={this.getArtistImage()}
+        branchUniversalObject={this.state.branchUniversalObject}
       >
       {this.state.showTipJar ?
         <Button style={styles.donationButton} onPress={() => this.setState({showDonationModal: true})}>

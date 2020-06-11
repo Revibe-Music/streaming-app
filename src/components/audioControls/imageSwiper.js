@@ -39,11 +39,12 @@ class AlbumArt extends PureComponent {
    return require("./../../../assets/albumArtPlaceholder.png")
  }
 
+
   render() {
     return (
-      <View style={styles.albumArtContainer}>
+      <View style={this.props.playerVisible ? styles.albumArtContainer : null}>
         <FastImage
-          style={styles.albumArt} // rounded or na?
+          style={this.props.playerVisible ? styles.albumArt : styles.minAlbumArt} // rounded or na?
           source={this.getImage()}
           placeholder={require("./../../../assets/albumArtPlaceholder.png")}
         />
@@ -86,60 +87,67 @@ class ImageSwiper extends Component{
       this.handleSongChange = this.handleSongChange.bind(this);
     }
 
-    _rowRenderer(type, data) {
+    _rowRenderer = (type, data) => {
         switch (type) {
             case ViewTypes.SONG:
                 return (
-                  <AlbumArt images={data.album.images} />
+                  <AlbumArt images={data.album.images} playerVisible={this.props.playerVisible}/>
                 )
         }
     }
 
     componentDidUpdate(prevProps) {
         // Check if song has been changed and if so, swipe to new album image
-        if (this.props.currentIndex+1 === prevProps.currentIndex) {
-          this._swiper.scrollToIndex(this.props.currentIndex, true)
-        }
+        if(this.props.playerVisible) {
+          if (this.props.currentIndex+1 === prevProps.currentIndex) {
+            this._swiper.scrollToIndex(this.props.currentIndex, this.props.playerVisible)
+          }
 
-        if (this.props.currentIndex-1 === prevProps.currentIndex) {
-          this._swiper.scrollToIndex(this.props.currentIndex, true)
+          if (this.props.currentIndex-1 === prevProps.currentIndex) {
+            this._swiper.scrollToIndex(this.props.currentIndex, this.props.playerVisible)
+          }
         }
     }
 
 
   handleSongChange(event) {
+      var currentOffset = event.nativeEvent.contentOffset.x;
 
-    var currentOffset = event.nativeEvent.contentOffset.x;
+      var playNextOffset = this.props.currentIndex * wp("100%") + wp("100%")/2;
+      var playPrevOffset = this.props.currentIndex * wp("100%") - wp("100%")/2;
 
-    var playNextOffset = this.props.currentIndex * wp("100%") + wp("100%")/2;
-    var playPrevOffset = this.props.currentIndex * wp("100%") - wp("100%")/2;
-
-    if(currentOffset > playNextOffset) {
-      this.props.nextSong()
-    }
-    else if(currentOffset < playPrevOffset){
-      this.props.prevSong()
-    }
+      if(currentOffset > playNextOffset) {
+        this.props.nextSong()
+      }
+      else if(currentOffset < playPrevOffset){
+        this.props.prevSong()
+      }
   }
 
   render() {
-
-    var data = this.dataProvider.cloneWithRows(this.props.playlist)
-
+    if(this.props.playerVisible) {
+      var data = this.dataProvider.cloneWithRows(this.props.playlist)
+      return (
+        <RecyclerListView
+          ref={(swiper) => {this._swiper = swiper;}}
+          layoutProvider={this._layoutProvider}
+          dataProvider={data}
+          rowRenderer={this._rowRenderer}
+          isHorizontal={true}
+          initialRenderIndex={this.props.currentIndex}
+          canChangeSize={true}
+          scrollViewProps={{
+            pagingEnabled: true,
+            onMomentumScrollEnd: this.handleSongChange,
+            showsHorizontalScrollIndicator:false
+          }}
+        />
+      );
+    }
     return (
-      <RecyclerListView
-        ref={(swiper) => {this._swiper = swiper;}}
-        layoutProvider={this._layoutProvider}
-        dataProvider={data}
-        rowRenderer={this._rowRenderer}
-        isHorizontal={true}
-        initialRenderIndex={this.props.currentIndex}
-        scrollViewProps={{
-          pagingEnabled: true,
-          onMomentumScrollEnd: this.handleSongChange,
-        }}
-      />
-    );
+      <AlbumArt images={this.props.playlist[this.props.currentIndex].album.images} playerVisible={this.props.playerVisible}/>
+    )
+
   }
 }
 

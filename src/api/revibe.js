@@ -201,9 +201,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     if (authenticated) {
       // if token id expired, refresh before sending with new request
       if(this.hasLoggedIn()) {
-        console.log("Has logged in");
         if(!this.isLoggedIn()) {
-          console.log("Is logged in");
           await this.refreshToken()
         }
         headers['Authorization'] = `Bearer ${this.getToken().accessToken}`

@@ -35,12 +35,21 @@ export default {
       marginTop: hp("2%"),
     },
     logoContainer: {
-      height: hp("4%"),
+      height: hp("5.5%"),
     },
     logo: {
       fontSize: hp("4%"),
     },
+    videoPlayerContainer: {
+        width: wp("95%"),
+        height: wp("80%"),
+        marginLeft: wp(2.5),
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor:"#22222"
+    },
     albumArtContainer: {
+      minWidth: 1,
       height: wp("80%"),
     },
     playerIcons: {

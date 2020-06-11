@@ -13,11 +13,13 @@ import RevibeAPI from './../../api/revibe';
 import FastImage from "./../images/fastImage";
 import AnimatedPopover from './../animatedPopover/index';
 import PlaylistItem from "./../../components/listItems/playlistItem";
+import ShareButton from "./../../components/buttons/ShareButton";
 
 import { getPlatform } from './../../api/utils';
 import { addToQueue, addToPlayNext } from './../../redux/audio/actions';
 import { selectSong, goToAlbum, goToArtist } from './../../redux/navigation/actions'
 import { logEvent } from './../../amplitude/amplitude';
+import { createBranchUniversalObject } from './../../navigation/branch'
 
 import realm from './../../realm/realm';
 
@@ -38,7 +40,9 @@ class OptionsMenu extends PureComponent {
        addingToPlayNext: false,
        displayArtists: false,
        displayPlaylists: false,
-       songInPlaylist: false
+       songInPlaylist: false,
+       updating: false,
+       branchUniversalObject: {}
      }
 
      this.closeOptionsMenu = this.closeOptionsMenu.bind(this);
@@ -53,17 +57,27 @@ class OptionsMenu extends PureComponent {
      this.goToArtist = this.goToArtist.bind(this);
      this.goToAlbum = this.goToAlbum.bind(this);
      this.displayArtists = this.displayArtists.bind(this);
+
+     this.updating = false
    }
 
-   componentDidUpdate(prevProps) {
+   componentWillUnmount() {
+   }
+
+   async componentDidUpdate(prevProps) {
      if(!prevProps.song && this.props.song) {
        // first song to be selected, so must check if in playlist
        this.setState({songInPlaylist: this.songInPlaylist()})
+       var object = await createBranchUniversalObject(this.props.song.name, "Revibe Song", this.props.song.album.images[1].url, this.props.song.platform, "song", this.props.song.id)
+       this.setState({branchUniversalObject: object})
      }
      else if(prevProps.song && this.props.song) {
+       // console.log(prevProps.song);
        if(prevProps.song.id !== this.props.song.id) {
          // > 1 songs have been selected already, so must check if in playlist
          this.setState({songInPlaylist: this.songInPlaylist()})
+         var object = await createBranchUniversalObject(this.props.song.name, "Revibe Song", this.props.song.album.images[1].url, this.props.song.platform, "song", this.props.song.id)
+         this.setState({branchUniversalObject: object})
        }
      }
    }
@@ -78,8 +92,8 @@ class OptionsMenu extends PureComponent {
          this.props.selectSong(null)
          this.setState({displayArtists: false,displayPlaylists: false, playlist: null})
        }, timeout)
-
      }
+
    }
 
    songInLibrary() {
@@ -262,7 +276,7 @@ class OptionsMenu extends PureComponent {
       return <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red"}]} />
     }
     else {
-      return <Image source={require('./../../../assets/revibe_logo.png')} style={{height: hp("4"), width: hp("4%"), margin: 10, padding: 0}} />
+      return <Image source={require('./../../../assets/revibe_logo.png')} style={{height: hp("3"), width: hp("3"), marginRight: wp(2)}} />
     }
   }
 
@@ -301,7 +315,7 @@ class OptionsMenu extends PureComponent {
             <>
             <ScrollView style={{height: hp("90%")}} showsVerticalScrollIndicator={false}>
             <View style={styles.headerContainer}>
-              {this.displayLogo()}
+              <ShareButton branchUniversalObject={this.state.branchUniversalObject} />
             </View>
             <View style={styles.detailsContainer}>
               <FastImage
@@ -310,7 +324,10 @@ class OptionsMenu extends PureComponent {
                 placeholder={require("./../../../assets/albumArtPlaceholder.png")}
               />
               <Text style={styles.mainText}>{this.props.song.name}</Text>
-              <Text style={styles.noteText}>{this.setArtist()}</Text>
+              <View style={{flexDirection: "row", alignItems: 'center', justifyContent: "flex-end", marginBottom: hp(2)}}>
+                {this.displayLogo()}
+                <Text style={styles.noteText}>{this.setArtist()}</Text>
+              </View>
             </View>
             <View style={{flexDirection: "row", justifyContent:'center', alignItems: "center"}}>
               <TouchableOpacity
@@ -392,7 +409,7 @@ class OptionsMenu extends PureComponent {
               </TouchableOpacity>
               </ListItem>
               {this.props.song.platform !== "YouTube" ?
-                <ListItem style={{borderBottomWidth:0, paddingBottom: hp("20")}}>
+                <ListItem style={{borderBottomWidth:0, paddingBottom: hp("8")}}>
                 <TouchableOpacity
                   activeOpacity={0.9}
                   onPress={() => this.goToAlbum()}

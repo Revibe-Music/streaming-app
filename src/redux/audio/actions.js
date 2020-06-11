@@ -71,7 +71,7 @@ const reset = () => ({
  const playSong = (index, playlist=null, inQueue=false) => {
   return async (dispatch, getState) => {
       if(getState().audioState.playlist.length > 0) {
-        if(getState().audioState.time.current > 30) {
+        if(getState().audioState.time.current > 5) {
           var song = getState().audioState.playlist[getState().audioState.currentIndex]
           var revibe = new RevibeAPI()
           revibe.recordStream(song, getState().audioState.time.current)
@@ -94,6 +94,8 @@ const reset = () => ({
         var playedFromPage = getState().audioState.playedFromPage
       }
       else {
+        var availablePlatforms = Object.keys(getState().platformState.platforms)
+        playlist = playlist.filter(song => availablePlatforms.includes(song.platform))  //only allow song from availablePlatforms in playlist
         var playedFromTab = getState().navigationState.currentTab
         var playedFromPage = getState().navigationState.currentPage
       }

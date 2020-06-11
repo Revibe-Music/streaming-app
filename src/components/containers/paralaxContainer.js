@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {StyleSheet, StatusBar,Image, ScrollView, Flatlist} from 'react-native';
+import {StyleSheet, StatusBar,Image, ScrollView, Flatlist, TouchableOpacity} from 'react-native';
 import { Container as BaseContainer, Content, Header, Left, Body, Right, Text, View, Button, Icon} from "native-base";
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 
@@ -13,6 +13,7 @@ import { getColorFromURL } from 'rn-dominant-color';
 import { connect } from 'react-redux';
 import OptionsMenu from "./../OptionsMenu/index";
 import FastImage from "./../images/fastImage";
+import ShareButton from "./../../components/buttons/ShareButton";
 import PlaylistImage from "./../images/playlistImage";
 import { goBack } from './../../redux/navigation/actions';
 
@@ -55,15 +56,16 @@ export class ParalaxContainer extends Component {
     }
   }
 
-  displayLogo() {
+  displayLogo = (size) => {
+    //size can me small or large
     if(this.props.platform.toLowerCase() === "spotify") {
-      var platformIcon = <Icon type="FontAwesome5" name="spotify" style={[styles.logo, {color: "#1DB954"}]} />
+      var platformIcon = <Icon type="FontAwesome5" name="spotify" style={[styles["logo"+size], {color: "#1DB954"}]} />
     }
     else if(this.props.platform.toLowerCase() === "youtube") {
-      var platformIcon = <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red"}]} />
+      var platformIcon = <Icon type="FontAwesome5" name="youtube" style={[styles["logo"+size], {color: "red"}]} />
     }
     else {
-      var platformIcon = <Image source={require('./../../../assets/revibe_logo.png')}/>
+      var platformIcon = <Image style={{height:size=="small" ? hp(3) : hp(3.5), width: size=="small" ? hp(3) : hp(3.5), marginRight: wp(2)}} source={require('./../../../assets/revibe_logo.png')}/>
     }
     return platformIcon
   }
@@ -109,15 +111,34 @@ export class ParalaxContainer extends Component {
               this.navTitleView = navTitleView;
             }}
           >
+          <View style={{flexDirection: "row"}}>
+            {this.props.displayLogo ?
+              <>
+              {this.displayLogo("Small")}
+              </>
+            :
+              null
+            }
             <Text style={styles.navTitle}>{this.props.title}</Text>
+            </View>
+
           </Animatable.View>
         )}
         renderForeground={() => (
           <>
           <View style={styles.titleContainer}>
-            <Text style={styles.imageTitle}>{this.props.title}</Text>
-          </View>
+            <View style={{flexDirection: "row"}}>
+              {this.props.displayLogo ?
+                <>
+                {this.displayLogo("Large")}
+                </>
+              :
+                null
+              }
+              <Text style={styles.imageTitle}>{this.props.title}</Text>
+            </View>
 
+          </View>
           </>
         )}
         renderTouchableFixedForeground={() => (
@@ -129,14 +150,7 @@ export class ParalaxContainer extends Component {
               onPress={() => this.props.goBack()}>
               <Icon name="ios-arrow-back" style={{color:"white", fontSize: 30, textAlign: "left"}}/>
             </Button>
-            {this.props.displayLogo ?
-              <View style={{padding: 10}}>
-              {this.displayLogo()}
-              </View>
-            :
-              null
-            }
-
+            {this.props.allowSharing ? <ShareButton branchUniversalObject={this.props.branchUniversalObject} /> : null}
           </View>
           </>
         )}
@@ -160,6 +174,7 @@ export class ParalaxContainer extends Component {
 ParalaxContainer.propTypes = {
   platform: PropTypes.string,
   displayLogo: PropTypes.bool,
+  allowSharing: PropTypes.bool,
   placeholderImage: PropTypes.node,
   title: PropTypes.string,
   images: PropTypes.array,
@@ -167,6 +182,7 @@ ParalaxContainer.propTypes = {
 
 ParalaxContainer.defaultProps = {
   displayLogo: true,
+  allowSharing: true,
   images: [],
   // placeholderImage:require("./../../../assets/albumArtPlaceholder.png")
 };
@@ -176,9 +192,10 @@ const styles = StyleSheet.create({
 
   titleContainer: {
     flex: 1,
-    alignSelf: 'stretch',
+    // alignSelf: 'stretch',
     justifyContent: 'flex-end',
     alignItems: 'center',
+
   },
   navTitleView: {
     height: hp("10"),
@@ -229,8 +246,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center"
   },
-  logo: {
-    fontSize: hp("4%"),
+  logoSmall: {
+    fontSize: hp(2.5),
+    marginRight: wp(2)
+  },
+  logoLarge: {
+    fontSize: hp(3.5),
+    marginRight: wp(2)
   },
 
   singleImage: {

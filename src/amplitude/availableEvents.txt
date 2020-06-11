@@ -16,7 +16,7 @@ Registration - Account Info Complete
 (FEATURE NOT IMPLEMENTED) Tutorial - Completed
 
 (DONE) Onboarding - Started
-(DONE) Onboarding - Skipped
+(DONE) Onboarding - Skipped -> attributes {lastSeenSlide: number}
 (DONE) Onboarding - Completed
 
 // these need action (Connect or Disconnect) and platform (only spotify for now)

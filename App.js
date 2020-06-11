@@ -10,12 +10,13 @@ import DefaultPreference from 'react-native-default-preference';
 import { RootNavigator } from './src/navigation/rootNavigation';
 
 import RevibeAPI from './src/api/revibe';
+import PlatformError from './src/components/modals/platformError';
 import { logEvent, setUserData } from './src/amplitude/amplitude';
 import { connection } from './src/redux/connection/actions';
-import { setTopLevelNavigator } from './src/redux/navigation/actions';
+import { setTopLevelNavigator, subscribe } from './src/redux/navigation/actions';
 import { resumeSong,pauseSong,nextSong,prevSong,seek,setScrubbing,continuousTimeUpdate } from './src/redux/audio/actions';
 import { initializePlatforms, checkRevibeAccount, checkPlatformAuthentication } from './src/redux/platform/actions';
-
+// import { subscribe } from './src/navigation/branch'
 
 
 class App extends React.Component {
@@ -39,6 +40,7 @@ class App extends React.Component {
 
 
   async componentDidMount() {
+    this.props.subscribe()
     await this.props.initializePlatforms();
     var revibe = new RevibeAPI()
     if(revibe.hasLoggedIn()) {
@@ -108,6 +110,7 @@ class App extends React.Component {
         return (
           <View style={{width: "100%", height:"100%"}}>
               <Layout ref={navigatorRef => setTopLevelNavigator(navigatorRef)}/>
+              <PlatformError />
           </View>
         );
       }
@@ -124,6 +127,7 @@ function mapStateToProps(state) {
 };
 
 const mapDispatchToProps = dispatch => ({
+    subscribe: () => dispatch(subscribe()),
     connection: (bool) => dispatch(connection(bool)),
     initializePlatforms: () => dispatch(initializePlatforms()),
     checkRevibeAccount: () => dispatch(checkRevibeAccount()),

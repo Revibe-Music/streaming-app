@@ -92,5 +92,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>branch_app_domain</key>
+	<string>link.revibe.tech</string>
+	<key>branch_key</key>
+	<string>key_live_hcNx1fPYpjfbxHnpxmCF0dhawsaUvKMg</string>
 </dict>
 </plist>

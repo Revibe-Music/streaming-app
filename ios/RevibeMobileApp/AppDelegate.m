@@ -14,6 +14,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import <RNGoogleSignin/RNGoogleSignin.h>
+#import <RNBranch/RNBranch.h>
 
 @implementation AppDelegate
 
@@ -36,7 +37,21 @@
   
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:0 error:nil];
   
+  [RNBranch initSessionWithLaunchOptions:launchOptions isReferrable:YES]; // <-- add this
+  NSURL *jsCodeLocation;
+  
   return YES;
+}
+
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    if ([RNBranch application:app openURL:url options:options])  {
+        // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
+    }
+    return YES;
+}
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
+    return [RNBranch continueUserActivity:userActivity];
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

@@ -5,6 +5,9 @@ PODS:
   - AppAuth/Core (1.3.0)
   - AppAuth/ExternalUserAgent (1.3.0)
   - boost-for-react-native (1.63.0)
+  - Branch (0.32.0):
+    - Branch/Core (= 0.32.0)
+  - Branch/Core (0.32.0)
   - BVLinearGradient (2.5.6):
     - React
   - DoubleConversion (1.1.6)
@@ -221,6 +224,9 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
+  - react-native-branch (5.0.0-beta.1):
+    - Branch (= 0.32.0)
+    - React
   - react-native-cookies (2.0.3):
     - React
   - react-native-music-control (0.10.7):
@@ -343,6 +349,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-background-timer (from `../node_modules/react-native-background-timer`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
+  - react-native-branch (from `../node_modules/react-native-branch`)
   - "react-native-cookies (from `../node_modules/@react-native-community/cookies/ios`)"
   - react-native-music-control (from `../node_modules/react-native-music-control`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -384,6 +391,7 @@ SPEC REPOS:
   trunk:
     - AppAuth
     - boost-for-react-native
+    - Branch
     - GoogleSignIn
     - GTMAppAuth
     - GTMSessionFetcher
@@ -433,6 +441,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-background-timer"
   react-native-blur:
     :path: "../node_modules/@react-native-community/blur"
+  react-native-branch:
+    :path: "../node_modules/react-native-branch"
   react-native-cookies:
     :path: "../node_modules/@react-native-community/cookies/ios"
   react-native-music-control:
@@ -507,6 +517,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppAuth: 73574f3013a1e65b9601a3ddc8b3158cce68c09d
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
+  Branch: 770a23c04d3f5410cf9231db099a444dd3060784
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   FBLazyVector: 68b6a76960fbd8ecd9fb7ce0aadd3329c3340a99
@@ -531,6 +542,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 111d7d342b07a904c400592e02a2b958f1098b60
   react-native-background-timer: 0d34748e53a972507c66963490c775321a88f6f2
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
+  react-native-branch: ed90b087f2ff6a2f81643ead0b321531877f2e69
   react-native-cookies: a16310bb64240b95dd9531de2b19c267f76fc320
   react-native-music-control: 74b1f7d03b781aa38557d706ca4650ff1c96095a
   react-native-netinfo: 892a5130be97ff8bb69c523739c424a2ffc296d1

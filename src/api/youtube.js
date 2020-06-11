@@ -140,8 +140,8 @@ export default class YouTubeAPI extends BasePlatformAPI {
     // parse content returned from YouTube API
     var formattedVideo = {
       name: he.decode(video.snippet.title),
-      id: video.id.videoId,
-      uri: video.id.videoId,
+      id: video.id.videoId ? video.id.videoId : video.id,
+      uri: video.id.videoId ? video.id.videoId : video.id,
       contributors: [{
         id:video.snippet.channelId + video.id.videoId + "song",
         type: "Artist",
@@ -525,7 +525,7 @@ export default class YouTubeAPI extends BasePlatformAPI {
     * @return {Object} List containing song objects
     */
     var response = await this._request('videos?part=snippet&&maxResults=1&id='+id, "GET", null)
-    return this._parseVideo(response)
+    return this._parseVideo(response[0])
   }
 
   async search(query) {

@@ -6,6 +6,8 @@ import { updatePlatformData } from './../../redux/platform/actions';
 import { setSongDuration, updateSongTime, resumeSong, pauseSong } from './../../redux/audio/actions';
 import styles from "./styles";
 import YouTube from 'react-native-youtube';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
 
 class VideoPlayer extends Component{
 
@@ -23,7 +25,7 @@ class VideoPlayer extends Component{
         <ImageLoad
             style={styles.videoPlayerStyle}
             isShowActivity={false}
-            source={{ uri: this.props.playlist[this.props.currentIndex].Album.image}}
+            source={{ uri: this.props.playlist[this.props.currentIndex].album.image}}
             placeholderSource={require("./../../../assets/albumArtPlaceholder.png")}
         />
       )
@@ -32,10 +34,7 @@ class VideoPlayer extends Component{
 
 
   render() {
-    // { this.showPlaceholder()}
-
     return (
-      <View style={this.props.playerVisible ? styles.videoPlayerContainer : {flex: 0.2}} >
         <YouTube
           videoId={this.props.playlist[this.props.currentIndex].uri}   // The YouTube video ID
           origin="http://www.youtube.com"
@@ -45,7 +44,7 @@ class VideoPlayer extends Component{
           modestbranding={true}
           showFullscreenButton={true}
           rel={false}
-          style={this.props.playerVisible ? styles.videoPlayerStyle : styles.minVideoStyle}
+          style={this.props.playerVisible ? { alignSelf: 'stretch', height: wp(60), backgroundColor:"transparent"} : styles.minVideoStyle}
           ref={this._player}
           onReady={(e) => {
             var platform = this.props.platforms["YouTube"]
@@ -68,10 +67,9 @@ class VideoPlayer extends Component{
           }}
           onError={e => {
             console.log(e);
-            this._player.reloadIframe()
+            // this._player.reloadIframe()
           }}
         />
-        </View>
     );
 
   }

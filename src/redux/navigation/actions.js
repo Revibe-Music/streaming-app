@@ -1,6 +1,9 @@
 import { NavigationActions } from 'react-navigation';
 import { getPlatform } from './../../api/utils';
 import { logEvent } from './../../amplitude/amplitude';
+import branch, { BranchEvent } from 'react-native-branch'
+import { playSong } from '../audio/actions'
+import { setError } from '../platform/actions'
 
 
 const setSong = song => ({
@@ -40,6 +43,75 @@ function getNavigationState(nav){
       return {tab: nav.routeName, page: nav.routes[nav.index].routeName, key: nav.routes[nav.index].key}
     }
     return getNavigationState(nav.routes[nav.index])
+  }
+}
+
+export function subscribe() {
+
+    return async (dispatch, getState) => {
+      branch.subscribe(async ({error, params, uri}) => {
+        if (error) {
+          console.error('Error from Branch: ' + error)
+          return
+        }
+        // params will never be null if error is null
+
+        if (params['+non_branch_link']) {
+          const nonBranchUrl = params['+non_branch_link']
+          // Route non-Branch URL if appropriate.
+          return
+        }
+
+        if (!params['+clicked_branch_link']) {
+          // Indicates initialization success and some other conditions.
+          // No link was opened.
+          return
+        }
+
+        // A Branch link was opened.
+        // Route link based on data in params, e.g.
+        var contentPlatform = params.contentPlatform
+        var contentType = params.contentType
+        var contentId = params.contentId
+        if(contentType.toLowerCase() === "artist") {
+          var options = {key: params.$canonical_identifier}
+          if(contentPlatform.toLowerCase() === "youtube") {
+            options.routeName = "Album"
+            options.params = {id: contentId, platform: "YouTube", songs: []}
+          }
+          else {
+            options.routeName = "Artist"
+            options.params = {id: contentId, platform: contentPlatform}
+          }
+          navigator.dispatch(NavigationActions.navigate(options));
+        }
+        else if(contentType.toLowerCase() === "album") {
+          var options = {
+           routeName: "Album",
+           key: params.$canonical_identifier,
+           params: {
+             id: contentId,
+             platform: contentPlatform,
+             songs: []
+           }
+          }
+          navigator.dispatch(NavigationActions.navigate(options));
+        }
+        else if(contentType.toLowerCase() === "song") {
+          var availablePlatforms = Object.keys(getState().platformState.platforms)
+
+          //only allow song from availablePlatforms
+          if(availablePlatforms.includes(contentPlatform)) {
+            var platformAPI = getPlatform(contentPlatform)
+            var song = await platformAPI.fetchSong(contentId)
+            dispatch(playSong(0, [song]))
+          }
+          else {
+            dispatch(setError(`Please login to your ${contentPlatform} account before playing this song.` ))
+          }
+
+        }
+    })
   }
 }
 
@@ -83,7 +155,8 @@ export function goToAlbum(album, songs=[],isLocal=false) {
      key: isLocal ? `Album:${album.id}:local` : songs.length > 0 ? `Album:${album.id}:${songs.length}:remote` : `Album:${album.id}:remote`,
      params: {
        album: album,
-       songs: isLocal ? getPlatform(album.platform).getSavedAlbumSongs(album.id) : songs
+       songs: isLocal ? getPlatform(album.platform).getSavedAlbumSongs(album.id) : songs,
+       isLocal: isLocal
      }
     }
     dispatch(setAlbum(album))
@@ -124,7 +197,8 @@ export function goToArtist(artist, isLocal=false) {
       options.routeName = "Album"
       options.params = {
         album: artist,
-        songs: getPlatform(artist.platform).getSavedArtistSongs(artist.id)
+        songs: getPlatform(artist.platform).getSavedArtistSongs(artist.id),
+        isLocal: isLocal
       }
     }
     else if(artist.platform === "YouTube") {
@@ -159,6 +233,17 @@ export function goToViewAll(data, type, title="", endpoint="",platform="Revibe",
         platform: platform,
         displayLogo: displayLogo,
       }
+    }
+    navigator.dispatch(NavigationActions.navigate(options));
+    dispatch(setPage())
+  }
+}
+
+export function goToManageAccount() {
+  return async (dispatch) => {
+    var options = {
+      key: `Settings`,
+      routeName: "Settings",
     }
     navigator.dispatch(NavigationActions.navigate(options));
     dispatch(setPage())

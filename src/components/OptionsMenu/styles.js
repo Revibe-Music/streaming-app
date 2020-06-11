@@ -57,7 +57,7 @@ export default {
     color: "white",
     fontWeight: "200",
     fontSize: hp("2%"),
-    marginBottom: hp("2%"),
+    // marginBottom: hp("2%"),
   },
   topItemIcon: {
     textAlign:"center",

@@ -56,10 +56,16 @@ export default {
     alignItems: "center",
     justifyContent: "center",
     backgroundColor:"#22222"
+    // backgroundColor:"transparent"
   },
   albumArt: {
       width: wp("80%"),
       height: wp("80%"),
+  },
+  minAlbumArt: {
+      width: wp(12),
+      height: wp(12),
+      marginBottom: wp("1%"),
   },
   albumArtPlaceholder: {
     width: wp("80%"),
@@ -70,7 +76,7 @@ export default {
 
   videoPlayerContainer: {
       width: wp("100%"),
-      height: wp("80%"),
+      height: wp("100%"),
       alignItems: "center",
       justifyContent: "center",
       backgroundColor:"#22222"
@@ -81,9 +87,15 @@ export default {
       backgroundColor: "transparent",
   },
   minVideoStyle: {
-      height: hp("5%"),
-      elevation: 200,
-      marginLeft: wp("1%"),
+      width: wp(13),
+      height: wp(12),
+      // width: "auto",
+      // height: hp("8%"),
+      // elevation: 200,
+      // marginLeft: wp("1%"),
+      // marginTop: wp("1%"),
+      marginBottom: wp("1%"),
+
   },
   openPlayerSongDetailsContainer: {
       marginTop: hp("2"),
@@ -101,11 +113,12 @@ export default {
   openPlayerArtistName: {
       color: "grey",
       fontSize: hp("2"),
-      marginTop: hp(".5"),
+      marginLeft: hp(".5"),
   },
   closedPlayerSongDetailsContainer: {
       flex: 0.8,
-      alignItems: "center"
+      alignItems: "center",
+      justifyContent: "center"
   },
   closedPlayerSongName: {
       fontSize: hp("2"),
@@ -116,6 +129,9 @@ export default {
   closedPlayerArtistName: {
       color: "grey",
       fontSize: hp("1.5"),
+  },
+  logo: {
+    fontSize: hp("3"),
   },
 
 };

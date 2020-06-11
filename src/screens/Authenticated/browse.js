@@ -12,6 +12,7 @@ import ArtistCard from "./../../components/cards/artistCard";
 import PlaylistCard from "./../../components/cards/playlistCard";
 import RevibeAPI from './../../api/revibe'
 import { connect } from 'react-redux';
+import OptionsMenu from "./../../components/OptionsMenu/index";
 
 import {goToViewAll} from "./../../redux/navigation/actions";
 
@@ -188,6 +189,7 @@ class Browse extends Component {
             </View>
           </LinearGradient>
         </ScrollView>
+        <OptionsMenu />
         </>
       );
   }

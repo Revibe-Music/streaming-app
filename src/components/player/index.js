@@ -2,10 +2,11 @@ import React, { Component } from "react";
 import { View, Text, Alert, Image, TouchableOpacity, Animated} from "react-native";
 import Modal from "react-native-modal";
 import { Container,Content,Header,Left,Right,Body,Button,Icon,Footer, FooterTab } from "native-base";
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { throttle } from 'lodash';
 import { getColorFromURL } from 'rn-dominant-color';
 import LinearGradient from 'react-native-linear-gradient';
+import SlidingUpPanel from 'rn-sliding-up-panel';
 import DeviceInfo from 'react-native-device-info';
 
 import TouchableNativeFeed from "../../components/TouchableNativeFeedback";
@@ -17,12 +18,13 @@ import Scrubber from "./../audioControls/scrubber";
 import ImageSwiper from "./../audioControls/imageSwiper";
 import VideoPlayer from "./../audioControls/videoPlayer";
 import Queue from "./../queue/index";
-import SlidingUpPanel from 'rn-sliding-up-panel';
 import OfflineNotice from './../offlineNotice/index';
+import ShareButton from "./../../components/buttons/ShareButton";
 
 import styles from "./styles";
 import { selectSong } from './../../redux/navigation/actions'
 import { continuousTimeUpdate } from './../../redux/audio/actions';
+import { createBranchUniversalObject } from './../../navigation/branch'
 import { connect } from 'react-redux';
 
 const device = DeviceInfo.getModel();
@@ -43,6 +45,7 @@ class Player extends Component {
           showQueue: false,
           primaryColor: "#121212",
           secondaryColor: "#121212",
+          branchUniversalObject: null
         }
         this.animatedValue = new Animated.Value(0)
         this.toggleOptionsMenu = this.toggleOptionsMenu.bind(this);
@@ -53,8 +56,19 @@ class Player extends Component {
 
     }
 
+    async componentDidMount() {
+      if(this.props.playlist[this.props.currentIndex]) {
+        var object = await createBranchUniversalObject(this.props.playlist[this.props.currentIndex].name, "Revibe Song", this.props.playlist[this.props.currentIndex].album.images[1].url, this.props.playlist[this.props.currentIndex].platform, "song", this.props.playlist[this.props.currentIndex].id)
+        this.setState({branchUniversalObject: object})
+      }
+    }
+
     async componentDidUpdate(prevProps) {
       if(this.props.hasAudio) {
+        if(this.state.branchUniversalObject === null) {
+          var object = await createBranchUniversalObject(this.props.playlist[this.props.currentIndex].name, "Revibe Song", this.props.playlist[this.props.currentIndex].album.images[1].url, this.props.playlist[this.props.currentIndex].platform, "song", this.props.playlist[this.props.currentIndex].id)
+          this.setState({branchUniversalObject: object})
+        }
         if(prevProps.playlist.length > 0) {
           try{
             if(prevProps.playlist[prevProps.currentIndex].album.images[1].url !== this.props.playlist[this.props.currentIndex].album.images[1].url) {
@@ -65,7 +79,10 @@ class Player extends Component {
           catch(error) {
             console.log("ERROR:",error);
           }
-
+          if(prevProps.playlist[prevProps.currentIndex].id !== this.props.playlist[this.props.currentIndex].id) {
+            var object = await createBranchUniversalObject(this.props.playlist[this.props.currentIndex].name, "Revibe Song", this.props.playlist[this.props.currentIndex].album.images[1].url, this.props.playlist[this.props.currentIndex].platform, "song", this.props.playlist[this.props.currentIndex].id)
+            this.setState({branchUniversalObject: object})
+          }
         }
         else if(this.props.playlist.length > 0) {
           var color = await getColorFromURL(this.props.playlist[this.props.currentIndex].album.images[1].url)
@@ -75,6 +92,7 @@ class Player extends Component {
           this._panel.hide()
           this.props.navigation.setParams({ visible: true })
         }
+
       }
     }
 
@@ -143,21 +161,8 @@ class Player extends Component {
 
 
     playerTop() {
-      if(this.props.activePlatform.toLowerCase() === "spotify") {
-        var platformIcon = <Icon type="FontAwesome5" name="spotify" style={[styles.logo, {color: "#1DB954"}]} />
-      }
-      else if(this.props.activePlatform.toLowerCase() === "youtube") {
-        var platformIcon = <Icon type="FontAwesome5" name="youtube" style={[styles.logo, {color: "red"}]} />
-      }
-      else {
-        var platformIcon = <Image source={require('./../../../assets/revibe_logo.png')} />
-      }
-
-
       if(this.state.playerVisible) {
-
         return (
-
           <>
             <Header style={styles.playerHeader} androidStatusBarColor="#222325" iosBarStyle="light-content">
               <Left>
@@ -169,7 +174,7 @@ class Player extends Component {
               </Left>
               <Right>
               <View style={styles.logoContainer}>
-              {platformIcon}
+              <ShareButton branchUniversalObject={this.state.branchUniversalObject} showBackgrouond={true}/>
               </View>
               </Right>
             </Header>
@@ -179,23 +184,34 @@ class Player extends Component {
       return null;
     }
 
-    renderPlatform() {
+    renderPlatform = () => {
       if(this.props.activePlatform != "YouTube") {
-        if (this.state.playerVisible) {
-          return (
-            <View style={styles.albumArtContainer}>
-                <ImageSwiper/>
-            </View>
-          );
-        }
+        return (
+          <View style={this.state.playerVisible ? styles.albumArtContainer : {flex: 0.2}} >
+              <ImageSwiper playerVisible={this.state.playerVisible}/>
+          </View>
+        )
       }
       else {
-        return (<VideoPlayer
+        return (
+          <View style={this.state.playerVisible ? styles.videoPlayerContainer : {flex: 0.2}} >
+            <VideoPlayer
                 playerVisible={this.state.playerVisible}
                 ref={(player) => {this.videoPlayer = player;}}
-                />
-              );
+              />
+            </View>
+          );
       }
+    }
+
+    setButtomScrubberWidth = () => {
+      if(!isNaN(this.props.time.current) && this.props.time.current !== null) {
+        if(!isNaN(this.props.time.max) && this.props.time.max !== null) {
+          return wp(100)*(this.props.time.current/this.props.time.max)
+        }
+      }
+      return 0
+
     }
 
     render() {
@@ -213,7 +229,7 @@ class Player extends Component {
 
       if (this.props.hasAudio) {
         return (
-
+        <>
         <View style={!this.state.playerVisible ? styles.minPlayerContainer : null} >
         <SlidingUpPanel
           ref={c => this._panel = c}
@@ -226,8 +242,6 @@ class Player extends Component {
           onDragEnd={(value) => this.handlePlayerDrag(value)}
           onMomentumDragEnd={(value) => this.handlePlayerDrag(value)}
         >
-
-
         <LinearGradient
           style={this.state.playerVisible ? styles.playerView1 : styles.playerView2}
           locations={[0,0.4,0.65]}
@@ -241,7 +255,8 @@ class Player extends Component {
               disabled={!this.state.playerVisible ? false : true}
             >
               <View style={ !this.state.playerVisible ? {alignItems: "center", justifyContent: "space-evenly", flexDirection: "row"} : null}>
-                <View style={ this.props.activePlatform != "YouTube" ? {flex: .2} : null}/>
+                {/*<View style={ this.props.activePlatform != "YouTube" ? {flex: .2} : null}/>*/}
+
                 {this.renderPlatform()}
                 { this.state.playerVisible ?
                   <>
@@ -296,7 +311,8 @@ class Player extends Component {
         </SlidingUpPanel>
         <Queue visible={this.state.showQueue} onClose={() => this.setState({showQueue: false})}/>
         </View>
-
+        {!this.state.playerVisible ? <View style={{width: this.setButtomScrubberWidth(), minWidth: 1, height: 2, backgroundColor: "white"}} /> : null}
+        </>
       );
       }
 
@@ -308,6 +324,7 @@ function mapStateToProps(state) {
   return {
     playlist: state.audioState.playlist,
     currentIndex: state.audioState.currentIndex,
+    time: state.audioState.time,
     hasAudio: state.audioState.hasAudio,
     activePlatform: state.audioState.activePlatform,
     currentKey: state.navigationState.currentKey,
