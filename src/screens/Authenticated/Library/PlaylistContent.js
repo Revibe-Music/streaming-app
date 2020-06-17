@@ -239,7 +239,7 @@ class PlaylistContent extends Component {
     else {
       var headerIcon = (
         <Button transparent onPress={this.toggleEdit}>
-          <Icon type="MaterialCommunityIcons" name="format-list-checkbox" style={{color:"white", fontSize: 30}} />
+          <Icon type="Ionicons" name="md-settings" style={{color:"white", fontSize: 30}} />
         </Button>
       )
     }
@@ -290,7 +290,7 @@ class PlaylistContent extends Component {
               disabled={this.state.editting && this.state.edittedPlaylists.length < 1}
             >
               <View style={[{flexDirection: "row"}, this.state.editting && this.state.edittedPlaylists.length < 1 ? {opacity: .4} : {}]}>
-                <View style={[{width: hp("7"), height: hp("7"),justifyContent: "center", alignItems: "center"}, this.state.editting ?{backgroundColor: "red"} :{backgroundColor: "grey"}] }>
+                <View style={[{width: hp("7"), height: hp("7"),justifyContent: "center", alignItems: "center", borderRadius: 5}, this.state.editting ?{backgroundColor: "red"} :{backgroundColor: "grey"}] }>
                   <Icon type="MaterialCommunityIcons" name={this.state.editting ? "delete-forever" : "plus"} style={{fontSize: hp("4"), color: "white"}} />
                 </View>
                 <View style={styles.textContainer}>

@@ -59,6 +59,7 @@ class LibraryContent extends Component {
       }
       else {
         var filteredData = filteredData.concat(this.props.platforms[this.state.availablePlatforms[x]].library.allArtists.slice(0,50))
+        // console.log(filteredData);
       }
     }
     filteredData = this._sort(filteredData)

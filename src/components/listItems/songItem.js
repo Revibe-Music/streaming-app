@@ -2,21 +2,31 @@ import React, { PureComponent } from 'react';
 import { View, TouchableOpacity, Image } from "react-native";
 import { Text,  Icon, ListItem as BaseListItem } from "native-base";
 import PropTypes from 'prop-types';
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ImageLoad from 'react-native-image-placeholder';
+import { SwipeRow } from 'react-native-swipe-list-view';
 import { connect } from 'react-redux';
 import { compact } from 'lodash';
 
 import FastImage from "./../images/fastImage";
 import OptionsMenu from "./../OptionsMenu/index";
-import { playSong } from './../../redux/audio/actions'
+import { playSong,addToQueue, setAddingToLibrary, setRemovingFromLibrary, setAddingToQueue } from './../../redux/audio/actions'
 import { selectSong } from './../../redux/navigation/actions'
+import { getPlatform } from './../../api/utils';
+import { logEvent } from './../../amplitude/amplitude';
 import styles from "./styles";
 
 class SongItem extends PureComponent {
 
   constructor(props) {
     super(props);
+    this.state = {
+      inLibrary: false,
+      addingToLibrary:false,
+      removingFromLibrary: false,
+      addingToQueue: false,
+    }
 
     this.toggleOptionsMenu = this.toggleOptionsMenu.bind(this)
     this.setColor = this.setColor.bind(this)
@@ -27,6 +37,8 @@ class SongItem extends PureComponent {
 
   toggleOptionsMenu() {
     this.props.selectSong(this.props.song)
+    this.setState({update: true})
+    this.setState({update: false})
   }
 
   setColor() {
@@ -82,47 +94,115 @@ class SongItem extends PureComponent {
     }
   }
 
+  handleSwipe = (direction, isActivated) => {
+    if(isActivated) {
+      if(direction === "left") {
+        this.props.setAddingToQueue(true)
+        ReactNativeHapticFeedback.trigger("impactLight", {enableVibrateFallback: true,ignoreAndroidSystemSettings: false});
+        setTimeout(() => this.props.setAddingToQueue(false), 1500)
+        this.props.addToQueue(this.props.song)
+      }
+      else {
+        if(this.state.inLibrary) {
+          this.props.setRemovingFromLibrary(true)
+          ReactNativeHapticFeedback.trigger("impactLight", {enableVibrateFallback: true,ignoreAndroidSystemSettings: false});
+          setTimeout(() => this.props.setRemovingFromLibrary(false), 1500)
+          this.removeSongFromLibrary()
+        }
+        else {
+          this.props.setAddingToLibrary(true)
+          ReactNativeHapticFeedback.trigger("impactLight", {enableVibrateFallback: true,ignoreAndroidSystemSettings: false});
+          setTimeout(() => this.props.setAddingToLibrary(false), 1500)
+          this.addSongToLibrary()
+        }
+      }
+    }
+  }
+
+  songInLibrary = () => {
+    // check if object is already saved to determine to show "Add" or "Remove"
+    var platform = getPlatform(this.props.song.platform)
+    return platform.library.songIsSaved(this.props.song)
+  }
+
+  addSongToLibrary = () => {
+    var platform = getPlatform(this.props.song.platform)
+    platform.addSongToLibrary(this.props.song)
+    logEvent("Library", "Add Song", {"Platform": this.props.song.platform, "ID": this.props.song.id})
+  }
+
+  removeSongFromLibrary = () => {
+    var platform = getPlatform(this.props.song.platform)
+    platform.removeSongFromLibrary(this.props.song.id)
+    logEvent("Library", "Remove Song", {"Platform": this.props.song.platform, "ID": this.props.song.id})
+  }
+
   render() {
     return (
-      <BaseListItem noBorder style={[styles.listItem, !Object.keys(this.props.platforms).includes(this.props.song.platform) ? {opacity: .3} : {}]}>
-        <TouchableOpacity disabled={!Object.keys(this.props.platforms).includes(this.props.song.platform)} onPress={this.onClick}>
-          <View style={{flexDirection: "row"}}>
-            {this.props.displayImage ?
-              <FastImage
-                style={styles.image} // rounded or na?
-                source={this.getImage()}
-                placeholder={require("./../../../assets/albumPlaceholder.png")}
-              />
-            :
-            null
-            }
-            <View style={styles.textContainer}>
-             <View>
-               <Text style={[styles.mainText,{color:this.setColor()}]} numberOfLines={1}>{this.props.song.name}</Text>
-             </View>
-             <View style={{flexDirection: "row"}}>
-               {this.props.displayLogo ?
-                 <View style={styles.logoContainer}>
-                 {this.displayPlatform()}
+      <>
+      <SwipeRow
+        leftOpenValue={.01}
+        rightOpenValue={.01}
+        leftActivationValue={wp(30)}
+        rightActivationValue={-wp(35)}
+        stopLeftSwipe={wp(40)}
+        stopRightSwipe={-wp(40)}
+        onLeftActionStatusChange={value => this.handleSwipe("left", value.isActivated)}
+        onRightActionStatusChange={value => this.handleSwipe("right", value.isActivated)}
+        swipeToOpenVelocityContribution={8}
+        swipeGestureBegan={() => this.setState({inLibrary: this.songInLibrary()})}
+        >
+        <View style={{alignItems: 'center',flexDirection: 'row',justifyContent: 'space-between', width: wp(90), height: hp(8.5), marginLeft: wp(5)}}>
+          <Icon style={{fontSize: hp(4), color: "#7248BD"}} type="MaterialIcons" name="library-add" />
+          {this.state.inLibrary ?
+            <Icon style={{fontSize: hp(4), color: "red"}} type="MaterialCommunityIcons" name="delete-forever" />
+          :
+            <Icon style={{fontSize: hp(3), color: "green"}} type="FontAwesome" name="plus" />
+          }
+
+        </View>
+        <BaseListItem noBorder style={[styles.listItem, !Object.keys(this.props.platforms).includes(this.props.song.platform) ? {opacity: .3} : {}]}>
+          <TouchableOpacity disabled={!Object.keys(this.props.platforms).includes(this.props.song.platform)} onPress={this.onClick}>
+            <View style={{flexDirection: "row"}}>
+              {this.props.displayImage ?
+                <FastImage
+                  style={styles.image} // rounded or na?
+                  source={this.getImage()}
+                  placeholder={require("./../../../assets/albumPlaceholder.png")}
+                />
+              :
+              null
+              }
+              <View style={styles.textContainer}>
+               <View>
+                 <Text style={[styles.mainText,{color:this.setColor()}]} numberOfLines={1}>{this.props.song.name}</Text>
+               </View>
+               <View style={{flexDirection: "row"}}>
+                 {this.props.displayLogo ?
+                   <View style={styles.logoContainer}>
+                   {this.displayPlatform()}
+                   </View>
+                  :
+                    null
+                 }
+               <View>
+                 <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist()}</Text>
                  </View>
-                :
-                  null
-               }
-             <View>
-               <Text numberOfLines={1} note style={styles.noteText}>{this.setArtist()}</Text>
                </View>
              </View>
            </View>
-         </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          disabled={!Object.keys(this.props.platforms).includes(this.props.song.platform)}
-          style={this.props.displayImage ? styles.ellipsisContainer : [styles.ellipsisContainerImageAdjusted,styles.ellipsisContainer]}
-          onPress={this.toggleOptionsMenu}
-         >
-         <Icon type="Feather" name="more-horizontal" style={styles.ellipsis} />
-        </TouchableOpacity>
-      </BaseListItem>
+          </TouchableOpacity>
+          <TouchableOpacity
+            disabled={!Object.keys(this.props.platforms).includes(this.props.song.platform)}
+            style={this.props.displayImage ? styles.ellipsisContainer : [styles.ellipsisContainerImageAdjusted,styles.ellipsisContainer]}
+            onPress={this.toggleOptionsMenu}
+           >
+           <Icon type="Feather" name="more-horizontal" style={styles.ellipsis} />
+          </TouchableOpacity>
+        </BaseListItem>
+      </SwipeRow>
+
+      </>
     )
   }
 }
@@ -155,7 +235,11 @@ function mapStateToProps(state) {
 };
 const mapDispatchToProps = dispatch => ({
     selectSong: (song) => dispatch(selectSong(song)),
-    playSong: (index, playlist, inQueue) => dispatch(playSong(index, playlist, inQueue))
+    playSong: (index, playlist, inQueue) => dispatch(playSong(index, playlist, inQueue)),
+    addToQueue: (song) => dispatch(addToQueue(song)),
+    setAddingToLibrary: (bool) => dispatch(setAddingToLibrary(bool)),
+    setRemovingFromLibrary: (bool) => dispatch(setRemovingFromLibrary(bool)),
+    setAddingToQueue: (bool) => dispatch(setAddingToQueue(bool)),
 });
 
 export default connect(mapStateToProps,mapDispatchToProps)(SongItem)

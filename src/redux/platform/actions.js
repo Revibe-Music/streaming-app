@@ -65,6 +65,7 @@ export function checkRevibeAccount() {
     // if revibe is in platform state then it has been logged into before
     var revibe = getPlatform("Revibe")
     var hasLoggedIn = revibe.hasLoggedIn()
+    console.log("hasLoggedIn",hasLoggedIn);
     dispatch(checkedAuthentication(true));
     dispatch(checkHasLoggedIn(hasLoggedIn));
   }
@@ -74,12 +75,16 @@ export function checkPlatformAuthentication() {
   // this will be called on launch
   return async (dispatch, getState) => {
     // if handle all platform login/silentLogin stuff here
-    var platforms = getState().platformState.platforms
-    var platformNames = Object.keys(platforms)
-    for(var x=0; x<platformNames.length; x++) {
-      platforms[platformNames[x]].initialize()
+    var revibe = getPlatform("Revibe")
+    var hasLoggedIn = revibe.hasLoggedIn()
+    if(hasLoggedIn) {
+      var platforms = getState().platformState.platforms
+      var platformNames = Object.keys(platforms)
+      for(var x=0; x<platformNames.length; x++) {
+        platforms[platformNames[x]].initialize()
+      }
     }
-    dispatch(checkIsLoggedIn(true));   // may do more checks here to ensure platforms are actually logged into
+    dispatch(checkIsLoggedIn(hasLoggedIn));   // may do more checks here to ensure platforms are actually logged into
   }
 }
 

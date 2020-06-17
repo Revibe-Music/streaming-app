@@ -18,13 +18,16 @@ export function logEvent(categoryName, eventName, eventData={}) {
   amplitude.getInstance().logEventWithTimestamp(`${categoryName} - ${eventName}`, eventData);
 }
 
-export async function setUserData() {
-  var userId = await DefaultPreference.get('user_id')
-  amplitude.getInstance().setUserId(userId)
+export async function setUserData(user_id=null) {
+  if(!user_id) {
+    user_id = await DefaultPreference.get('user_id')
+  }
+  amplitude.getInstance().setUserId(user_id)
+
 }
 
-export async function setRegistration(userId) {
-  setUserData()
+export async function setRegistration(user_id=null) {
+  setUserData(user_id)
   var identify = new amplitude.Identify().setOnce('Register Date', new Date())
   amplitude.identify(identify); // Send the Identify call
 }

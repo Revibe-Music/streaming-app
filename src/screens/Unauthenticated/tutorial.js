@@ -72,7 +72,7 @@ class Tutorial extends Component {
     logEvent("Onboarding", "Started")
   }
 
-  _renderItem({item,index}){
+  _renderItem({item,index}) {
         return (
           <Card style={{backgroundColor:'#242424',borderRadius: 20, borderColor: "transparent", height: hp(55), width: wp("90"),}}>
             <CardItem style={{backgroundColor: "transparent"}}>

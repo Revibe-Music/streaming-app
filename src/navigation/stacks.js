@@ -4,6 +4,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import LoginScreen from "./../screens/Unauthenticated/LoginScreen";
 import LinkAccounts from "./../screens/Unauthenticated/linkAccounts";
 import Tutorial from "./../screens/Unauthenticated/tutorial";
+import ResetPassword from "./../screens/Unauthenticated/ResetPassword";
 
 // Authenticated Pages
 import Library from "./../screens/Authenticated/library";
@@ -50,6 +51,7 @@ AuthenticationPages = {
   Login: {screen: LoginScreen},
   LinkAccounts: {screen: LinkAccounts},
   Tutorial: {screen: Tutorial},
+  ResetPassword: {screen: ResetPassword},
 }
 
 

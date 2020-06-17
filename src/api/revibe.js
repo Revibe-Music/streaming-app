@@ -10,6 +10,9 @@ import realm from './../realm/realm'
 
 import { Player, MediaStates } from '@react-native-community/audio-toolkit';
 
+
+import CookieManager from 'react-native-cookies';
+
 export default class RevibeAPI extends BasePlatformAPI {
 
   constructor() {
@@ -197,7 +200,8 @@ export default class RevibeAPI extends BasePlatformAPI {
   }
 
   async _request(endpoint, method, body, authenticated=false, handlePagination=false, pageSize=100, limit=null) {
-    var headers = {'Accept': 'application/json', 'Content-Type': 'application/json' }
+    // var headers = {'Accept': 'application/json', 'Content-Type': 'application/json',"X-AppName": "revibe_music" }
+    var headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
     if (authenticated) {
       // if token id expired, refresh before sending with new request
       if(this.hasLoggedIn()) {
@@ -269,7 +273,7 @@ export default class RevibeAPI extends BasePlatformAPI {
     return await this._request(endpoint, method, body, authenticated, handlePagination, pageSize, limit)
   }
 
-  async register(username, password) {
+  async register(username, password, referrerId=null) {
     /**
     * Summary: Register new Revibe account.
     *
@@ -283,14 +287,15 @@ export default class RevibeAPI extends BasePlatformAPI {
     *
     * @return {Object} Revibe user object, access token, and refresh token
     */
-
+    await CookieManager.clearAll(false)   // need this in case someone has signed in with google before registering (google cookie will be sent with request if not)
     var data = {
       username: username,
       password: password,
       profile: {},
-      device_type: "phone" // change to give actual device data
+      device_type: "mobile" // change to give actual device data
     }
-    var response = await this._request("account/register/", "POST", data)
+    var endpoint = referrerId ? `account/register/?uid=${referrerId}` : "account/register/"
+    var response = await this._request(endpoint, "POST", data)
     if(response.data.hasOwnProperty("access_token")) {
       var token = {
         accessToken: response.data.access_token,
@@ -364,7 +369,7 @@ export default class RevibeAPI extends BasePlatformAPI {
       // save user to default preferences
       DefaultPreference.setMultiple(user)
 
-      return response.data.user
+      return response.data
     }
 
     return response.data
@@ -379,7 +384,6 @@ export default class RevibeAPI extends BasePlatformAPI {
     */
 
     var token = this.getToken()
-    console.log(token);
     var data = {
       refresh_token: token.refreshToken,
       device_type: "mobile"
@@ -439,10 +443,11 @@ export default class RevibeAPI extends BasePlatformAPI {
     */
 
     GoogleSignin.configure({
-      // scopes: ['profile email'],
-      webClientId: '377937989327-ejkdhp7mk4u2gr9t1saq0a8t3di64mtv.apps.googleusercontent.com',
+      scopes: ['profile', 'email'],
+      webClientId: '377937989327-52gam844ctp3j0fukme2v106g7frtlhh.apps.googleusercontent.com',
+      iosClientId: "377937989327-ejkdhp7mk4u2gr9t1saq0a8t3di64mtv.apps.googleusercontent.com",
       offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
-      forceConsentPrompt: false, // [Android] if you want to show the authorization prompt at each login.
+      // forceConsentPrompt: false, // [Android] if you want to show the authorization prompt at each login.
     });
   }
 
@@ -454,16 +459,16 @@ export default class RevibeAPI extends BasePlatformAPI {
     */
 
     try {
-      await GoogleSignin.signOut()
+      // await GoogleSignin.signOut()
+      // await this.logout()
 
       // go through google sign in flow client side then on revibe server,
       this._initializeGoogle();
       var userInfo = await GoogleSignin.signIn();
-      // var data = {access_token: userInfo.idToken, code: userInfo.serverAuthCode}
-      console.log(userInfo);
-      var data = {access_token: userInfo.idToken}
+      var tokens = await GoogleSignin.getTokens();
+
+      var data = {access_token: tokens.accessToken, code: tokens.idToken}
       var response =  await this._request("account/google-authentication/", "POST", data)
-      console.log(response);
       if(response.data.hasOwnProperty("access_token")) {
         var token = {
           platform: "Revibe",
@@ -471,7 +476,6 @@ export default class RevibeAPI extends BasePlatformAPI {
           refreshToken: response.data.refresh_token,
           expiration: this._generateExpiration(1.9),
         }
-
         var user = {
           "first_name": response.data.user.first_name,
           "last_name": response.data.user.last_name,
@@ -492,7 +496,7 @@ export default class RevibeAPI extends BasePlatformAPI {
         // save user to default preferences
         DefaultPreference.setMultiple(user)
 
-        return response.data.user
+        return response.data
       }
       return response.data
 
@@ -511,6 +515,16 @@ export default class RevibeAPI extends BasePlatformAPI {
     // await this._request("account/logout/", "POST", data)
     // token.delete()
     // this.library.delete()
+  }
+
+  async regsiterReferral(referrerId) {
+    /*
+    * Summary: claim referral after registration has occured
+    */
+
+    var data = {user_id: referrerId}
+    var response = await this._request("account/referrals/my-referrals/", "POST", data, true)
+    console.log(response);
   }
 
   async getProfile() {
@@ -551,16 +565,19 @@ export default class RevibeAPI extends BasePlatformAPI {
     * @return {Object} List of linked accounts
     */
 
+    var availableAccounts = ["Revibe", "YouTube", "Spotify"]
     var response = await this._request("account/linked-accounts/", "GET", null, true)
     var tokens = []
     for(var x=0; x<response.data.length; x++) {
-      var formattedToken = {
-        accessToken: response.data[x].token,
-        refreshToken: response.data[x].token_secret,
-        expiration: this._generateExpiration(-5),
-        platform: response.data[x].platform
+      if(availableAccounts.includes(response.data[x].platform)) {
+        var formattedToken = {
+          accessToken: response.data[x].token,
+          refreshToken: response.data[x].token_secret,
+          expiration: this._generateExpiration(-5),
+          platform: response.data[x].platform
+        }
+        tokens.push(formattedToken)
       }
-      tokens.push(formattedToken)
     }
     return tokens
   }
@@ -597,7 +614,6 @@ export default class RevibeAPI extends BasePlatformAPI {
     songPromises = []
     for(var x=0; x<playlists.length; x++) {
       playlists[x] = this._parsePlaylist(playlists[x])
-      console.log(playlists[x]);
       const playlistId = playlists[x].id
       songPromises.push(this.fetchPlaylistSongs(playlists[x].id).then((songs) => ({playlist: playlistId, songs: songs}) ))
     }

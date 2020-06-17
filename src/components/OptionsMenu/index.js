@@ -42,7 +42,7 @@ class OptionsMenu extends PureComponent {
        displayPlaylists: false,
        songInPlaylist: false,
        updating: false,
-       branchUniversalObject: {}
+       branchUniversalObject: null
      }
 
      this.closeOptionsMenu = this.closeOptionsMenu.bind(this);
@@ -62,6 +62,9 @@ class OptionsMenu extends PureComponent {
    }
 
    componentWillUnmount() {
+     if(this.state.branchUniversalObject !== null) {
+       this.state.branchUniversalObject.release()
+     }
    }
 
    async componentDidUpdate(prevProps) {
@@ -125,7 +128,7 @@ class OptionsMenu extends PureComponent {
      this.setState({ addingToLibrary: true })
      var platform = getPlatform(this.props.song.platform)
      platform.addSongToLibrary(this.props.song)
-     setTimeout(() => this.setState({ addingToLibrary: false }), 1000)
+     setTimeout(() => this.setState({ addingToLibrary: false }), 1500)
      this.closeOptionsMenu(1500)
      logEvent("Library", "Add Song", {"Platform": this.props.song.platform, "ID": this.props.song.id})
    }
@@ -134,9 +137,9 @@ class OptionsMenu extends PureComponent {
      this.setState({ removingFromLibrary: true })
      var platform = getPlatform(this.props.song.platform)
      platform.removeSongFromLibrary(this.props.song.id)
-     setTimeout(() => this.setState({ removingFromLibrary: false }), 1000)
+     setTimeout(() => this.setState({ removingFromLibrary: false }), 1500)
      this.closeOptionsMenu(1500)
-     logEvent("Library", "Add Song", {"Platform": this.props.song.platform, "ID": this.props.song.id})
+     logEvent("Library", "Remove Song", {"Platform": this.props.song.platform, "ID": this.props.song.id})
    }
 
    addSongToPlaylist(playlist) {
@@ -154,7 +157,7 @@ class OptionsMenu extends PureComponent {
      else {
        this.setState({ addingToPlaylist: true,  playlist: playlist.name})
        this.revibe.addSongToPlaylist(this.props.song, playlist.id)
-       setTimeout(() => this.setState({ addingToPlaylist: false}), 1000)
+       setTimeout(() => this.setState({ addingToPlaylist: false}), 1500)
        this.closeOptionsMenu(1500)
        logEvent("Playlist", "Add Song", {"Platform": this.props.song.platform, "ID": this.props.song.id, "Playlist ID": playlist.id})
      }
@@ -163,7 +166,7 @@ class OptionsMenu extends PureComponent {
    removeSongFromPlaylist() {
      this.setState({ removingFromPlaylist: true, playlist: this.props.selectedPlaylist.name })
      this.revibe.removeSongFromPlaylist(this.props.song.id, this.props.selectedPlaylist.id)
-     setTimeout(() => this.setState({ removingFromPlaylist: false}), 1000)
+     setTimeout(() => this.setState({ removingFromPlaylist: false}), 1500)
      this.closeOptionsMenu(1500)
      logEvent("Playlist", "Delete Song", {"Platform": this.props.song.platform, "ID": this.props.song.id, "Playlist ID": this.props.selectedPlaylist.id})
    }
@@ -171,14 +174,14 @@ class OptionsMenu extends PureComponent {
    addSongToQueue() {
      this.setState({ addingToQueue: true })
      this.props.addToQueue(this.props.song)
-     setTimeout(() => this.setState({ addingToQueue: false }), 1200)
+     setTimeout(() => this.setState({ addingToQueue: false }), 1500)
      this.closeOptionsMenu(1500)
    }
 
    addSongToPlayNext() {
      this.setState({ addingToPlayNext: true })
      this.props.addToPlayNext(this.props.song)
-     setTimeout(() => this.setState({ addingToPlayNext: false }), 1000)
+     setTimeout(() => this.setState({ addingToPlayNext: false }), 1500)
      this.closeOptionsMenu(1500)
    }
 
@@ -301,12 +304,7 @@ class OptionsMenu extends PureComponent {
         blurType="dark"
         blurAmount={20}
       >
-        <AnimatedPopover type="Save" show={this.state.addingToLibrary} text="Added to library"/>
-        <AnimatedPopover type="Delete" show={this.state.removingFromLibrary} text="Deleted from library" />
-        <AnimatedPopover type="Save" show={this.state.addingToPlaylist} text={`Added to ${this.state.playlist}`}/>
-        <AnimatedPopover type="Delete" show={this.state.removingFromPlaylist} text={`Deleted from ${this.state.playlist}`} />
-        <AnimatedPopover type="Queue" show={this.state.addingToQueue} text="Queuing..." />
-        <AnimatedPopover type="PlayNext" show={this.state.addingToPlayNext} text="Playing next..." />
+
 
           <View >
           {this.state.displayArtists || this.state.displayPlaylists?
@@ -489,6 +487,14 @@ class OptionsMenu extends PureComponent {
             >
               <Text style={styles.filterCancelText}>Close</Text>
             </Button>
+
+            <AnimatedPopover type="Save" show={this.state.addingToLibrary} text="Added to library"/>
+            <AnimatedPopover type="Delete" show={this.state.removingFromLibrary} text="Deleted from library" />
+            <AnimatedPopover type="Save" show={this.state.addingToPlaylist} text={`Added to ${this.state.playlist}`}/>
+            <AnimatedPopover type="Delete" show={this.state.removingFromPlaylist} text={`Deleted from ${this.state.playlist}`} />
+            <AnimatedPopover type="Queue" show={this.state.addingToQueue} text="Queuing..." />
+            <AnimatedPopover type="PlayNext" show={this.state.addingToPlayNext} text="Playing next..." />
+
         </BlurView>
       </Modal>
     )

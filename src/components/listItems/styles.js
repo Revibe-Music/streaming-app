@@ -5,6 +5,7 @@ export default {
   listItem: {
     height: hp("8.5%"),
     paddingRight: 0,
+    backgroundColor: "#121212"
   },
   listFooterItem: {
     height: hp("6%"),
@@ -15,6 +16,7 @@ export default {
     height: hp("7%"),
     resizeMode: 'contain',
     backgroundColor: "transparent",
+    borderRadius: 5
   },
 
   multiImageContainer: {

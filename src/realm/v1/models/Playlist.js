@@ -119,7 +119,6 @@ export default class Playlist extends Realm.Object {
   }
 
   batchAddSongs(songs) {
-    console.log("batch adding songs to playlist");
     realm.write(() => {
       for(var x=0; x<songs.length; x++) {
         var preparedSong = SavedSong.prepare(songs[x])

@@ -99,7 +99,6 @@ class Tutorial extends Component {
     }
     var htmlContent = await axios(request)
     this.setState({htmlContent: htmlContent.data.data.html})
-    console.log(htmlContent);
   }
 
   _renderItem = ({ item, dimensions }) => (

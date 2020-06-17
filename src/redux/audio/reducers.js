@@ -15,6 +15,9 @@ var initialState = {
       current: null,
       max: null,
    },
+   addingToLibrary: false,
+   removingFromLibrary: false,
+   addingToQueue: false,
 };
 
 export const audioReducer = (state = initialState, action) => {
@@ -104,6 +107,22 @@ export const audioReducer = (state = initialState, action) => {
          };
      case 'RESET_AUDIO':
         return initialState;
+     case 'ADDING_TO_LIBRARY':
+         return {
+            ...state,
+            addingToLibrary: action.bool,
+         };
+     case 'REMOVING_FROM_LIBRARY':
+         return {
+            ...state,
+            removingFromLibrary: action.bool,
+         };
+     case 'ADDING_TO_QUEUE':
+         return {
+            ...state,
+            addingToQueue: action.bool,
+         };
+
       default:
          return state;
    }

@@ -4,6 +4,7 @@ import {StyleSheet, StatusBar} from 'react-native';
 import { Container as BaseContainer, Content, Header, Left, Body, Right, Text, View, Button, Icon} from "native-base";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
+import AnimatedPopover from './../animatedPopover/index';
 import { connect } from 'react-redux';
 import { goBack } from './../../redux/navigation/actions';
 import OptionsMenu from "./../OptionsMenu/index";
@@ -11,6 +12,10 @@ import OptionsMenu from "./../OptionsMenu/index";
 
 
 export class Container extends Component {
+
+  constructor(props) {
+    super(props)
+  }
 
   render() {
     return (
@@ -56,8 +61,12 @@ export class Container extends Component {
           {this.props.children}
         </BaseContainer>
       }
+
       </View>
       <OptionsMenu />
+      <AnimatedPopover type="Save" show={this.props.addingToLibrary} text="Added to library"/>
+      <AnimatedPopover type="Delete" show={this.props.removingFromLibrary} text="Deleted from library" />
+      <AnimatedPopover type="Queue" show={this.props.addingToQueue} text="Queuing..." />
       </>
     );
   }
@@ -102,8 +111,16 @@ const styles = StyleSheet.create({
   },
 });
 
+function mapStateToProps(state) {
+  return {
+    addingToLibrary: state.audioState.addingToLibrary,
+    removingFromLibrary: state.audioState.removingFromLibrary,
+    addingToQueue: state.audioState.addingToQueue,
+  }
+};
+
 const mapDispatchToProps = dispatch => ({
     goBack: () => dispatch(goBack()),
 });
 
-export default connect(null, mapDispatchToProps)(Container)
+export default connect(mapStateToProps, mapDispatchToProps)(Container)

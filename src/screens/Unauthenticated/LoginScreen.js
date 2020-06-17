@@ -26,6 +26,7 @@ import YouTubeAPI from './../../api/youtube'
 
 import { getPlatform } from './../../api/utils';
 import { logEvent, setRegistration, setUserData } from './../../amplitude/amplitude';
+import { setIdentity } from './../../navigation/branch';
 import { initializePlatforms } from './../../redux/platform/actions'
 
 
@@ -34,16 +35,10 @@ class LoginScreen extends Component {
     constructor(props) {
       super(props);
       this.state = {
-        press: false,
         registering: this.props.navigation.state.params.registering,
-        resettingPassword: false,
         firstName: "",
-        lastName: "",
         username: "",
-        email: "",
         password: "",
-        newPassword1: "",
-        newPassword2: "",
         agreedToTermsAndConditions: false,
         showTermsAndConditionsWarning: false,
         syncing: false,
@@ -55,9 +50,9 @@ class LoginScreen extends Component {
 
       this.revibe = new RevibeAPI()
       this.youtube = new YouTubeAPI()
-      this.toggleForgotPasswordModal = this.toggleForgotPasswordModal.bind(this);
       this._login = this._login.bind(this);
       this._register = this._register.bind(this);
+      this._googleSignInPressed = this._googleSignInPressed.bind(this);
       this.submitButtonPressed = this.submitButtonPressed.bind(this);
       this.fetchConnectedAccounts = this.fetchConnectedAccounts.bind(this);
       this.syncAccounts = this.syncAccounts.bind(this);
@@ -101,35 +96,20 @@ class LoginScreen extends Component {
       try {
         this.setState({loading: true})
         var response = await this.revibe.login(this.state.username, this.state.password);
-        if(this.state.resettingPassword) {
-          if(this.state.newPassword1 !== this.state.newPassword2) {
-            this.setState({error: {passwords: "Passwords do not match"}, loading: false})
-          }
-          else {
-            var changePasswordResponse = await this.revibe.changePassword(this.state.password,this.state.newPassword1,this.state.newPassword2);
-            // this.setState({ firstName: changePasswordResponse.first_name, success: true })
-            this.setState({success: true })
-            await this.youtube.login()
-            await this.fetchConnectedAccounts()
-            await this.props.initializePlatforms()
-            this.setState({syncing: true})
-            setTimeout(this.syncAccounts, 5000)
-            logEvent("Login", "Success")
-            setUserData()
-          }
+        if(response.user.force_change_password) {
+          this.props.navigation.navigate({key: "ResetPassword",routeName: "ResetPassword", params:{password: this.state.password}})
+          this.setState({loading: false})
         }
-        else if(response.force_change_password) {
-          this.setState({resettingPassword: true, loading: false})
-        }
-        else if(response.hasOwnProperty("first_name")) {
-          this.setState({ firstName: response.first_name, success: true })
+        else if(response.access_token) {
+          this.setState({ firstName: response.user.first_name ? response.user.first_name: "", success: true })
           await this.youtube.login()
           await this.fetchConnectedAccounts()
           await this.props.initializePlatforms()
           this.setState({syncing: true})
           setTimeout(this.syncAccounts, 5000)
           logEvent("Login", "Success")
-          setUserData()
+          setUserData(response.user.user_id)    // set amplitude user id
+          setIdentity(response.user.user_id)    // set branch user id
         }
         else {
           this.setState({error: response})
@@ -146,22 +126,22 @@ class LoginScreen extends Component {
         try {
           if(this.state.agreedToTermsAndConditions) {
             this.setState({loading: true})
-            var response = await this.revibe.register(this.state.username, this.state.password)
+            if(this.props.referrerId !== null) {
+              var response = await this.revibe.register(this.state.username, this.state.password,this.props.referrerId)
+            }
+            else {
+              var response = await this.revibe.register(this.state.username, this.state.password)
+            }
             if(response.access_token) {
               this.setState({ success: true })
               await this.youtube.login()
               this.props.initializePlatforms()
               logEvent("Registration", "Success")
-              setRegistration()
-              this.props.navigation.navigate(
-                {
-                  key: "LinkAccounts",
-                  routeName: "LinkAccounts",
-                }
-              )
+              setRegistration(response.user.user_id)  // set amplitude user id and registration date
+              setIdentity(response.user.user_id)      // set branch user id
+              this.props.navigation.navigate({key: "LinkAccounts",routeName: "LinkAccounts"})
             }
             else {
-              console.log(response);
               this.setState({error: response})
               this.setState({loading: false})
               logEvent("Registration", "Failed")
@@ -180,18 +160,30 @@ class LoginScreen extends Component {
     async _googleSignInPressed() {
       /// Need to check whether a user is logging in or registering in order to direct them to the link accounts page or just log them in
       var response = await this.revibe.signinWithGoogle();
-      // console.log(response);
       if(response.access_token) {
-        this.setState({ success: true })
-        await this.youtube.login()
-        this.props.initializePlatforms()
-        // logEvent("Registration", "Success")
-        this.props.navigation.navigate(
-          {
-            key: "Tutorial",
-            routeName: "Tutorial",
+        if(response.new_user) {
+          if(this.props.referrerId !== null) {
+            this.revibe.regsiterReferral(this.props.referrerId)
           }
-        )
+          this.setState({ success: true })
+          await this.youtube.login()
+          this.props.initializePlatforms()
+          logEvent("Registration", "Success")
+          setRegistration(response.user.user_id)  // set amplitude user id and registration date
+          setIdentity(response.user.user_id)      // set branch user id
+          this.props.navigation.navigate({key: "LinkAccounts",routeName: "LinkAccounts"})
+        }
+        else {
+          this.setState({ firstName: response.user.first_name ? response.user.first_name : "", success: true })
+          await this.youtube.login()
+          await this.fetchConnectedAccounts()
+          await this.props.initializePlatforms()
+          this.setState({syncing: true})
+          setTimeout(this.syncAccounts, 5000)
+          logEvent("Login", "Success")
+          setUserData(response.user.user_id)    // set amplitude user id
+          setIdentity(response.user.user_id)    // set branch user id
+        }
       }
       else {
         this.setState({error: response})
@@ -200,8 +192,13 @@ class LoginScreen extends Component {
       }
     }
 
-    toggleForgotPasswordModal() {
+    toggleForgotPasswordModal = () => {
       this.setState({ forgotPasswordModal: !this.state.forgotPasswordModal });
+    }
+
+    toggleAuthenticationType = () => {
+      // toggle sign in or sign up and reset input fields
+      this.setState({ registering: !this.state.registering, error: {}, showTermsAndConditionsWarning: false });
     }
 
     displayError() {
@@ -233,46 +230,14 @@ class LoginScreen extends Component {
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={{flex: 1, backgroundColor:'#0E0E0E', alignItems: "center", justifyContent: "center"}}>
         <Logo />
-        <Text style={[styles.title, {marginTop: hp(7), marginBottom: hp(2), marginLeft: wp(8), alignSelf: "flex-start"}]}>{this.state.resettingPassword ? "Reset Password" : this.state.registering ? "Sign up" : "Sign in"}</Text>
+        <Text style={[styles.title, {marginTop: hp(7), marginBottom: hp(2), marginLeft: wp(8), alignSelf: "flex-start"}]}>{this.state.registering ? "Sign up" : "Sign in"}</Text>
         <KeyboardAvoidingView behavior="padding" style={styles.container}>
           {Object.keys(this.state.error).length > 0 ?
             (<Text style={styles.authenticationError}>
               {this.displayError()}
             </Text>) : null }
 
-          {this.state.resettingPassword ?
-            (<View style={styles.titleContainer}>
-              <Text style={styles.title}>Reset Password</Text>
-            </View>) : null}
-
           <View style={{marginBottom: hp(10), alignItems: "center"}}>
-          {this.state.resettingPassword ?
-            <>
-            <UserInput
-              icon="lock"
-              secureTextEntry={true}
-              placeholder="Password"
-              returnKeyType={'done'}
-              autoCapitalize={'none'}
-              autoCorrect={false}
-              width={wp("85%")}
-              height={hp(7)}
-              onChange={(text) => this.setState({newPassword1: text})}
-            />
-            <UserInput
-              icon="lock"
-              secureTextEntry={true}
-              placeholder="Confirm Password"
-              returnKeyType={'done'}
-              autoCapitalize={'none'}
-              autoCorrect={false}
-              width={wp("85%")}
-              height={hp(7)}
-              onChange={(text) => this.setState({newPassword2: text})}
-            />
-            </>
-          :
-            <>
             <UserInput
               icon="user"
               placeholder="Username"
@@ -321,8 +286,6 @@ class LoginScreen extends Component {
                 </TouchableOpacity>
               </View>
             }
-            </>
-          }
         </View>
         <View style={{alignItems: "center", justifyContent: "space-between", height: hp(30)}}>
           <ButtonSubmit
@@ -345,7 +308,7 @@ class LoginScreen extends Component {
 
           <View style={styles.bottomTextContainer}>
             <TouchableOpacity
-              onPress={() => this.setState({registering: !this.state.registering})}
+              onPress={this.toggleAuthenticationType}
             >
               <Text style={[styles.text, {fontWeight: 'bold'}]}>{this.state.registering ? "Sign in" : "Sign up"}</Text>
             </TouchableOpacity>
@@ -433,6 +396,7 @@ function mapStateToProps(state) {
   return {
     connected: state.connectionState.connected,
     platforms: state.platformState.platforms,
+    referrerId: state.navigationState.referrerId,
   }
 };
 

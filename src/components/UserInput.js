@@ -26,6 +26,7 @@ export default class UserInput extends Component {
         {this.props.icon ? <Icon type="AntDesign" name={this.props.icon} style={styles.inlineImg} /> : null}
         <TextInput
           style={[styles.input, {height: this.props.height, width: this.props.width, paddingLeft: this.props.icon ? 45 : 10}]}
+          value={this.props.value + 1}
           onChangeText={this.props.onChange}
           placeholder={this.props.placeholder}
           secureTextEntry={this.state.showPass}

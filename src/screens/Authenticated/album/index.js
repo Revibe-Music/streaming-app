@@ -25,7 +25,7 @@ class Album extends Component {
       following: false,
       secondaryColor: "#121212",
       songs: this.props.navigation.state.params.songs.length > 0 ? this.props.navigation.state.params.songs : [],
-      branchUniversalObject: {}
+      branchUniversalObject: null
     };
     this.getImage = this.getImage.bind(this)
     this.setArtist = this.setArtist.bind(this)
@@ -76,6 +76,9 @@ class Album extends Component {
   }
 
   componentWillUnmount() {
+    if(this.state.branchUniversalObject !== null) {
+      this.state.branchUniversalObject.release()
+    }
     // Need to call branchUniversalObject.release() here
   }
 

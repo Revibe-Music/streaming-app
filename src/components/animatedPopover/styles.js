@@ -9,6 +9,7 @@ export default {
   },
   animationBackground: {
     backgroundColor: '#222222',
+    opacity: .95,
     borderRadius: hp("2%"),
   },
   animationWrapper: {

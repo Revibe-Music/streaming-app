@@ -37,7 +37,7 @@ class Artist extends Component {
       songs: [],
       showTipJar: false,
       showDonationModal: false,
-      branchUniversalObject: {}
+      branchUniversalObject: null
     }
 
     this.renderItem = this.renderItem.bind(this)
@@ -83,7 +83,9 @@ class Artist extends Component {
   }
 
   componentWillUnmount() {
-    // Need to call branchUniversalObject.release() here
+    if(this.state.branchUniversalObject !== null) {
+      this.state.branchUniversalObject.release()
+    }
   }
 
   getArtistImage() {

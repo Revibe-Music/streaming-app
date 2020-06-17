@@ -66,6 +66,20 @@ const reset = () => ({
   type: 'RESET_AUDIO',
 });
 
+const addingToLibrary = bool => ({
+  type: 'ADDING_TO_LIBRARY',
+  bool: bool
+});
+
+const removingFromLibrary = bool => ({
+  type: 'REMOVING_FROM_LIBRARY',
+  bool: bool
+});
+
+const addingToQueue = bool => ({
+  type: 'ADDING_TO_QUEUE',
+  bool: bool
+});
 
 // Audio Controls
  const playSong = (index, playlist=null, inQueue=false) => {
@@ -321,4 +335,22 @@ const resetAudio = () => {
    }
 }
 
-export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, addToPlayNext, removeFromQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt, continuousTimeUpdate,resetAudio }
+const setAddingToLibrary = (bool) => {
+   return (dispatch) => {
+      dispatch(addingToLibrary(bool));
+   }
+}
+
+const setRemovingFromLibrary = (bool) => {
+   return (dispatch) => {
+      dispatch(removingFromLibrary(bool));
+   }
+}
+
+const setAddingToQueue = (bool) => {
+   return (dispatch) => {
+      dispatch(addingToQueue(bool));
+   }
+}
+
+export { playSong ,pauseSong ,resumeSong ,nextSong ,prevSong ,addToQueue, addToPlayNext, removeFromQueue, updateQueue, shuffleSongs, setScrubbing ,seek ,setSongDuration ,updateSongTime , updateAudioInterupt, continuousTimeUpdate,resetAudio,setAddingToLibrary, setRemovingFromLibrary, setAddingToQueue }

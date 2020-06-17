@@ -5,25 +5,13 @@ import Modal from 'react-native-modal';
 import LottieView from 'lottie-react-native';
 import { BarIndicator } from 'react-native-indicators';
 import styles from "./styles";
-import * as Animatable from 'react-native-animatable';
 
 
 class AnimatedPopover extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      animationInProgress: false,
-      animation: "fadeInUp",
-    }
   }
-
-  componentDidUpdate(prevProps, prevState) {
-    if(!this.state.animationInProgress && prevState.animationInProgress) {
-      this.setState({ animation: "fadeInUp" })
-    }
-  }
-
 
   _renderAnimation() {
     if(this.props.type==="Save") {
@@ -79,55 +67,45 @@ class AnimatedPopover extends Component {
         </View>
       )
     }
-  }
-
-  handleStartAnimation = () => {
-    if(this.state.animation === "fadeInUp") {
-      this.setState({animationInProgress: true})
+    else {
+      return (
+        <BarIndicator
+          animationDuration={700}
+          color='#7248bd'
+          count={5}
+        />
+      )
     }
-  }
-
-  setExitAnimation = () => {
-    if(this.state.animation === "fadeInUp") {
-      setTimeout(() => this.setState({ animation: "fadeOutDown" }), 500)
-      setTimeout(() => this.setState({ animationInProgress: false }), 1000)
-    }
-
   }
 
   render() {
-    if(this.props.show) {
-      if(this.props.type==="Loading") {
-        return (
-          <View style={{position: "absolute", height: "100%", width: "100%", justifyContent: "center", alignItems: "center"}} pointerEvents={'box-none'}>
-            <View style={this.props.type!=="Loading" ? styles.animationBackground : null}>
-              <BarIndicator
-                animationDuration={700}
-                color='#7248bd'
-                count={5}
-              />
-            </View>
-          </View>
-        )
-      }
-      return (
-        <View style={{position: "absolute", height: "100%", width: "100%", justifyContent: "center", alignItems: "center"}} pointerEvents={'box-none'}>
-          <Animatable.View
-            style={styles.animatedView}
-            animation={this.state.animation}
-            duration={500}
-            onAnimationBegin={this.handleStartAnimation}
-            onAnimationEnd={this.setExitAnimation}
-          >
+    // if(this.props.type==="Loading" && this.props.show) {
+    //   return (
+    //       <View style={styles.animationWrapper1}>
+    //         {this._renderAnimation()}
+    //         <Text style={styles.text}> {this.props.text} </Text>
+    //         </View>
+    //
+    //
+    //   )
+    // }
+    return (
+      <Modal
+        hasBackdrop={false}
+        animationIn="fadeInUp"
+        animationOut="fadeOutDown"
+        isVisible={this.props.show}
+      >
+        <View style={styles.container}>
+        <View style={styles.animationWrapper}>
           <View style={this.props.type!=="Loading" ? styles.animationBackground : null}>
             {this._renderAnimation()}
             <Text style={styles.text}> {this.props.text} </Text>
+            </View>
           </View>
-          </Animatable.View>
         </View>
-      );
-    }
-    return null
+      </Modal>
+    );
   }
 }
 

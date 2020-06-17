@@ -31,6 +31,10 @@ const setCurrentPage = (page, key) => ({
     page: page,
     key: key,
 });
+const setReferrer = id => ({
+    type: 'SET_REFERRER',
+    id: id
+});
 
 
 export function setTopLevelNavigator(navigatorRef) {
@@ -68,48 +72,54 @@ export function subscribe() {
           return
         }
 
-        // A Branch link was opened.
-        // Route link based on data in params, e.g.
-        var contentPlatform = params.contentPlatform
-        var contentType = params.contentType
-        var contentId = params.contentId
-        if(contentType.toLowerCase() === "artist") {
-          var options = {key: params.$canonical_identifier}
-          if(contentPlatform.toLowerCase() === "youtube") {
-            options.routeName = "Album"
-            options.params = {id: contentId, platform: "YouTube", songs: []}
-          }
-          else {
-            options.routeName = "Artist"
-            options.params = {id: contentId, platform: contentPlatform}
-          }
-          navigator.dispatch(NavigationActions.navigate(options));
+        if(params.hasOwnProperty("uid")) {
+          dispatch(setReferrer(params.uid))
         }
-        else if(contentType.toLowerCase() === "album") {
-          var options = {
-           routeName: "Album",
-           key: params.$canonical_identifier,
-           params: {
-             id: contentId,
-             platform: contentPlatform,
-             songs: []
-           }
-          }
-          navigator.dispatch(NavigationActions.navigate(options));
-        }
-        else if(contentType.toLowerCase() === "song") {
-          var availablePlatforms = Object.keys(getState().platformState.platforms)
 
-          //only allow song from availablePlatforms
-          if(availablePlatforms.includes(contentPlatform)) {
-            var platformAPI = getPlatform(contentPlatform)
-            var song = await platformAPI.fetchSong(contentId)
-            dispatch(playSong(0, [song]))
+        console.log("BROO",getState().platformState.isLoggedIn);
+        if(getState().platformState.isLoggedIn) {
+          // A Branch link was opened.
+          // Route link based on data in params, e.g.
+          var contentPlatform = params.contentPlatform
+          var contentType = params.contentType
+          var contentId = params.contentId
+          if(contentType.toLowerCase() === "artist") {
+            var options = {key: params.$canonical_identifier}
+            if(contentPlatform.toLowerCase() === "youtube") {
+              options.routeName = "Album"
+              options.params = {id: contentId, platform: "YouTube", songs: []}
+            }
+            else {
+              options.routeName = "Artist"
+              options.params = {id: contentId, platform: contentPlatform}
+            }
+            navigator.dispatch(NavigationActions.navigate(options));
           }
-          else {
-            dispatch(setError(`Please login to your ${contentPlatform} account before playing this song.` ))
+          else if(contentType.toLowerCase() === "album") {
+            var options = {
+             routeName: "Album",
+             key: params.$canonical_identifier,
+             params: {
+               id: contentId,
+               platform: contentPlatform,
+               songs: []
+             }
+            }
+            navigator.dispatch(NavigationActions.navigate(options));
           }
+          else if(contentType.toLowerCase() === "song") {
+            var availablePlatforms = Object.keys(getState().platformState.platforms)
 
+            //only allow song from availablePlatforms
+            if(availablePlatforms.includes(contentPlatform)) {
+              var platformAPI = getPlatform(contentPlatform)
+              var song = await platformAPI.fetchSong(contentId)
+              dispatch(playSong(0, [song]))
+            }
+            else {
+              dispatch(setError(`Please login to your ${contentPlatform} account before playing this song.` ))
+            }
+          }
         }
     })
   }
@@ -283,5 +293,11 @@ export function setPage(page=null, key=null) {
       dispatch(setCurrentPage(nav.page, nav.key))
       dispatch(setCurrentTab(nav.tab))
     }
+  }
+}
+
+export function setReferrerId(id) {
+  return async (dispatch) => {
+    dispatch(setReferrer(id))
   }
 }

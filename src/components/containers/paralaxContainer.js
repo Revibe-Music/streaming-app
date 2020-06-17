@@ -9,8 +9,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import ImageLoad from 'react-native-image-placeholder';
 import * as Animatable from 'react-native-animatable';
 import { getColorFromURL } from 'rn-dominant-color';
-
 import { connect } from 'react-redux';
+
+import AnimatedPopover from './../animatedPopover/index';
 import OptionsMenu from "./../OptionsMenu/index";
 import FastImage from "./../images/fastImage";
 import ShareButton from "./../../components/buttons/ShareButton";
@@ -166,6 +167,9 @@ export class ParalaxContainer extends Component {
       </HeaderImageScrollView>
       </View>
       <OptionsMenu />
+      <AnimatedPopover type="Save" show={this.props.addingToLibrary} text="Added to library"/>
+      <AnimatedPopover type="Delete" show={this.props.removingFromLibrary} text="Deleted from library" />
+      <AnimatedPopover type="Queue" show={this.props.addingToQueue} text="Queuing..." />
       </>
     );
   }
@@ -263,6 +267,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     resizeMode: 'contain',
     backgroundColor:"#121212",
+    borderRadius: 5
   },
   multiImageContainer: {
     height: hp("24"),
@@ -282,8 +287,16 @@ const styles = StyleSheet.create({
 
 });
 
+function mapStateToProps(state) {
+  return {
+    addingToLibrary: state.audioState.addingToLibrary,
+    removingFromLibrary: state.audioState.removingFromLibrary,
+    addingToQueue: state.audioState.addingToQueue,
+  }
+};
+
 const mapDispatchToProps = dispatch => ({
     goBack: () => dispatch(goBack()),
 });
 
-export default connect(null, mapDispatchToProps)(ParalaxContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(ParalaxContainer)

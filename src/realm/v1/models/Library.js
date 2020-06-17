@@ -32,9 +32,12 @@ export default class Library extends Realm.Object {
       return savedSong.song.contributors.map(contrib => contrib.artist.id).concat(savedSong.song.album.contributors.map(contrib => contrib.artist.id))
     })
     var artistIds = uniqBy(artistIds)
-    var query = artistIds.map((id) =>`id = "${id}"`).join(' OR ')
-    const result = realm.objects('Artist').filtered(`${query} SORT(name ASC)`, ...artistIds);
-    return result
+    if(artistIds.length > 0) {
+      var query = artistIds.map((id) =>`id = "${id}"`).join(' OR ')
+      const result = realm.objects('Artist').filtered(`${query} SORT(name ASC)`, ...artistIds);
+      return result
+    }
+    return []
   }
 
   _formatQuery(query) {

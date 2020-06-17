@@ -6,6 +6,7 @@ var initialState = {
   currentTab: null,
   currentPage: null,
   currentKey: null,
+  referrerId: null
 };
 
 export const navigationReducer = (state = initialState, action) => {
@@ -40,6 +41,11 @@ export const navigationReducer = (state = initialState, action) => {
            ...state,
            currentPage: action.page,
            currentKey: action.key,
+        };
+      case 'SET_REFERRER':
+        return {
+           ...state,
+           referrerId: action.id,
         };
       default:
          return state;

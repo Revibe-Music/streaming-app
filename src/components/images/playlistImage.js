@@ -33,21 +33,21 @@ export default class PlaylistImage extends PureComponent {
           <View style={{flexDirection: "row"}}>
             <FastImage
               source={this.props.images[0]}
-              style={[styles.multiImage, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
+              style={[styles.multiImage, {borderTopLeftRadius: 5}, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
               onLoadEnd={() => this.onLoadEnd(1)}
               resizeMode={FastImage.resizeMode.cover}
             />
             <View style={[styles.multiImage, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}>
             <FastImage
               source={this.props.images[1]}
-              style={[styles.multiImage, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
+              style={[styles.multiImage, {borderTopRightRadius: 5}, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
               onLoadEnd={() => this.onLoadEnd(2)}
               resizeMode={FastImage.resizeMode.cover}
             />
             </View>
           </View>
           <View style={{flexDirection: "row"}}>
-          <View style={[styles.multiImage, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}>
+          <View style={[styles.multiImage, {borderBottomLeftRadius: 5}, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}>
             <FastImage
               source={this.props.images[2]}
               style={[styles.multiImage, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
@@ -57,7 +57,7 @@ export default class PlaylistImage extends PureComponent {
           </View>
             <FastImage
               source={this.props.images[3]}
-              style={[styles.multiImage, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
+              style={[styles.multiImage, {borderBottomRightRadius: 5}, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
               onLoadEnd={() => this.onLoadEnd(4)}
               resizeMode={FastImage.resizeMode.cover}
             />
