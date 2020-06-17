@@ -47,10 +47,10 @@ export default class PlaylistImage extends PureComponent {
             </View>
           </View>
           <View style={{flexDirection: "row"}}>
-          <View style={[styles.multiImage, {borderBottomLeftRadius: 5}, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}>
+          <View style={[styles.multiImage this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}>
             <FastImage
               source={this.props.images[2]}
-              style={[styles.multiImage, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
+              style={[styles.multiImage, {borderBottomLeftRadius: 5}, this.isLoaded() ? {height: this.props.height/2, width: this.props.width/2} : { width: 0, height: 0 }]}
               onLoadEnd={() => this.onLoadEnd(3)}
               resizeMode={FastImage.resizeMode.cover}
             />
