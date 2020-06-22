@@ -14,13 +14,13 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2705A2F2234D144B005F976E /* libRealmReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2705A2F1234D1438005F976E /* libRealmReact.a */; };
 		2705A2FA234D1C03005F976E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2705A2F9234D1C03005F976E /* LaunchScreen.xib */; };
+		277AF1D224A13E610002335D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 277AF1D124A13E610002335D /* GoogleService-Info.plist */; };
 		2796A18624217B7900449D7B /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2796A18524217B7900449D7B /* dummy.swift */; };
 		279B5CCE248ED87E00F263DA /* libRNGoogleSignin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 279B5CCD248ED87E00F263DA /* libRNGoogleSignin.a */; };
 		279B5CD1248ED88800F263DA /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 279B5CD0248ED88800F263DA /* AddressBook.framework */; };
 		279B5CD3248ED88E00F263DA /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 279B5CD2248ED88E00F263DA /* SafariServices.framework */; };
 		279B5CD5248ED89400F263DA /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 279B5CD4248ED89400F263DA /* SystemConfiguration.framework */; };
 		279B5CD7248ED89E00F263DA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 279B5CD6248ED89E00F263DA /* libz.tbd */; };
-		279B5CDB248EF00200F263DA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 279B5CDA248EF00200F263DA /* GoogleService-Info.plist */; };
 		279B5CE0248FF8FA00F263DA /* RevibeMobileApp.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 279B5CDE248FF49A00F263DA /* RevibeMobileApp.entitlements */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -73,6 +73,7 @@
 		2705A2EB234D1438005F976E /* RealmReact.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RealmReact.xcodeproj; path = "../node_modules/realm/react-native/ios/RealmReact.xcodeproj"; sourceTree = "<group>"; };
 		2705A2F9234D1C03005F976E /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 		2745269E09405B7C1BCAC0ED /* libPods-RevibeMobileApp-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RevibeMobileApp-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		277AF1D124A13E610002335D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2796A18524217B7900449D7B /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
 		2796A18824217C1700449D7B /* RevibeMobileApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RevibeMobileApp-Bridging-Header.h"; sourceTree = "<group>"; };
 		279B5CCD248ED87E00F263DA /* libRNGoogleSignin.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNGoogleSignin.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,7 +81,6 @@
 		279B5CD2248ED88E00F263DA /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
 		279B5CD4248ED89400F263DA /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		279B5CD6248ED89E00F263DA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		279B5CDA248EF00200F263DA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		279B5CDE248FF49A00F263DA /* RevibeMobileApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = RevibeMobileApp.entitlements; path = RevibeMobileApp/RevibeMobileApp.entitlements; sourceTree = "<group>"; };
 		2B32DAEBA48E4D08808CD6FE /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/native-base/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		2BA5FF1C9B2744ECB8FDBA50 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/native-base/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
@@ -203,8 +203,8 @@
 		13B07FAE1A68108700A75B9A /* RevibeMobileApp */ = {
 			isa = PBXGroup;
 			children = (
+				277AF1D124A13E610002335D /* GoogleService-Info.plist */,
 				279B5CDE248FF49A00F263DA /* RevibeMobileApp.entitlements */,
-				279B5CDA248EF00200F263DA /* GoogleService-Info.plist */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -470,9 +470,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				279B5CE0248FF8FA00F263DA /* RevibeMobileApp.entitlements in Resources */,
+				277AF1D224A13E610002335D /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				2705A2FA234D1C03005F976E /* LaunchScreen.xib in Resources */,
-				279B5CDB248EF00200F263DA /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

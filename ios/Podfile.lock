@@ -227,6 +227,8 @@ PODS:
   - react-native-branch (5.0.0-beta.1):
     - Branch (= 0.32.0)
     - React
+  - react-native-color-thief (0.3.2):
+    - React
   - react-native-cookies (2.0.3):
     - React
   - react-native-music-control (0.10.7):
@@ -236,8 +238,6 @@ PODS:
   - react-native-slider (2.0.2):
     - React
   - react-native-splash-screen (3.2.0):
-    - React
-  - react-native-track-player (1.2.2):
     - React
   - react-native-webview (9.2.2):
     - React
@@ -350,12 +350,12 @@ DEPENDENCIES:
   - react-native-background-timer (from `../node_modules/react-native-background-timer`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-branch (from `../node_modules/react-native-branch`)
+  - react-native-color-thief (from `../node_modules/react-native-color-thief`)
   - "react-native-cookies (from `../node_modules/@react-native-community/cookies/ios`)"
   - react-native-music-control (from `../node_modules/react-native-music-control`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
-  - react-native-track-player (from `../node_modules/react-native-track-player`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -443,6 +443,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/blur"
   react-native-branch:
     :path: "../node_modules/react-native-branch"
+  react-native-color-thief:
+    :path: "../node_modules/react-native-color-thief"
   react-native-cookies:
     :path: "../node_modules/@react-native-community/cookies/ios"
   react-native-music-control:
@@ -453,8 +455,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/slider"
   react-native-splash-screen:
     :path: "../node_modules/react-native-splash-screen"
-  react-native-track-player:
-    :path: "../node_modules/react-native-track-player"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-RCTActionSheet:
@@ -543,12 +543,12 @@ SPEC CHECKSUMS:
   react-native-background-timer: 0d34748e53a972507c66963490c775321a88f6f2
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-branch: ed90b087f2ff6a2f81643ead0b321531877f2e69
+  react-native-color-thief: 7c0c85f6133e58c678c51eae284096551e5cfeed
   react-native-cookies: a16310bb64240b95dd9531de2b19c267f76fc320
   react-native-music-control: 74b1f7d03b781aa38557d706ca4650ff1c96095a
   react-native-netinfo: 892a5130be97ff8bb69c523739c424a2ffc296d1
   react-native-slider: 8c34e319ec3a3ca9ef9466e4248fd091b5610b57
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
-  react-native-track-player: 2469e0f2303eab5ec7be14dfc5f47a91a7aee6ee
   react-native-webview: 70f51702fcd3349102aa66926a81dc790ea6580a
   React-RCTActionSheet: 89b037c0fb7d2671607cb645760164e7e0c013f6
   React-RCTAnimation: e3cefa93c38c004c318f7ec04b883eb14b8b8235
@@ -584,4 +584,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 5b3505adc576fe85adafd214a64cd4750c3928e5
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.3
