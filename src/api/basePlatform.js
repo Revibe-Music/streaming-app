@@ -23,7 +23,12 @@ export default class BasePlatformAPI {
 
   isLoggedIn(platform=this.name) {
     //  check if token expire time is greater than current time, if so token is logged in
-    return this.getToken(platform).expiration > Math.round((new Date()).getTime() / 1000);
+    try {
+      return this.getToken(platform).expiration > Math.round((new Date()).getTime() / 1000);
+    }
+    catch(error) {
+      return false
+    }
   }
 
   getToken(platform=this.name) {

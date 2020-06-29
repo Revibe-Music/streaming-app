@@ -76,7 +76,6 @@ export function subscribe() {
           dispatch(setReferrer(params.uid))
         }
 
-        console.log("BROO",getState().platformState.isLoggedIn);
         if(getState().platformState.isLoggedIn) {
           // A Branch link was opened.
           // Route link based on data in params, e.g.
@@ -108,10 +107,10 @@ export function subscribe() {
             navigator.dispatch(NavigationActions.navigate(options));
           }
           else if(contentType.toLowerCase() === "song") {
-            var availablePlatforms = Object.keys(getState().platformState.platforms)
+            var availablePlatforms = Object.keys(getState().platformState.platforms).map(x => x.toLowerCase())
 
             //only allow song from availablePlatforms
-            if(availablePlatforms.includes(contentPlatform)) {
+            if(availablePlatforms.includes(contentPlatform.toLowerCase())) {
               var platformAPI = getPlatform(contentPlatform)
               var song = await platformAPI.fetchSong(contentId)
               dispatch(playSong(0, [song]))

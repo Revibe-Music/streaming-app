@@ -16,6 +16,7 @@ import { selectSong } from './../../redux/navigation/actions'
 import { getPlatform } from './../../api/utils';
 import { logEvent } from './../../amplitude/amplitude';
 import styles from "./styles";
+import { ThemeConsumer } from 'react-native-elements';
 
 class SongItem extends PureComponent {
 
@@ -61,12 +62,17 @@ class SongItem extends PureComponent {
   }
 
   getImage() {
-    this.props.song.album.images = Object.keys(this.props.song.album.images).map(x => this.props.song.album.images[x])
-    if(this.props.song.album.images.length > 0) {
-      var image = this.props.song.album.images.reduce(function(prev, curr) {
-          return prev.height < curr.height ? prev : curr;
-      });
-      return {uri: image.url}
+    try {
+      this.props.song.album.images = Object.keys(this.props.song.album.images).map(x => this.props.song.album.images[x])
+      if(this.props.song.album.images.length > 0) {
+        var image = this.props.song.album.images.reduce(function(prev, curr) {
+            return prev.height < curr.height ? prev : curr;
+        });
+        return {uri: image.url}
+      }
+    }
+    catch(error) {
+      console.log("Error with album image");
     }
     return require("./../../../assets/albumArtPlaceholder.png")
   }

@@ -65,7 +65,6 @@ export function checkRevibeAccount() {
     // if revibe is in platform state then it has been logged into before
     var revibe = getPlatform("Revibe")
     var hasLoggedIn = revibe.hasLoggedIn()
-    console.log("hasLoggedIn",hasLoggedIn);
     dispatch(checkedAuthentication(true));
     dispatch(checkHasLoggedIn(hasLoggedIn));
   }

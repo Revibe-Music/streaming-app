@@ -118,7 +118,9 @@ class LoginScreen extends Component {
         }
       }
       catch(error) {
-        console.log(error);
+          this.setState({error: response})
+          this.setState({loading: false})
+          logEvent("Login", "Failed")
       }
     }
 
@@ -218,7 +220,6 @@ class LoginScreen extends Component {
       if(error.substr(error.length - 1) === "'") {
         error = error.slice(0, -1)
       }
-      // console.log(error);
       return error.charAt(0).toUpperCase() + error.slice(1)
     }
 

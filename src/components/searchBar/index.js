@@ -29,7 +29,7 @@ class SearchBar extends Component {
         inputHeight={this.props.spanScreen ? hp("6%") : hp("5%")}
         inputBorderRadius={hp("1%")}
         inputStyle={styles.text}
-        iconSearch={<Icon name="search" type="EvilIcons" style={styles.text}/>}
+        iconSearch={<Icon name="search" type="EvilIcons" style={[styles.icon, {top: this.props.spanScreen ? "-50%": "-35%"}]}/>}
         searchIconExpandedMargin={wp("2%")}
         searchIconCollapsedMargin={this.props.spanScreen ? searchIconCollapsedMargin : searchIconCollapsedMargin*1.5}
         placeholderCollapsedMargin={this.props.spanScreen ? placeholderCollapsedMargin : placeholderCollapsedMargin*2}
@@ -60,6 +60,13 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "left",
     fontSize: hp("2.5%"),
+  },
+  icon: {
+    backgroundColor: "#222222",
+    color: "white",
+    textAlign: "left",
+    fontSize: hp("2.2%"),
+    position: "absolute",
   },
 });
 

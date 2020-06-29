@@ -310,7 +310,7 @@ PODS:
     - RNSound/Core (= 0.11.0)
   - RNSound/Core (0.11.0):
     - React
-  - RNSpotify (1.2.11):
+  - RNSpotify (1.2.14):
     - React
     - RNEventEmitter
   - RNSVG (12.0.3):
@@ -574,7 +574,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
   RNReanimated: 6abbbae2e5e72609d85aabd92a982a94566885f1
   RNSound: c980916b596cc15c8dcd2f6ecd3b13c4881dbe20
-  RNSpotify: a63cc52f37dd1420e03cc76e3e885bd5ce410ff8
+  RNSpotify: bb6ed096906bd010d9aeec59efa15a40d6e7f849
   RNSVG: 7e16ddfc6e00d5aa69c9eb83e699bcce5dcb85d4
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   SDWebImage: 7edb9c3ea661e77a66661f7f044de8c1b55d1120
