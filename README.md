@@ -44,7 +44,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-    <img src="https://raw.githubusercontent.com/Revibe-Music/streaming-app/main/assets/RevibeLogo.png" alt="Revibe Logo">
+    <img src="/assets/RevibeLogo.png" alt="Revibe Logo">
 
   <h3 align="center">Revibe Music React Native App</h3>
 <!-- PROJECT SHIELDS -->
@@ -131,7 +131,7 @@ Product Manager / Designer - Kayne Lynn
 Lead Developer - Riley Stephens
 
 
-***This product is no longer maintained.*** Please feel free to fork and continue the project!
+***This project is no longer maintained.*** Please feel free to fork and continue the project!
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
