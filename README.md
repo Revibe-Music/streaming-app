@@ -71,7 +71,9 @@
 - [Tech Specs](#tech-specs)
   - [Backend](#backend)
   - [Patterns](#patterns)
-- [Demo](#demo)
+- [Demos](#demos)
+  - [Videos](#videos)
+  - [Screenshots](#screenshots)
 - [Contributors](#contributors)
 - [License](#license)
 - [Contact](#contact)
@@ -111,13 +113,39 @@ The relies heavily on Revibe Core Services and YouTube and Spotify APIs in order
 
 
 <!-- Demos -->
-## Demo
-<img src="./App%20Screenshots/Search%20Revibe.png" alt="Search Page" width="300">
-<img src="./App%20Screenshots/Library.png"alt="Library Page" width="300">
-<img src="./App%20Screenshots/Browse.png" alt="Browse Page" width="300">
+## Demos
 
+### Videos
+Revibe primarily allows for search and playback across different music streaming services (i.e. YouTube and Spotify).
 
+<video width="350" controls>
+  <source src="./App%20Video%20Demos/V1%20Search%20and%20Add%20Demo.mp4">
+</video>
 
+Additionally, you can manage one unified library and queue songs from different services!
+
+<video width="350" controls>
+  <source src="./App%20Video%20Demos/V1%20Queue%20Spotify%20and%20YouTube%20Demo.mp4">
+</video>
+
+### Screenshots
+More screenshots and videos available in the repo!
+
+Sign In            |  Sidebar
+:-------------------------:|:-------------------------:
+![Sign In Page](./App%20Screenshots/Sign%20In.png "Sign In Page")  |  ![Sidebar Page](./App%20Screenshots/Sidebar.png "Sidebar Page")
+
+Library            |  Search
+:-------------------------:|:-------------------------:
+![Library Page](./App%20Screenshots/Library.png "Library Page")  |  ![Search Page](./App%20Screenshots/Search%20Revibe.png "Search Page")
+
+Browse             |  Player
+:-------------------------:|:-------------------------:
+![Browse Page](./App%20Screenshots/Browse.png "Browse Page")  |  ![Player Page](./App%20Screenshots/Player.png "Player Page")
+
+Playlist             |  Queue
+:-------------------------:|:-------------------------:
+![Playlist Page](./App%20Screenshots/Playlist.png "Playlist Page")  |  ![Queue Page](./App%20Screenshots/Queue.png "Queue Page")
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
