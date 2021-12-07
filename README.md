@@ -1,46 +1,6 @@
 <div id="top"></div>
 
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-
-<!-- Project URLS-->
-[github-url]: https://github.com/Revibe-Music/streaming-app
-[repo-path]: Revibe-Music/streaming-app
-[logo-path]: https://github.com/Revibe-Music/streaming-app/blob/main/assets/RevibeLogo.png
-
-<!-- Contributors-->
-[contributors-shield]: https://img.shields.io/github/contributors/Revibe-Music/streaming-app.svg?style=for-the-badge
-[contributors-url]: https://github.com/Revibe-Music/streaming-app/graphs/contributors
-
-<!-- License-->
-[license-shield]: https://img.shields.io/github/license/Revibe-Music/streaming-app.svg?style=for-the-badge
-[license-url]: https://github.com/Revibe-Music/streaming-app/blob/main/LICENSE.txt
-
-<!-- Build Status-->
-[archive-shield]: https://img.shields.io/static/v1?label=status&message=archived&color=red&style=for-the-badge
-
-<!-- Languages-->
-[top-languages-shield]: https://img.shields.io/github/languages/top/Revibe-Music/streaming-app.svg?style=for-the-badge
-[languages-count-shield]: https://img.shields.io/github/languages/count/Revibe-Music/streaming-app?style=for-the-badge
-
-<!-- Stars-->
-[stars-shield]: https://img.shields.io/github/stars/Revibe-Music/streaming-app.svg?style=for-the-badge
-[stars-url]: https://github.com/Revibe-Music/streaming-app/stargazers
-
-<!-- Forks-->
-[forks-shield]: https://img.shields.io/github/forks/Revibe-Music/streaming-app.svg?style=for-the-badge
-[forks-url]: https://github.com/Revibe-Music/streaming-app/network/members
-
-
-<!-- Social-->
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-
-
-
-
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -58,7 +18,7 @@
   <p align="center">
     <a href="#demos">View Demo</a>
     ·
-    <a href="mailto:kaynelynn@escalatorllc.com">Contact</a>
+    <a href="#contact">Contact</a>
   </p>
 </div>
 
@@ -203,7 +163,47 @@ Kayne Lynn - kaynelynn@escalatorllc.com
 - [ ] Complete Features
 - [ ] Add Tech Specs
 - [ ] Update Contributors
+- [ ] Update Acknowledgments
 - [ ] Add additional contact info
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+
+<!-- Project URLS-->
+[github-url]: https://github.com/Revibe-Music/streaming-app
+[repo-path]: Revibe-Music/streaming-app
+[logo-path]: https://github.com/Revibe-Music/streaming-app/blob/main/assets/RevibeLogo.png
+
+<!-- Contributors-->
+[contributors-shield]: https://img.shields.io/github/contributors/Revibe-Music/streaming-app.svg?style=for-the-badge
+[contributors-url]: https://github.com/Revibe-Music/streaming-app/graphs/contributors
+
+<!-- License-->
+[license-shield]: https://img.shields.io/github/license/Revibe-Music/streaming-app.svg?style=for-the-badge
+[license-url]: https://github.com/Revibe-Music/streaming-app/blob/main/LICENSE.txt
+
+<!-- Build Status-->
+[archive-shield]: https://img.shields.io/static/v1?label=status&message=archived&color=red&style=for-the-badge
+
+<!-- Languages-->
+[top-languages-shield]: https://img.shields.io/github/languages/top/Revibe-Music/streaming-app.svg?style=for-the-badge
+[languages-count-shield]: https://img.shields.io/github/languages/count/Revibe-Music/streaming-app?style=for-the-badge
+
+<!-- Stars-->
+[stars-shield]: https://img.shields.io/github/stars/Revibe-Music/streaming-app.svg?style=for-the-badge
+[stars-url]: https://github.com/Revibe-Music/streaming-app/stargazers
+
+<!-- Forks-->
+[forks-shield]: https://img.shields.io/github/forks/Revibe-Music/streaming-app.svg?style=for-the-badge
+[forks-url]: https://github.com/Revibe-Music/streaming-app/network/members
+
+
+<!-- Social-->
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/othneildrew
+
+
+
 
