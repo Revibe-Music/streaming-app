@@ -122,6 +122,8 @@ Revibe primarily allows for search and playback across different music streaming
   <source src="./App%20Video%20Demos/V1%20Search%20and%20Add%20Demo.mp4">
 </video>
 
+![Demo](./App%20Video%20Demos/V1%20Search%20and%20Add%20Demo.mp4)
+
 Additionally, you can manage one unified library and queue songs from different services!
 
 <video width="350" controls>
