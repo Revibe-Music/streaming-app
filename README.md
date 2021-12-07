@@ -84,16 +84,21 @@
 
 ## Features
 - Full-featured music streaming application
-- Combine your Spotify and YouTube libraries on one app
+  - Search Songs, Artists, and Albums
+  - Create Playlists
+  - Manage one queue across Spotify, YouTube, and Revibe
+  - Browse content uploaded to Revibe
+- Import Spotify playlists, add YouTube and Revibe songs
 - Tip artists with Venmo, PayPal, or CashApp
 
 ### Tech Highlights
 - Universal Links
-- Universal player
-- Library CRUD
+- Universal audio player
 - oAuth 2.0
 - Amplitude event tracking
 - iOS Lockscreen Media Player
+- Referral System
+
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -102,10 +107,16 @@
 
 This app was built with [React Native](https://reactnative.dev/). 
 
+***Will be updated soon***
+
 ### Backend
 The relies heavily on Revibe Core Services and YouTube and Spotify APIs in order to function. Without properly configuring the backend the app will not work.
 
+***Will be updated soon***
+
 ### Patterns
+
+***Will be updated soon***
 
 
 
@@ -158,6 +169,8 @@ Lead Developer - Riley Stephens
 
 
 ***This project is no longer maintained.*** Please feel free to fork and continue the project!
+
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
@@ -185,9 +198,8 @@ Kayne Lynn - kaynelynn@escalatorllc.com
 ## Acknowledgments
 
 ## TO DO
-- [x] Complete Features
-- [x] Add Tech Specs
-- [ ] Add Demos to Readme
+- [ ] Complete Features
+- [ ] Add Tech Specs
 - [ ] Update Contributors
 - [ ] Add additional contact info
 
