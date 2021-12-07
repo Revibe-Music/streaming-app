@@ -112,8 +112,9 @@ The relies heavily on Revibe Core Services and YouTube and Spotify APIs in order
 
 <!-- Demos -->
 ## Demo
-| <img src="./App%20Screenshots/Search%20Revibe.png" alt="Search Page"> | <img src="./App%20Screenshots/Library.png"alt="Library Page"> | 
-| <img src="./App%20Screenshots/Browse.png" width="350" alt="Browse Page"> | |
+<img src="./App%20Screenshots/Search%20Revibe.png" alt="Search Page" width="300">
+<img src="./App%20Screenshots/Library.png"alt="Library Page" width="300">
+<img src="./App%20Screenshots/Browse.png" alt="Browse Page" width="300">
 
 
 
