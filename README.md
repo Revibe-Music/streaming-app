@@ -44,7 +44,9 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-    <img src="./assets/RevibeLogo.png" alt="Revibe Logo">
+
+<a href="https://github.com/Revibe-Music">
+    <img src="./assets/RevibeLogo.png" alt="Revibe Logo" ></a>
 
   <h3 align="center">Revibe Music React Native App</h3>
 <!-- PROJECT SHIELDS -->
