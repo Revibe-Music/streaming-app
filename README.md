@@ -118,17 +118,12 @@ The relies heavily on Revibe Core Services and YouTube and Spotify APIs in order
 ### Videos
 Revibe primarily allows for search and playback across different music streaming services (i.e. YouTube and Spotify).
 
-<video width="350" controls>
-  <source src="./App%20Video%20Demos/V1%20Search%20and%20Add%20Demo.mp4">
-</video>
-
-![Demo](./App%20Video%20Demos/V1%20Search%20and%20Add%20Demo.mp4)
+https://user-images.githubusercontent.com/75506448/144945313-22ca3c93-6522-411e-8267-5bccb9ae8626.mp4
 
 Additionally, you can manage one unified library and queue songs from different services!
 
-<video width="350" controls>
-  <source src="./App%20Video%20Demos/V1%20Queue%20Spotify%20and%20YouTube%20Demo.mp4">
-</video>
+https://user-images.githubusercontent.com/75506448/144945348-a979bb77-a828-40d0-9826-79569a12c81b.mp4
+
 
 ### Screenshots
 More screenshots and videos available in the repo!
