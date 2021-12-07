@@ -44,7 +44,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-    <img src="/assets/RevibeLogo.png" alt="Revibe Logo">
+    <img src="./assets/RevibeLogo.png" alt="Revibe Logo">
 
   <h3 align="center">Revibe Music React Native App</h3>
 <!-- PROJECT SHIELDS -->
@@ -54,9 +54,9 @@
 </div>
   Revibe was intended to provide an all-in-one business solution to independent artists, along with a proprietary streaming app that was tailored to underground hip-hop fans. The Revibe streaming app was built to provide a unified streaming experience with content from Spotify, YouTube, and Revibe's own servers. 
   <p align="center">
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    <a href="#demos">View Demo</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Contact</a>
+    <a href="mailto:kaynelynn@escalatorllc.com">Contact</a>
   </p>
 </div>
 
