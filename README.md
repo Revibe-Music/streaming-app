@@ -12,7 +12,7 @@
 <!-- PROJECT SHIELDS -->
 <div align="center">
   
-[![Contributors][contributors-shield]][contributors-url] [![MIT License][license-shield]][license-url] ![archive-shield] ![top-languages-shield] ![languages-count-shield]  [![Stars][stars-shield]][stars-url] [![Forks][forks-shield]][forks-url]
+[![Contributors][contributors-shield]][contributors-url] [![MIT License][license-shield]][license-url] ![archive-shield] ![top-languages-shield] ![languages-count-shield]  
 </div>
   Revibe was intended to provide an all-in-one business solution to independent artists, along with a proprietary streaming app that was tailored to underground hip-hop fans. The Revibe streaming app was built to provide a unified streaming experience with content from Spotify, YouTube, and Revibe's own servers. 
   <p align="center">
@@ -123,7 +123,6 @@ Playlist             |  Queue
 
 <!-- CONTRIBUTING -->
 ## Contributors
-[![Contributors][contributors-shield]][contributors-url] 
 
 Product Manager / Designer - Kayne Lynn
 
@@ -139,7 +138,6 @@ Lead Developer - Riley Stephens
 
 <!-- LICENSE -->
 ## License
-[![MIT License][license-shield]][license-url]
 
 All of Revibe's public, archived repositories use the MIT License. See `LICENSE.txt` for more information.
 
